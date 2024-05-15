@@ -1,0 +1,35 @@
+completion_models:
+  
+  - name: 'gpt-4-turbo'
+    nickname: 'GPT-4'
+    family: 'openai'
+    token_limit: 128000
+    selectable: true
+    stability: 'stable'
+    hosting: 'usa'
+
+  - name: 'gpt-3.5-turbo'
+    nickname: 'ChatGPT'
+    family: 'openai'
+    token_limit: 16385
+    stability: 'stable'
+    selectable: true
+    hosting: 'usa'
+
+  - name: 'mistralai/Mixtral-8x7B-Instruct-v0.1'
+    nickname: 'Mixtral'
+    family: 'mistral'
+    token_limit: 16384
+    selectable: false
+    stability: 'experimental'
+    hosting: 'eu'
+
+  - name: 'Qwen/Qwen1.5-14B-Chat'
+    nickname: 'Qwen'
+    family: 'vllm'
+    token_limit: 32000
+    nr_billion_parameters: 14
+    hf_link: 'https://huggingface.co/Qwen/Qwen1.5-14B-Chat'
+    selectable: false
+    stability: 'experimental'
+    hosting: 'eu'
