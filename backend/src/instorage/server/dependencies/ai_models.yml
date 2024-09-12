@@ -1,0 +1,183 @@
+completion_models:
+  
+  - name: 'gpt-4-turbo'
+    nickname: 'GPT-4'
+    family: 'openai'
+    token_limit: 128000
+    is_deprecated: false
+    stability: 'stable'
+    hosting: 'usa'
+    description: OpenAI's flagship model.
+    org: OpenAI
+    vision: true
+
+  - name: 'gpt-3.5-turbo'
+    nickname: 'ChatGPT'
+    family: 'openai'
+    token_limit: 16385
+    stability: 'stable'
+    is_deprecated: false
+    hosting: 'usa'
+    description: OpenAI's original conversation model.
+    org: OpenAI
+    vision: false
+
+  - name: 'mistralai/Mixtral-8x7B-Instruct-v0.1'
+    nickname: 'Mixtral'
+    family: 'mistral'
+    token_limit: 16384
+    is_deprecated: true
+    stability: 'experimental'
+    hosting: 'eu'
+    vision: false
+
+  - name: 'Qwen/Qwen1.5-14B-Chat'
+    nickname: 'Qwen'
+    family: 'vllm'
+    token_limit: 32000
+    nr_billion_parameters: 14
+    hf_link: 'https://huggingface.co/Qwen/Qwen1.5-14B-Chat'
+    is_deprecated: true
+    stability: 'experimental'
+    hosting: 'eu'
+    vision: false
+
+  - name: 'meta-llama/Meta-Llama-3-8B-Instruct'
+    nickname: 'Llama 3'
+    family: 'vllm'
+    token_limit: 8192
+    is_deprecated: true
+    stability: 'experimental'
+    hosting: 'eu'
+    open_source: true
+    nr_billion_parameters: 8
+    hf_link: 'https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct'
+    description: The small variant of Llama 3. This model is very quick, but lacks a bit in context size.
+    org: Meta
+    vision: false
+
+  - name: 'meta-llama/Meta-Llama-3.1-8B-Instruct'
+    nickname: 'Llama 3.1'
+    family: 'vllm'
+    token_limit: 128000
+    is_deprecated: false
+    stability: 'experimental'
+    hosting: 'eu'
+    open_source: true
+    nr_billion_parameters: 8
+    hf_link: 'https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct'
+    description: The small variant of Llama 3.1. Despite it's size it boasts an impressive context size. Fully Open Source, hosted in the EU.
+    org: Meta
+    vision: false
+
+  - name: 'gpt-4o'
+    nickname: 'GPT-4o'
+    family: 'openai'
+    token_limit: 128000
+    is_deprecated: false
+    stability: 'stable'
+    hosting: 'usa'
+    description: OpenAI's latest and greatest model, trained on both text and images.
+    org: OpenAI
+    vision: true
+
+  - name: 'gpt-4o-mini'
+    nickname: 'GPT-4o mini'
+    family: 'openai'
+    token_limit: 128000
+    is_deprecated: false
+    stability: 'stable'
+    hosting: 'usa'
+    description: OpenAI's latest and greatest model, now smaller and quicker.
+    org: OpenAI
+    vision: true
+
+  - name: 'claude-3-opus-20240229'
+    nickname: 'Claude 3 Opus'
+    family: 'claude'
+    token_limit: 200000
+    is_deprecated: false
+    stability: 'stable'
+    hosting: 'usa'
+    description: Anthropics biggest model. Will be a bit slow, but capable.
+    org: Anthropic
+    vision: true
+
+  - name: 'claude-3-sonnet-20240229'
+    nickname: 'Claude 3 Sonnet'
+    family: 'claude'
+    token_limit: 200000
+    is_deprecated: false
+    stability: 'stable'
+    hosting: 'usa'
+    description: Balance of speed and intelligence.
+    org: Anthropic
+    vision: true
+  
+  - name: 'claude-3-haiku-20240307'
+    nickname: 'Claude 3 Haiku'
+    family: 'claude'
+    token_limit: 200000
+    is_deprecated: false
+    stability: 'stable'
+    hosting: 'usa'
+    description: A small and quick model from Anthropic.
+    org: Anthropic
+    vision: true
+
+  - name: 'claude-3-5-sonnet-20240620'
+    nickname: 'Claude 3.5 Sonnet'
+    family: 'claude'
+    token_limit: 200000
+    is_deprecated: false
+    stability: 'stable'
+    hosting: 'usa'
+    description: Anthropics flagship model, and the best that they have in terms of performance. Matches its predecessor in speed.
+    org: Anthropic
+    vision: true
+
+  - name: 'gpt-4-azure'
+    nickname: 'GPT-4 (Azure)'
+    family: 'azure'
+    token_limit: 128000
+    is_deprecated: false
+    stability: 'stable'
+    hosting: 'swe'
+    deployment_name: 'gpt-4'
+    description: GPT-4 hosted by azure.
+    org: Microsoft
+    vision: true
+
+embedding_models:
+  
+  - name: 'text-embedding-3-small'
+    family: 'openai'
+    open_source: false
+    dimensions: 512
+    max_input: 8191
+    is_deprecated: false
+    stability: 'stable'
+    hosting: 'usa'
+    description: OpenAI's latest embedding model.
+    org: OpenAI
+
+  - name: 'text-embedding-ada-002'
+    family: 'openai'
+    open_source: false
+    max_input: 8191
+    is_deprecated: false
+    stability: 'stable'
+    hosting: 'usa'
+    description: 'Legacy embedding model from OpenAI.'
+    org: OpenAI
+
+  - name: 'multilingual-e5-large'
+    family: 'e5'
+    open_source: true
+    max_input: 8191
+    is_deprecated: false
+    stability: 'experimental'
+    hosting: 'eu'
+    hf_link: 'https://huggingface.co/intfloat/multilingual-e5-large'
+    description: Open Source embedding model that matches the performance of OpenAI's embedding models.
+    org: Microsoft

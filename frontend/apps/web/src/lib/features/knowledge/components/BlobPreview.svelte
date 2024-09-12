@@ -1,0 +1,134 @@
+<script lang="ts">
+  import { browser } from "$app/environment";
+  import type { InfoBlob } from "@intric/intric-js";
+
+  import { Button, Dialog, Markdown } from "@intric/ui";
+  import IconDocument from "$lib/components/icons/IconDocument.svelte";
+  import { getIntric } from "$lib/core/Intric";
+  export let blob: InfoBlob;
+  export let isTableView = false;
+
+  const intric = getIntric();
+
+  let loadingBlob = false;
+  async function loadBlob() {
+    if (!blob.text) {
+      loadingBlob = true;
+      try {
+        blob = await intric.infoBlobs.get(blob);
+      } catch (e) {
+        alert("Error retrieving reference, see console for details.");
+        console.error(e);
+      }
+      loadingBlob = false;
+    }
+    return true;
+  }
+
+  let isOpen: Dialog.OpenState;
+
+  async function downloadText() {
+    await loadBlob();
+    if (blob.text && browser) {
+      const file = new Blob([blob.text], { type: "application/octet-stream;charset=utf-8" });
+      const filename = blob.metadata.title
+        ? `${blob.metadata.title}${blob.metadata.title.endsWith(".txt") ? "" : ".txt"}`
+        : "Download.txt";
+      if (window.showSaveFilePicker) {
+        const handle = await window.showSaveFilePicker({ suggestedName: filename });
+        const writable = await handle.createWritable();
+        await writable.write(file);
+        writable.close();
+      } else {
+        const a = document.createElement("a");
+        a.download = filename;
+        a.href = URL.createObjectURL(file);
+        a.click();
+        setTimeout(function () {
+          URL.revokeObjectURL(a.href);
+        }, 1500);
+      }
+    }
+  }
+
+  let copyButtonText = "Copy to clipboard";
+  function copyText() {
+    if (blob.text && browser) {
+      navigator.clipboard.writeText(blob.text);
+      copyButtonText = "Copied!";
+      setTimeout(() => {
+        copyButtonText = "Copy to clipboard";
+      }, 2000);
+    }
+  }
+</script>
+
+<Dialog.Root bind:isOpen>
+  <Button
+    class={isTableView ? "-ml-1" : "bg-white shadow-sm"}
+    on:click={() => {
+      $isOpen = true;
+      loadBlob();
+    }}
+    padding="icon-leading"
+  >
+    <IconDocument class="text-stone-400"></IconDocument>
+
+    {blob.metadata.title}
+  </Button>
+
+  <Dialog.Content wide>
+    <Dialog.Title>{blob.metadata.title}</Dialog.Title>
+    <Dialog.Description hidden>File contents of {blob.metadata.title}</Dialog.Description>
+
+    <div class="max-h-[80vh] overflow-y-auto rounded-md border p-2">
+      {#if loadingBlob}
+        <pre>Loading...</pre>
+      {:else}
+        <Markdown.Plain source={blob.text ?? ""}></Markdown.Plain>
+      {/if}
+    </div>
+
+    <Dialog.Controls let:close>
+      {#if blob.text}
+        <Button variant="simple" on:click={downloadText} padding="icon-leading">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="h-6 w-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+            />
+          </svg>
+          Download extracted text
+        </Button>
+
+        <Button variant="simple" padding="icon-leading" on:click={copyText}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="h-6 w-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
+            />
+          </svg>
+          {copyButtonText}</Button
+        >
+        <div class="flex-grow"></div>
+      {/if}
+      <Button variant="primary" is={close}>Done</Button>
+    </Dialog.Controls>
+  </Dialog.Content>
+</Dialog.Root>

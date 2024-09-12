@@ -1,0 +1,20 @@
+<script lang="ts">
+  import { type GroupSparse } from "@intric/intric-js";
+  export let collection: Pick<GroupSparse, "metadata">;
+</script>
+
+<div class="flex items-center">
+  {#if collection.metadata}
+    {#if collection.metadata.num_info_blobs > 0}
+      <span
+        class="block min-w-16 rounded-md border border-blue-600 bg-blue-50 px-2 py-1 text-center text-sm text-blue-700"
+        >{collection.metadata.num_info_blobs} files</span
+      >
+    {:else}
+      <span
+        class="block min-w-16 rounded-md border border-stone-500 bg-stone-50 px-2 py-1 text-center text-sm text-stone-500"
+        >Empty</span
+      >
+    {/if}
+  {/if}
+</div>

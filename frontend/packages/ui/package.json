@@ -1,0 +1,68 @@
+{
+  "name": "@intric/ui",
+  "type": "module",
+  "sideEffects": false,
+  "version": "1.1.0",
+  "scripts": {
+    "sync": "svelte-kit sync",
+    "dev": "svelte-kit sync && svelte-package --watch",
+    "dev:app": "vite dev",
+    "build": "svelte-kit sync && svelte-package && publint",
+    "preview": "vite preview",
+    "package": "svelte-kit sync && svelte-package && publint",
+    "prepublishOnly": "npm run package",
+    "test": "playwright test",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "lint": "prettier --check . && eslint .",
+    "format": "prettier --write ."
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.test.*",
+    "!dist/**/*.spec.*"
+  ],
+  "peerDependencies": {
+    "svelte": "^4.0.0"
+  },
+  "devDependencies": {
+    "@melt-ui/svelte": "^0.79.0",
+    "@playwright/test": "^1.41.1",
+    "@sveltejs/adapter-auto": "^3.1.1",
+    "@sveltejs/kit": "^2.5.6",
+    "@sveltejs/package": "^2.2.6",
+    "@sveltejs/vite-plugin-svelte": "^3.0.2",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "autoprefixer": "^10.4.17",
+    "echarts": "^5.4.3",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-svelte": "^2.35.1",
+    "highlight.js": "^11.9.0",
+    "insane": "^2.6.2",
+    "marked": "^12.0.0",
+    "marked-highlight": "^2.1.1",
+    "postcss": "^8.4.33",
+    "prettier": "^3.2.4",
+    "prettier-plugin-svelte": "^3.1.2",
+    "prettier-plugin-tailwindcss": "^0.5.11",
+    "publint": "^0.2.7",
+    "svelte": "^4.2.18",
+    "svelte-check": "^3.6.3",
+    "svelte-eslint-parser": "^0.36.0",
+    "svelte-headless-table": "^0.18.2",
+    "svelte-preprocess": "^5.1.3",
+    "tailwindcss": "^3.4.1",
+    "tslib": "^2.6.2",
+    "typescript": "^5.5.3",
+    "uid": "^2.0.2",
+    "vite": "^5.0.12"
+  }
+}

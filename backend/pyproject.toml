@@ -1,0 +1,78 @@
+[tool.poetry]
+name = "instorage"
+version = "0.1.0"
+description = ""
+authors = ["inooLabs"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0"
+uvicorn = {extras = ["standard"], version = "^0.22.0"}
+openai = "^1.4"
+python-dotenv = "^0.21.1"
+pydantic = {extras = ["email"], version = "^2"}
+tenacity = "^8.2.1"
+tiktoken = "^0"
+numpy = "^1.24.2"
+python-pptx = "^0.6.21"
+arrow = "^1.2.3"
+alembic = "^1.10.2"
+asyncpg = "^0.27.0"
+psycopg2-binary = "^2.9.5"
+pyjwt = "^2.6.0"
+black = "^24.3.0"
+fpdf = "^1.7.2"
+python-docx = "^0.8.11"
+pycryptodome = "^3.17"
+sse-starlette = "^1.6.1"
+gunicorn = "^22.0.0"
+psutil = "^5.9.5"
+pypdf = "^3.15.3"
+langchain = "^0.0.329"
+jsonschema = "^4.19.2"
+pydantic-settings = "^2.1.0"
+wrapt = "^1.16.0"
+python-multipart = "^0.0.9"
+arq = "^0.25.0"
+soundfile = "^0.12.1"
+audioread = "^3.0.1"
+pydantic-extra-types = "^2.6.0"
+bcrypt = "^4.1.2"
+passlib = "^1.7.4"
+dependency-injector = "^4.41.0"
+docx2python = "^2.10.1"
+jinja2 = "^3.1.3"
+scrapy = "^2.11.2"
+html2text = "^2024.2.26"
+beautifulsoup4 = "^4.12.3"
+crochet = "^2.1.1"
+pgvector = "^0.2.5"
+scipy = "^1.13.0"
+anthropic = "^0.28.1"
+sqlalchemy-mixins = "^2.0.5"
+python-magic = "^0.4.27"
+aiocache = "^0.12.2"
+
+[tool.poetry.scripts]
+start = "src.instorage.server.main:start"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.1"
+pytest-cov = "^4.0.0"
+pytest-asyncio = "^0.20.3"
+asgi-lifespan = "^2.1.0"
+black = "^24.3.0"
+aioresponses = "^0.7.4"
+freezegun = "^1.2.2"
+pytest-integration = "^0.2.3"
+pytest-vcr = "^1.0.2"
+pytest-env = "^1.1.3"
+flake8 = "^7.0.0"
+vcrpy = "^5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"

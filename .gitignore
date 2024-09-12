@@ -1,0 +1,14 @@
+# .vscode files
+.vscode/*
+
+# cpython
+*.pyc
+
+# cassettes
+**/cassettes/*
+
+# macOS
+.DS_Store
+
+# .env
+.env

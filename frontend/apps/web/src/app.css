@@ -1,0 +1,150 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/fonts/Inter-Light.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/Inter-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: Inter;
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/Inter-Italic.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/Inter-Medium.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/Inter-Bold.woff2") format("woff2");
+}
+
+html {
+  font-size: 15px;
+}
+
+body {
+  @apply bg-stone-200 bg-cover bg-bottom bg-no-repeat bg-blend-multiply;
+}
+
+@media (prefers-reduced-motion) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation: none;
+}
+
+@keyframes grow-x {
+  from {
+    transform: translateX(20%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+
+@keyframes shrink-x {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(20%);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+::view-transition-group(sidebar) {
+  overflow-x: hidden;
+}
+
+::view-transition-old(sidebar) {
+  animation:
+    0.1s ease-in-out both shrink-x,
+    0.1s ease-in-out both fade-out;
+}
+
+::view-transition-new(sidebar) {
+  animation:
+    0.1s ease-in-out both grow-x,
+    0.1s ease-in-out both fade-in;
+}
+
+.icon-small {
+  @apply h-[1.2rem] w-[1.2rem] stroke-[1.5];
+}
+
+.icon-base {
+  @apply h-6 w-6 stroke-[1.5];
+}
+
+.icon-large {
+  @apply h-24 w-24 stroke-1;
+}
+
+::view-transition-old(assistants) {
+  animation: 0.1s ease-in-out both fade-out;
+}
+
+::view-transition-new(assistants) {
+  animation: 0.1s ease-in-out both fade-in;
+}
+
+::view-transition-group(assistants) {
+  overflow: hidden;
+}
+
+/*  Navigaton on the left side menu */
+nav.layout-menu a {
+  @apply relative flex gap-4 px-[1.45rem] py-2.5 tracking-[0.008rem] text-stone-600/80 hover:bg-stone-100 hover:font-medium hover:tracking-normal hover:text-black;
+}
+nav.layout-menu a[data-current="page"] {
+  @apply bg-stone-100 font-medium tracking-normal text-black hover:bg-stone-200;
+}
+nav.layout-menu a[data-current="page"]::before {
+  content: "";
+  @apply absolute bottom-0 left-0  top-0 w-[4px] rounded-r-full bg-[var(--space-color)];
+}
+/* nav.layout-menu a[data-current="page"]::after {
+  content: "";
+  @apply absolute inset-0  bg-gradient-to-br from-[var(--space-color)] to-transparent opacity-20 mix-blend-color-burn;
+} */

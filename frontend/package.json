@@ -1,0 +1,17 @@
+{
+  "version": "1.1.1",
+  "private": true,
+  "scripts": {
+    "build": "FORCE_COLOR=1 pnpm run --recursive --filter @intric/web... build",
+    "dev": "FORCE_COLOR=1 pnpm run --recursive --parallel dev",
+    "lint": "FORCE_COLOR=1 pnpm run --recursive --parallel --no-bail lint",
+    "check": "FORCE_COLOR=1 pnpm run --recursive --parallel --no-bail check",
+    "format": "FORCE_COLOR=1 pnpm run --recursive --parallel --no-bail format",
+    "setup": "sh setup.sh",
+    "setup:github": "GITHUB=TRUE sh setup.sh"
+  },
+  "packageManager": "pnpm@8.9.0",
+  "engines": {
+    "node": ">=18"
+  }
+}
