@@ -6,7 +6,7 @@
   import RolesTable from "./RolesTable.svelte";
 
   export let data;
-</scr>
+</script>
 
 <svelte:head>
   <title>Intric.ai – Admin – Roles</title>
