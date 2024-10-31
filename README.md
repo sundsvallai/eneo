@@ -1,6 +1,6 @@
 <div align="center">
 
-# intric
+![wordmark on dark blue](https://github.com/user-attachments/assets/67b9c7df-4fc7-4acb-9e54-8bdbd81ad9b9)
 
 [intric](https://www.intric.ai) is an easy-to-use platform for building and using AI-powered assistants and tools. Take advantage of AI today instead of tomorrow.
 
