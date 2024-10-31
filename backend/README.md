@@ -20,8 +20,8 @@
 | MOBILITYGUARD_DISCOVERY_ENDPOINT |          |                                             |
 | MOBILITYGUARD_CLIENT_ID          |          |                                             |
 | MOBILITYGUARD_CLIENT_SECRET      |          |                                             |
-| UPLOAD_FILE_TO_SESSION_MAX_SIZE  | x        |                                             |
-| UPLOAD_IMAGE_TO_SESSION_MAX_SIZE | x        |                                             |
+| UPLOAD_FILE_TO_SESSION_MAX_SIZE  | x        | Max text file size for uploading to a session                                            |
+| UPLOAD_IMAGE_TO_SESSION_MAX_SIZE | x        | Max image file size for uploading to a session                                            |
 | UPLOAD_MAX_FILE_SIZE             | x        | Max file size for uploading to a collection |
 | TRANSCRIPTION_MAX_FILE_SIZE      | x        | Max file size for uploading to a collection |
 | MAX_IN_QUESTION                  | x        | Max files in a question                     |
@@ -32,7 +32,7 @@
 | API_KEY_HEADER_NAME              | x        | Header name for the api keys                |
 | JWT_AUDIENCE                     | x        |                                             |
 | JWT_ISSUER                       | x        |                                             |
-| JWT_EXPIRY_TIME                  | x        | In seconds                                  |
+| JWT_EXPIRY_TIME                  | x        | In seconds. Determines how long a user should be logged in before they are required to login again                                  |
 | JWT_ALGORITHM                    | x        |                                             |
 | JWT_SECRET                       | x        |                                             |
 | JWT_TOKEN_PREFIX                 | x        | In the header - eg `Bearer`                 |

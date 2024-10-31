@@ -1,11 +1,23 @@
-# Intric Release
+<div align="center">
 
-## Requirements
+# intric
 
-* Python 3.10
+[intric](https://www.intric.ai) is an easy-to-use platform for building and using AI-powered assistants and tools. Take advantage of AI today instead of tomorrow.
+
+[Website](https://www.intric.ai) • [Book a demo](https://www.inoolabs.com/boka-demo) • [Local Development](#local-development) • [Contribution](#contribution-guidelines) **(coming soon)**
+
+</div>
+
+## Local development
+
+Read below on how to setup the project for local development.
+
+### Requirements
+
+* Python >=3.10
 * Docker
 
-### Additional requirements
+#### Additional requirements
 
 Additionally, in order to be able to use the platform to the fullest, install `libmagic` and `ffmpeg`.
 
@@ -14,7 +26,7 @@ sudo apt-get install libmagic1
 sudo apt-get install ffmpeg
 ```
 
-## Setup steps: Backend
+### Setup steps: Backend
 
 To run the backend for this project locally, follow these steps:
 
@@ -27,7 +39,7 @@ To run the backend for this project locally, follow these steps:
 7. Run `poetry run start` to start the project for development.
 8. (Optional) Run `poetry run arq src.instorage.worker.worker.WorkerSettings` to start the worker.
 
-## Setup steps: Frontend
+### Setup steps: Frontend
 
 To run the frontend for this project locally, follow these steps:
 
@@ -40,4 +52,7 @@ To run the frontend for this project locally, follow these steps:
 7. Navigate to `localhost:3000` and login with email `user@example.com` and password `Password1!` (provided you have run the setup steps for the backend).
 
 ## Contribution guidelines
-We are currently not set up to receive contributions from the community. Stay tuned!
+
+Coming soon.
+
+
