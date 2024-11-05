@@ -2,9 +2,9 @@
 
 ![wordmark on dark blue](https://github.com/user-attachments/assets/67b9c7df-4fc7-4acb-9e54-8bdbd81ad9b9)
 
-[intric](https://www.intric.ai) is an easy-to-use platform for building and using AI-powered assistants and tools. Take advantage of AI today instead of tomorrow.
+intric is an easy-to-use platform for building and using AI-powered assistants and tools. Take advantage of AI today instead of tomorrow.
 
-[Website](https://www.intric.ai) • [Book a demo](https://www.inoolabs.com/boka-demo) • [Local Development](#local-development) • [Contribution](#contribution-guidelines) **(coming soon)**
+[Local Development](#local-development) • [Contribution](#contribution-guidelines) **(coming soon)**
 
 </div>
 
@@ -56,3 +56,12 @@ To run the frontend for this project locally, follow these steps:
 Coming soon.
 
 
+## Copyright Holders
+
+The development of this project has been partially funded by the following entities, each holding specific copyright interests in parts of the code:
+
+- **Sundsvalls Kommun**
+
+The parts that each of the entities hold copyright to is marked within the respective files. For all code where there is no marking, the copyright should be attributed to **inooLabs**.
+
+For any inquiries regarding usage rights, please contact jonatan.cerwall@inoolabs.com.

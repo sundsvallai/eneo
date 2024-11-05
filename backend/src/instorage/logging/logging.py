@@ -1,4 +1,6 @@
-# MIT License
+# Copyright (c) 2023 Sundsvalls Kommun
+#
+# Licensed under the MIT License.
 
 from typing import Optional
 

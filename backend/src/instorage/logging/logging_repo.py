@@ -1,4 +1,6 @@
-# MIT License
+# Copyright (c) 2023 Sundsvalls Kommun
+#
+# Licensed under the MIT License.
 
 import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncSession

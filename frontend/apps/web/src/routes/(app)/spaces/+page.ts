@@ -1,4 +1,8 @@
-// MIT License
+/* 
+    Copyright (c) 2024 Sundsvalls Kommun
+
+    Licensed under the MIT License.
+*/
 
 import { redirect } from "@sveltejs/kit";
 

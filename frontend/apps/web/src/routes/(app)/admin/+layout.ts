@@ -1,4 +1,8 @@
-// MIT License
+/* 
+    Copyright (c) 2024 Sundsvalls Kommun
+
+    Licensed under the MIT License.
+*/
 
 import { hasPermission } from "$lib/core/hasPermission.js";
 import { redirect } from "@sveltejs/kit";

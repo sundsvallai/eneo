@@ -1,4 +1,6 @@
-# MIT license
+# Copyright (c) 2024 Sundsvalls Kommun
+#
+# Licensed under the MIT License.
 
 import anthropic
 from anthropic import AsyncAnthropic

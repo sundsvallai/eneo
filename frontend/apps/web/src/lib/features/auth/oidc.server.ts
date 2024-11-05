@@ -1,4 +1,8 @@
-// MIT License
+/* 
+    Copyright (c) 2024 Sundsvalls Kommun
+
+    Licensed under the MIT License.
+*/
 
 import { dev } from "$app/environment";
 import { env } from "$env/dynamic/private";

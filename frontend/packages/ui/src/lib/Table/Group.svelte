@@ -1,4 +1,8 @@
-<!-- MIT License -->
+<!--
+    Copyright (c) 2024 Sundsvalls Kommun
+
+    Licensed under the MIT License.
+-->
 
 <script lang="ts" generics="T extends unknown">
   import Button from "$lib/Button/Button.svelte";

@@ -26,7 +26,11 @@ export const actions: Actions = {
   }
 };
 
-// MIT License
+/* 
+    Copyright (c) 2024 Sundsvalls Kommun
+
+    Licensed under the MIT License.
+*/
 export const load = async (event) => {
   // If user is logged in already: forward to base url, as login doesn't make sense
   if (event.locals.user.isLoggedIn) {

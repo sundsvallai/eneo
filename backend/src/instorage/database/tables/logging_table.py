@@ -1,4 +1,6 @@
-# MIT License
+# Copyright (c) 2024 Sundsvalls Kommun
+#
+# Licensed under the MIT License.
 
 from sqlalchemy import UUID, Column, String, Table, func
 from sqlalchemy.dialects.postgresql import JSONB

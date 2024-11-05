@@ -1,4 +1,8 @@
-// MIT License
+/* 
+    Copyright (c) 2024 Sundsvalls Kommun
+
+    Licensed under the MIT License.
+*/
 
 import { derived, get, writable } from "svelte/store";
 import type { Intric, UploadedFile } from "@intric/intric-js";

@@ -1,4 +1,8 @@
-// MIT License
+/* 
+    Copyright (c) 2024 Sundsvalls Kommun
+
+    Licensed under the MIT License.
+*/
 
 import type { AnalyticsData } from "@intric/intric-js";
 import type { Chart } from "@intric/ui";

@@ -1,4 +1,6 @@
-# MIT License
+# Copyright (c) 2024 Sundsvalls Kommun
+#
+# Licensed under the MIT License.
 
 SWEDISH_PROMPT = (
     "Du är en expert inom dataanalys. Nedan följer, avgränsade av trippla"

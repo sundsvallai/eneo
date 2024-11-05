@@ -1,4 +1,6 @@
-# MIT license
+# Copyright (c) 2024 Sundsvalls Kommun
+#
+# Licensed under the MIT License.
 
 from instorage.assistants.api.assistant_models import AssistantPublic, AssistantSparse
 from instorage.assistants.assistant import Assistant

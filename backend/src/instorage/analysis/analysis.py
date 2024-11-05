@@ -1,4 +1,6 @@
-# MIT License
+# Copyright (c) 2024 Sundsvalls Kommun
+#
+# Licensed under the MIT License.
 
 from datetime import datetime
 from uuid import UUID

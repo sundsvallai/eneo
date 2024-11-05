@@ -1,4 +1,8 @@
-<!-- MIT License -->
+<!--
+    Copyright (c) 2024 Sundsvalls Kommun
+
+    Licensed under the MIT License.
+-->
 <script lang="ts">
   import { Select } from "@intric/ui";
   import { behaviourList, type ModelBehaviour } from "../ModelBehaviours";

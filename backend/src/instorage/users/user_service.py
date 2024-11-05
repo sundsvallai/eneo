@@ -93,7 +93,9 @@ class UserService:
         key: jwt.PyJWK,
         signing_algos: list[str],
     ):
-        # MIT License
+        # Copyright (c) 2023 Sundsvalls Kommun
+        #
+        # Licensed under the MIT License.
         was_federated = False
 
         try:

@@ -1,4 +1,6 @@
-# MIT License
+# Copyright (c) 2024 Sundsvalls Kommun
+#
+# Licensed under the MIT License.
 
 from instorage.main.models import PaginatedResponse
 from instorage.predefined_roles.predefined_role import (

@@ -1,4 +1,8 @@
-// MIT License
+/* 
+    Copyright (c) 2024 Sundsvalls Kommun
+
+    Licensed under the MIT License.
+*/
 
 import { createContext } from "$lib/core/context";
 import type { Role, UserGroup } from "@intric/intric-js";

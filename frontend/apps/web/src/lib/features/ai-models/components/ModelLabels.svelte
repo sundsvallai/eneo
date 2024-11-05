@@ -1,4 +1,8 @@
-<!-- MIT License -->
+<!--
+    Copyright (c) 2024 Sundsvalls Kommun
+
+    Licensed under the MIT License.
+-->
 <script context="module" lang="ts">
   import type { CompletionModel, EmbeddingModel } from "@intric/intric-js";
   import { Label } from "@intric/ui";
