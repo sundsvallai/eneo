@@ -61,7 +61,9 @@ Coming soon.
 The development of this project has been partially funded by the following entities, each holding specific copyright interests in parts of the code:
 
 - **Sundsvalls Kommun**
+  - Website: [utveckling.sundsvall.se](http://utveckling.sundsvall.se)
+  - Contact Email: [digitalisering@sundsvall.se](mailto:digitalisering@sundsvall.se)
 
-The parts that each of the entities hold copyright to is marked within the respective files. For all code where there is no marking, the copyright should be attributed to **inooLabs**.
+The parts that each of the entities hold copyright to is marked within the respective files. For all code where there is no marking, the copyright should be attributed to **inooLabs AB**.
 
-For any inquiries regarding usage rights, please contact jonatan.cerwall@inoolabs.com.
+For any inquiries regarding usage rights, please contact **jonatan.cerwall@inoolabs.com**.
