@@ -1,0 +1,40 @@
+# Copyright (c) 2024 Sundsvalls Kommun
+#
+# Licensed under the MIT License.
+
+version: "3.8"
+services:
+  intric:
+    image: mcr.microsoft.com/devcontainers/python:3.10-bullseye
+    command: sleep infinity
+    networks:
+      - intric
+    environment:
+      - POSTGRES_HOST=db
+      - REDIS_HOST=redis
+    volumes:
+      - ../:/workspace
+
+  db:
+    image: pgvector/pgvector:pg13
+    networks:
+      - intric
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgres
+
+  redis:
+    image: redis
+    networks:
+      - intric
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  intric:
+    name: intric

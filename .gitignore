@@ -1,5 +1,7 @@
 # .vscode files
 .vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
 
 # cpython
 *.pyc

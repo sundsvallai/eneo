@@ -1,0 +1,41 @@
+// Copyright (c) 2024 Sundsvalls Kommun
+//
+// Licensed under the MIT License.
+
+{
+	"name": "Intric Devcontainer",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "intric",
+	"workspaceFolder": "/workspace",
+	"forwardPorts": [
+		3000, // Frontend
+		8123
+	],
+	"features": {
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "20",
+			"packageManager": "pnpm"
+		}
+	},
+	"postCreateCommand": "bash .devcontainer/post-create.sh",
+	"postStartCommand": "bash .devcontainer/post-start.sh",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"charliermarsh.ruff"
+			],
+			"settings": {
+				"python.defaultInterpreterPath": "/workspace/backend/.venv/bin/python",
+				"python.pythonPath": "/workspace/backend/.venv/bin/python",
+				"python.terminal.activateEnvironment": true,
+				"[python]": {
+					"editor.defaultFormatter": "charliermarsh.ruff"
+				}
+			}
+		}
+	},
+	"remoteEnv": {
+		"VIRTUAL_ENV": "/workspace/backend/.venv",
+		"PATH": "/workspace/backend/.venv/bin:${containerEnv:PATH}"
+	}
+}
