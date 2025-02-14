@@ -3,6 +3,7 @@
 
     Licensed under the MIT License.
 -->
+
 <script lang="ts">
   import { Select } from "@intric/ui";
   import { behaviourList, type ModelBehaviour } from "../ModelBehaviours";
@@ -18,7 +19,7 @@
 </script>
 
 <Select.Simple
-  class="relative w-full border-b border-stone-100 px-4 py-4 hover:bg-stone-50"
+  class="relative w-full border-b border-dimmer px-4 py-4 hover:bg-hover-dimmer"
   bind:value
   options={behaviourList.map((behaviour) => ({
     value: behaviour,

@@ -35,19 +35,22 @@ export function initAnalytics(client) {
      * List all questions of an assistant in a specific period.
      * @param {Object} params
      * @param {{id: string} | Assistant} params.assistant
-     * @param {{ period?: number, includeFollowups?: boolean } | undefined} params.options Get questions of the last x days. Defaults to 30. Include followups defaults to false.
-     * @returns {Promise<import('./assistants').AssistantSession["messages"]>}
+     * @param {{ start?: string, end?: string, includeFollowups?: boolean } | undefined} params.options Optionally provide start and end date in iso format (YYYY-MM-DD). Include followups defaults to false.
+     * @returns {Promise<import('../types/resources').AssistantResponse[]>}
      * @throws {IntricError}
      * */
     listQuestions: async ({ assistant, options }) => {
-      const days_since = options?.period ?? 30;
       const include_followups = options?.includeFollowups ?? false;
       const { id } = assistant;
       const res = await client.fetch("/api/v1/analysis/assistants/{assistant_id}/", {
         method: "get",
         params: {
           path: { assistant_id: id },
-          query: { days_since, include_followups }
+          query: {
+            from_date: options?.start,
+            to_date: options?.end,
+            include_followups
+          }
         }
       });
       return res.items;
@@ -58,7 +61,7 @@ export function initAnalytics(client) {
      * with the onChunk callback. Once the answer has been fully received a complete `Session` object will be returned.
      * @param {Object} params Ask parameters
      * @param  {{id: string} | Assistant} params.assistant Which assistant to ask
-     * @param  {{includeFollowups?: boolean, period?: number}} params.options Options for selecting the questions context
+     * @param {{ start?: string, end?: string, includeFollowups?: boolean } | undefined} params.options Optionally provide start and end date in iso format (YYYY-MM-DD). Include followups defaults to false.
      * @param {string} params.question Question to ask
      * @param {(token: string) => void} [params.onAnswer] Callback to run when a new token/word of the answer is received
      * @param {(response: Response) => Promise<void>} [params.onOpen] Callback to run once the initial response of the backend is received
@@ -67,14 +70,20 @@ export function initAnalytics(client) {
      * */
     ask: async ({ assistant, options, question, onAnswer, onOpen }) => {
       const { id: assistant_id } = assistant;
-      const { includeFollowups: include_followups, period: days_since } = options;
 
       let answer = "";
 
       await client.stream(
         "/api/v1/analysis/assistants/{assistant_id}/",
         {
-          params: { path: { assistant_id }, query: { include_followups, days_since } },
+          params: {
+            path: { assistant_id },
+            query: {
+              from_date: options?.start,
+              to_date: options?.end,
+              include_followups: options?.includeFollowups
+            }
+          },
           requestBody: { "application/json": { question, stream: true } }
         },
         {

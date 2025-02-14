@@ -5,7 +5,10 @@
   import { getIntric } from "$lib/core/Intric";
   import { Button, Dialog } from "@intric/ui";
 
-  const { user } = getAppContext();
+  const {
+    user,
+    state: { userInfo }
+  } = getAppContext();
   const intric = getIntric();
 
   let apiKey: string | null = null;
@@ -17,16 +20,16 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – Account – {user.username}</title>
+  <title>Intric.ai – Account – {$userInfo.firstName}</title>
 </svelte:head>
 
 <Page.Root>
   <Page.Header>
-    <Page.Title>My API Keys</Page.Title>
+    <Page.Title title="My API Keys"></Page.Title>
   </Page.Header>
   <Page.Main>
     <div
-      class="flex items-center justify-between gap-1 border-b border-stone-100 py-4 pl-2 pr-4 hover:bg-stone-50"
+      class="flex items-center justify-between gap-1 border-b border-default py-4 pl-2 pr-4 hover:bg-hover-dimmer"
     >
       <div class="flex flex-col gap-1">
         <h3 class="font-medium">Api Key</h3>
@@ -51,7 +54,9 @@
 
           <Dialog.Controls let:close>
             <Button is={close}>Cancel</Button>
-            <Button is={close} destructive on:click={generateApiKey}>Generate new key</Button>
+            <Button is={close} variant="destructive" on:click={generateApiKey}
+              >Generate new key</Button
+            >
           </Dialog.Controls>
         </Dialog.Content>
       </Dialog.Root>

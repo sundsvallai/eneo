@@ -32,8 +32,9 @@
       parent={{
         title: "Knowledge",
         href: `/spaces/${$currentSpace.routeId}/knowledge?tab=collections`
-      }}>{data.collection.name}</Page.Title
-    >
+      }}
+      title={data.collection.name}
+    ></Page.Title>
     <Tooltip
       text={$disabledModelInUse ? "Enable model in settings to add text" : undefined}
       placement="left"
@@ -49,6 +50,6 @@
     </Tooltip>
   </Page.Header>
   <Page.Main>
-    <BlobTable blobs={data.blobs} canEdit={data.collection.can_edit ?? false}></BlobTable>
+    <BlobTable blobs={data.blobs} canEdit={true}></BlobTable>
   </Page.Main>
 </Page.Root>

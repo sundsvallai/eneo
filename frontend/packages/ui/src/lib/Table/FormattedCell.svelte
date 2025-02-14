@@ -11,6 +11,7 @@
   export let monospaced = false;
   export let italic = false;
   export let bold = false;
+  export let truncate = false;
 
   let cls = "";
   export { cls as class };
@@ -20,8 +21,10 @@
   class="flex w-full items-center {cls}"
   style="justify-content: flex-{align}"
   class:font-mono={monospaced}
-  class:italic
   class:font-semibold={bold}
+  class:italic
+  class:truncate
+  class:line-clamp-1={truncate}
 >
   {value}
 </div>

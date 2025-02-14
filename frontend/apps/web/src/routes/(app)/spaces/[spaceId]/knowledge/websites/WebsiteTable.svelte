@@ -2,12 +2,13 @@
   import { Table } from "@intric/ui";
   import WebsiteActions from "./WebsiteActions.svelte";
   import { createRender } from "svelte-headless-table";
-  import IconWeb from "$lib/components/icons/IconWeb.svelte";
   import WebsiteStatus from "./WebsiteStatus.svelte";
   import WebsiteSync from "./WebsiteSync.svelte";
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
   import { derived } from "svelte/store";
   import type { WebsiteSparse } from "@intric/intric-js";
+  import { IconWeb } from "@intric/icons/web";
+  import { formatWebsiteName } from "$lib/core/formatting/formatWebsiteName";
 
   const {
     state: { currentSpace }
@@ -42,7 +43,7 @@
       cell: (item) => {
         return createRender(Table.PrimaryCell, {
           link: `/spaces/${$currentSpace.routeId}/knowledge/websites/${item.value.id}`,
-          label: item.value.url.split("//")[1],
+          label: formatWebsiteName(item.value),
           tooltip: item.value.url,
           customClass: "max-w-64",
           icon: IconWeb
@@ -51,12 +52,12 @@
       plugins: {
         tableFilter: {
           getFilterValue(value) {
-            return value.name;
+            return value.name + "_____" + value.url;
           }
         },
         sort: {
           getSortValue(value) {
-            return value.name;
+            return formatWebsiteName(value);
           }
         }
       }
@@ -64,7 +65,7 @@
 
     table.column({
       accessor: "url",
-      header: "URL",
+      header: "Link",
       cell: (item) => {
         return createRender(Table.ButtonCell, {
           link: item.value,

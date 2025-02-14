@@ -3,10 +3,10 @@ from uuid import uuid4
 
 import pytest
 
-from instorage.main.exceptions import NotFoundException, UnauthorizedException
-from instorage.websites.crawl_dependencies.crawl_models import CrawlType
-from instorage.websites.website_models import UpdateInterval, WebsiteCreate
-from instorage.websites.website_service import WebsiteService
+from intric.main.exceptions import UnauthorizedException
+from intric.websites.crawl_dependencies.crawl_models import CrawlType
+from intric.websites.website_models import UpdateInterval, WebsiteCreate
+from intric.websites.website_service import WebsiteService
 
 
 @pytest.fixture
@@ -20,23 +20,25 @@ def service():
         task_service=AsyncMock(),
         space_service=AsyncMock(),
         ai_models_service=AsyncMock(),
+        actor_manager=MagicMock(),
     )
 
 
-async def test_update_space_website_can_not_read(service: WebsiteService):
-    space = MagicMock()
-    space.can_read_resource.return_value = False
-    service.space_service.get_space.return_value = space
+async def test_read_space_website_can_not_read(service: WebsiteService):
+    actor = MagicMock()
+    actor.can_read_websites.return_value = False
+    service.actor_manager.get_space_actor_from_space.return_value = actor
 
-    service.repo.update.return_value = MagicMock(tenant_id=service.user.tenant_id)
-    with pytest.raises(NotFoundException):
-        await service.update_website(MagicMock(), uuid4())
+    service.repo.get.return_value = MagicMock(tenant_id=service.user.tenant_id)
+
+    with pytest.raises(UnauthorizedException):
+        await service.get_website(MagicMock())
 
 
 async def test_update_space_website_can_not_edit(service: WebsiteService):
-    space = MagicMock()
-    space.can_edit_resource.return_value = False
-    service.space_service.get_space.return_value = space
+    actor = MagicMock()
+    actor.can_edit_websites.return_value = False
+    service.actor_manager.get_space_actor_from_space.return_value = actor
 
     service.repo.update.return_value = MagicMock(tenant_id=service.user.tenant_id)
     with pytest.raises(UnauthorizedException):
@@ -44,28 +46,14 @@ async def test_update_space_website_can_not_edit(service: WebsiteService):
 
 
 async def test_update_space_website(service: WebsiteService):
-    space = MagicMock()
-    space.can_edit_resource.return_value = True
-    service.space_service.get_space.return_value = space
-
     service.repo.update.return_value = MagicMock(tenant_id=service.user.tenant_id)
     await service.update_website(MagicMock(), uuid4())
 
 
-async def test_delete_space_website_can_not_read(service: WebsiteService):
-    space = MagicMock()
-    space.can_read_resource.return_value = False
-    service.space_service.get_space.return_value = space
-
-    service.repo.get.return_value = MagicMock(tenant_id=service.user.tenant_id)
-    with pytest.raises(NotFoundException):
-        await service.delete_website("UUID")
-
-
 async def test_delete_space_website_can_not_delete(service: WebsiteService):
-    space = MagicMock()
-    space.can_delete_resource.return_value = False
-    service.space_service.get_space.return_value = space
+    actor = MagicMock()
+    actor.can_delete_websites.return_value = False
+    service.actor_manager.get_space_actor_from_space.return_value = actor
 
     service.repo.get.return_value = MagicMock(tenant_id=service.user.tenant_id)
     with pytest.raises(UnauthorizedException):
@@ -73,10 +61,6 @@ async def test_delete_space_website_can_not_delete(service: WebsiteService):
 
 
 async def test_delete_space_group(service: WebsiteService):
-    space = MagicMock()
-    space.can_delete_resource.return_value = True
-    service.space_service.get_space.return_value = space
-
     service.repo.get.return_value = MagicMock(tenant_id=service.user.tenant_id)
     await service.delete_website("UUID")
 

@@ -1,17 +1,36 @@
-import { registerTheme, init, type EChartsCoreOption } from "echarts";
+import { init, registerTheme, type EChartsCoreOption, use } from "echarts/core";
+import { BarChart } from "echarts/charts";
+import {
+  TooltipComponent,
+  GridComponent,
+  DatasetComponent,
+  TransformComponent
+} from "echarts/components";
+import { UniversalTransition } from "echarts/features";
+import { CanvasRenderer } from "echarts/renderers";
+
 import type { Action } from "svelte/action";
 import { intricTheme } from "./theme.js";
+
+use([
+  BarChart,
+  TooltipComponent,
+  GridComponent,
+  DatasetComponent,
+  TransformComponent,
+  UniversalTransition,
+  CanvasRenderer
+]);
 
 export type Config = {
   options: EChartsCoreOption;
   theme?: string | object;
-  renderer?: "canvas" | "svg";
 };
 
 registerTheme("intric", intricTheme);
 
 export const chart: Action<HTMLElement, Config> = (node, params) => {
-  const { theme = "intric", renderer = "canvas" } = params;
+  const { theme = "intric" } = params;
   const options: EChartsCoreOption = {
     aria: {
       enabled: true
@@ -29,7 +48,7 @@ export const chart: Action<HTMLElement, Config> = (node, params) => {
     ...params.options
   };
 
-  const chart = init(node, theme, { renderer });
+  const chart = init(node, theme, { renderer: "canvas" });
   chart.setOption(options);
 
   const resizeObserver = new ResizeObserver(() => chart.resize());

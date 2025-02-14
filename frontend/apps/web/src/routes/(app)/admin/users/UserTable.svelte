@@ -1,11 +1,5 @@
-<!--
-    Copyright (c) 2024 Sundsvalls Kommun
-
-    Licensed under the MIT License.
--->
-
 <script lang="ts">
-  import type { Group, Role, User } from "@intric/intric-js";
+  import type { Role, User } from "@intric/intric-js";
   import { Table, Label } from "@intric/ui";
   import UserActions from "./UserActions.svelte";
   import { createRender } from "svelte-headless-table";
@@ -14,39 +8,15 @@
   const table = Table.createWithResource(users);
 
   const viewModel = table.createViewModel([
-    table.column({ accessor: "username", header: "Username" }),
-    // table.column({ accessor: "email", header: "Email" }),
+    table.column({ accessor: "email", header: "Email" }),
     table.column({
       accessor: (user) => user,
-      header: "Roles",
+      header: "Role",
       cell: (item) => {
-        const roles = item.value.roles?.concat(item.value.predefined_roles ?? []) ?? [];
-        const content: { label: string; color: Label.LabelColor }[] = roles.map((group) => {
-          return { label: group.name, color: "blue" };
-        });
-        return createRender(Label.List, { content });
-      },
-      plugins: {
-        sort: {
-          disable: true
-        },
-        tableFilter: {
-          getFilterValue(value) {
-            const roles = [...value.roles, ...value.predefined_roles];
-            return roles.map((role: Role) => role.name).join(" ");
-          }
-        }
-      }
-    }),
-    table.column({
-      accessor: (user) => user,
-      header: "Groups",
-      cell: (item) => {
-        const content: { label: string; color: Label.LabelColor }[] = item.value.user_groups.map(
-          (group) => {
+        const content: { label: string; color: Label.LabelColor }[] =
+          item.value.predefined_roles.map((group) => {
             return { label: group.name, color: "blue" };
-          }
-        );
+          });
         return createRender(Label.List, { content });
       },
       plugins: {
@@ -55,13 +25,36 @@
         },
         tableFilter: {
           getFilterValue(value) {
-            const groups = value.user_groups ?? [];
-            return groups.map((group: Group) => group.name).join(" ");
+            return value.predefined_roles.map((role: Role) => role.name).join(" ");
           }
         }
       }
     }),
-    table.column({ accessor: "used_tokens", header: "Used tokens" }),
+    table.column({
+      accessor: (user) => user,
+      header: "Active",
+      cell: (item) => {
+        const label: { label: string; color: Label.LabelColor } = item.value.is_active
+          ? {
+              label: "Active",
+              color: "green"
+            }
+          : { label: "Invited", color: "gray" };
+        return createRender(Label.Single, { item: label });
+      },
+      plugins: {
+        sort: {
+          getSortValue(value) {
+            return value.is_active;
+          }
+        },
+        tableFilter: {
+          getFilterValue(value) {
+            return value.is_active ? "Active" : "Invited";
+          }
+        }
+      }
+    }),
     table.columnActions({
       cell: (item) => {
         return createRender(UserActions, { user: item.value });

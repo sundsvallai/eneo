@@ -3,6 +3,7 @@
   "compilerOptions": {
     "allowJs": true,
     "checkJs": true,
+    "allowImportingTsExtensions": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
@@ -10,7 +11,7 @@
     "sourceMap": true,
     "strict": true,
     "moduleResolution": "bundler",
-    "types": ["@types/wicg-file-system-access"]
+    "types": ["@types/wicg-file-system-access", "@intric/ui/icons/types"]
   }
   // Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
   //

@@ -20,10 +20,17 @@
   let cls = "";
   export { cls as class };
 
-  export let variant: "simple" | "outlined" | "primary" | "primary-outlined" = "simple";
+  export let variant:
+    | "simple"
+    | "outlined"
+    | "primary"
+    | "primary-outlined"
+    | "destructive"
+    | "positive"
+    | "positive-outlined"
+    | "on-fill" = "simple";
   export let padding: "icon" | "text" | "icon-leading" = "text";
   // export let size: "base" = "base";
-  export let destructive = false;
   export let disabled: boolean | undefined = undefined;
   export let displayActiveState: boolean = false;
 
@@ -78,7 +85,6 @@
   {...$$restProps}
   class=" group {cls} {variant} padding-{unstyled ? 'none' : padding}"
   class:ui-btn={!unstyled}
-  class:destructive
   class:disabled
   class:displayActiveState
 >
@@ -87,11 +93,27 @@
 
 <style lang="postcss">
   .ui-btn {
-    @apply flex items-center justify-center gap-3 rounded-md  border border-transparent p-1 text-left mix-blend-normal outline-offset-4 hover:border-stone-200 hover:bg-stone-200;
+    @apply flex items-center justify-center gap-3 rounded-md border border-transparent p-1 text-left mix-blend-normal outline-offset-4 hover:border-dimmer hover:bg-hover-default;
+  }
+
+  .on-fill {
+    @apply hover:bg-hover-on-fill hover:text-primary;
+  }
+
+  .destructive {
+    @apply border-negative-default text-negative-default hover:border-negative-default hover:bg-negative-default hover:text-on-fill;
+  }
+
+  .positive {
+    @apply border-positive-stronger bg-positive-default text-on-fill hover:border-positive-default hover:bg-positive-stronger;
+  }
+
+  .positive-outlined {
+    @apply border-positive-stronger text-positive-stronger hover:border-positive-default hover:bg-positive-stronger hover:text-on-fill;
   }
 
   .displayActiveState[data-state="active"] {
-    @apply bg-blue-100 font-[500] tracking-normal text-blue-700;
+    @apply bg-accent-dimmer font-[500] tracking-normal text-accent-stronger;
   }
 
   .displayActiveState {
@@ -102,20 +124,16 @@
     @apply justify-start;
   }
 
-  .destructive {
-    @apply border-red-500 text-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white;
-  }
-
   .primary {
-    @apply border-blue-600 bg-blue-600 text-white hover:border-blue-800 hover:bg-blue-800;
+    @apply border-accent-default bg-accent-default text-on-fill hover:border-accent-stronger hover:bg-accent-stronger;
   }
 
   .primary-outlined {
-    @apply border-blue-600 bg-transparent text-blue-700 hover:border-blue-800 hover:bg-blue-800 hover:text-white;
+    @apply border-accent-default bg-transparent text-accent-default hover:border-accent-stronger hover:bg-accent-stronger hover:text-on-fill;
   }
 
   .outlined {
-    @apply border-stone-300;
+    @apply border-default;
   }
 
   .padding-text {

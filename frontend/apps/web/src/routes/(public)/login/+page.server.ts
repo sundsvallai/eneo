@@ -1,6 +1,8 @@
 import { env } from "$env/dynamic/private";
-import { loginUser } from "$lib/features/auth/auth.server.js";
-import { getMobilityguardLink } from "$lib/features/auth/oidc.server.js";
+import { DEFAULT_LANDING_PAGE } from "$lib/core/constants";
+import { loginWithIntric } from "$lib/features/auth/intric.server";
+import { getMobilityguardLink } from "$lib/features/auth/mobilityguard.server";
+import { getZitadelLink } from "$lib/features/auth/zitadel.server";
 import { redirect, fail, type Actions } from "@sveltejs/kit";
 
 export const actions: Actions = {
@@ -9,16 +11,13 @@ export const actions: Actions = {
     const username = data.get("email")?.toString() ?? null;
     const password = data.get("password")?.toString() ?? null;
     const next = data.get("next")?.toString() ?? null;
+    const redirectUrl = next ? decodeURIComponent(next) : DEFAULT_LANDING_PAGE;
 
     if (username && password) {
-      const success = await loginUser(cookies, username, password);
+      const success = await loginWithIntric(cookies, username, password);
 
       if (success) {
-        if (next) {
-          redirect(302, `/${next.slice(1)}`);
-        }
-        // TODO: Redirect to dashboard instead (once we have it)
-        redirect(302, "/spaces/personal");
+        redirect(302, `/${redirectUrl.slice(1)}`);
       }
     }
 
@@ -26,23 +25,25 @@ export const actions: Actions = {
   }
 };
 
-/* 
-    Copyright (c) 2024 Sundsvalls Kommun
-
-    Licensed under the MIT License.
-*/
 export const load = async (event) => {
+  let zitadelLink: string | undefined = undefined;
+  let mobilityguardLink: string | undefined = undefined;
+
   // If user is logged in already: forward to base url, as login doesn't make sense
-  if (event.locals.user.isLoggedIn) {
-    redirect(302, "/");
+  if (event.locals.id_token) {
+    redirect(302, DEFAULT_LANDING_PAGE);
   }
 
-  let mobilityguardLink = undefined;
+  if (event.locals.featureFlags.newAuth) {
+    zitadelLink = await getZitadelLink(event);
+  }
+
   if (env.MOBILITY_GUARD_AUTH) {
-    mobilityguardLink = await getMobilityguardLink(event.url.origin, event.cookies);
+    mobilityguardLink = await getMobilityguardLink(event);
   }
 
   return {
-    mobilityguardLink
+    mobilityguardLink,
+    zitadelLink
   };
 };

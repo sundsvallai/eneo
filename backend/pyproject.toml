@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "instorage"
+name = "intric"
 version = "0.1.0"
 description = ""
 authors = ["inooLabs"]
@@ -32,7 +32,7 @@ langchain = "^0.0.329"
 jsonschema = "^4.19.2"
 pydantic-settings = "^2.1.0"
 wrapt = "^1.16.0"
-python-multipart = "^0.0.9"
+python-multipart = "^0.0.18"
 arq = "^0.25.0"
 soundfile = "^0.12.1"
 audioread = "^3.0.1"
@@ -41,20 +41,21 @@ bcrypt = "^4.1.2"
 passlib = "^1.7.4"
 dependency-injector = "^4.41.0"
 docx2python = "^2.10.1"
-jinja2 = "^3.1.3"
+jinja2 = "^3.1.5"
 scrapy = "^2.11.2"
 html2text = "^2024.2.26"
 beautifulsoup4 = "^4.12.3"
 crochet = "^2.1.1"
 pgvector = "^0.2.5"
-scipy = "^1.13.0"
 anthropic = "^0.28.1"
 sqlalchemy-mixins = "^2.0.5"
 python-magic = "^0.4.27"
 aiocache = "^0.12.2"
+redis = "^5.0.8"
+sentry-sdk = {version = "2.8.0", extras = ["fastapi"]}
 
 [tool.poetry.scripts]
-start = "src.instorage.server.main:start"
+start = "src.intric.server.main:start"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.1"
@@ -69,6 +70,8 @@ pytest-vcr = "^1.0.2"
 pytest-env = "^1.1.3"
 flake8 = "^7.0.0"
 vcrpy = "^5"
+testcontainers = "^4.8.1"
+pytest-dotenv = "^0.5.2"
 
 [build-system]
 requires = ["poetry-core"]

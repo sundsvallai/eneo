@@ -3,6 +3,7 @@
 
     Licensed under the MIT License.
 -->
+
 <script lang="ts">
   import { Input, Tooltip } from "@intric/ui";
 
@@ -10,12 +11,12 @@
 </script>
 
 <div
-  class="relative -mt-1 w-full border-y border-stone-300 bg-stone-50 px-4 py-4 hover:bg-stone-100"
+  class="relative -mt-1 w-full border-y border-default bg-hover-dimmer px-4 py-4 hover:bg-hover-default"
 >
   <h3 class="pb-1 pl-3 font-medium">Model configuration</h3>
-  <div class="rounded-lg border border-stone-300 bg-white shadow">
+  <div class="rounded-lg border border-default bg-primary shadow">
     <div
-      class="flex items-center gap-6 rounded-lg py-2 pl-3 pr-2 hover:bg-stone-50"
+      class="flex items-center gap-6 rounded-lg py-2 pl-3 pr-2 hover:bg-hover-dimmer"
       aria-labelledby="temperature_label"
     >
       <Tooltip
@@ -24,18 +25,13 @@
         <p class="w-24" aria-label="Temperature setting" id="temperature_label">Temperature</p>
       </Tooltip>
       <Input.Slider bind:value={kwargs.temperature} max={2} min={0} step={0.01} />
-      <Input.Number
-        step={0.01}
-        max={2}
-        min={0}
-        bind:value={kwargs.temperature}
-        labelClass="hidden"
-      />
+      <Input.Number bind:value={kwargs.temperature} step={0.01} max={2} min={0} hiddenLabel={true}
+      ></Input.Number>
     </div>
     <!-- For now we decided not to expose TOP P as a parameter to users -->
-    <!-- <div class="border-b border-stone-200"></div>
+    <!-- <div class="border-b border-default"></div>
     <div
-      class="flex items-center gap-6 rounded-lg py-2 pl-3 pr-2 hover:bg-stone-50"
+      class="flex items-center gap-6 rounded-lg py-2 pl-3 pr-2 hover:bg-hover-dimmer"
       aria-labelledby="top_p_setting"
     >
       <Tooltip

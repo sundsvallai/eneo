@@ -1,69 +1,64 @@
 import { dev } from "$app/environment";
-import { authenticateUser } from "$lib/features/auth/auth.server";
-import { IntricError } from "@intric/intric-js";
-import { redirect } from "@sveltejs/kit";
+import { DASHBOARD_URL } from "$lib/core/constants";
+import { detectMobile } from "$lib/core/detectMobile";
+import { getFeatureFlags } from "$lib/core/flags.server";
+import { authenticateUser, clearFrontendCookies } from "$lib/features/auth/auth.server";
+import { IntricError, type IntricErrorCode } from "@intric/intric-js";
+import { redirect, type HandleServerError } from "@sveltejs/kit";
 
-function routeRequiresAuth(pathname: string) {
-  const publicRoutes = ["/login", "/login/*", "/logout", "/signup", "/embed/*"];
-
-  // Return false if whole route is public
-  if (publicRoutes.includes(pathname)) {
-    return false;
-  }
-  // Check if a route pattern matches the pathname
-  // Currently only one trailing * is supported
-  const wildcardRoutes = publicRoutes.filter((route) => route.endsWith("*"));
-  let isProtected = true;
-  wildcardRoutes.forEach((route) => {
-    if (pathname.startsWith(route.replace("*", ""))) {
-      isProtected = false;
-    }
-  });
-  return isProtected;
+function routeRequiresLogin(route: { id: string | null }): boolean {
+  const routeIsPublic = route.id?.includes("(public)") ?? false;
+  return !routeIsPublic;
 }
 
 export const handle = async ({ event, resolve }) => {
-  const authInfo = authenticateUser(event);
+  // Clear authentication cookies if the 'clear_cookies' URL parameter is present
+  if (event.url.searchParams.get("clear_cookies")) {
+    clearFrontendCookies(event);
+  }
 
-  if (authInfo) {
-    event.locals.user = {
-      isLoggedIn: true,
-      token: authInfo.token
-    };
-  } else {
-    event.locals.user = {
-      isLoggedIn: false
-    };
-    // If not on a public page redirect to login
-    if (routeRequiresAuth(event.url.pathname)) {
-      const redirectUrl = event.url.pathname + event.url.search;
+  const tokens = authenticateUser(event);
+  const isLoggedIn = tokens.id_token != undefined;
+
+  if (routeRequiresLogin(event.route)) {
+    if (!isLoggedIn) {
+      const redirectUrl = encodeURIComponent(event.url.pathname + event.url.search);
       redirect(302, `/login?next=${redirectUrl}`);
     }
+
+    const isDashboard = event.url.pathname.startsWith("/dashboard");
+
+    if (!isDashboard) {
+      const userAgent = event.request.headers.get("user-agent");
+      const isMobileOrTablet = userAgent ? detectMobile(userAgent) : false;
+      if (isMobileOrTablet) {
+        redirect(302, DASHBOARD_URL);
+      }
+    }
   }
+
+  event.locals.id_token = tokens.id_token ?? null;
+  event.locals.access_token = tokens.access_token ?? null;
+  event.locals.featureFlags = getFeatureFlags();
 
   return resolve(event);
 };
 
-export const handleError = async ({ error, status, message }) => {
-  let sessionInvalid = false;
-
+export const handleError: HandleServerError = async ({ error, status, message }) => {
+  let code: IntricErrorCode = 0;
   if (error instanceof IntricError) {
     status = error.status;
-    message = error.getReadableMessage(false);
-    // We assume the frontend is not generating any real 404 intric errors
-    if (error.status === 404 || error.status === 401) {
-      sessionInvalid = true;
-    }
+    message = error.getReadableMessage();
+    code = error.code;
   }
 
   if (dev) {
-    console.error("server error");
-    console.error(error);
+    console.error("server error", error);
   }
 
   return {
     status,
     message,
-    sessionInvalid
+    code
   };
 };

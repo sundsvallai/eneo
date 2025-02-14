@@ -4,7 +4,10 @@
   import { type Group, type InfoBlob } from "@intric/intric-js";
   import { Button, Dialog, Input } from "@intric/ui";
 
-  const { limits, showHeader } = getAppContext();
+  const {
+    limits,
+    state: { showHeader }
+  } = getAppContext();
   const acceptedMimeTypes = limits.info_blobs.formats.map((format) => format.mimetype);
 
   const {
@@ -64,7 +67,7 @@
     <Button {disabled} variant="primary" is={trigger}>Upload files</Button>
   </Dialog.Trigger>
 
-  <Dialog.Content wide>
+  <Dialog.Content width="medium">
     <Dialog.Title>Upload files</Dialog.Title>
     <Dialog.Description hidden></Dialog.Description>
 
@@ -76,7 +79,7 @@
           on:click={() => {
             files = [];
           }}
-          destructive>Clear list</Button
+          variant="destructive">Clear list</Button
         >
         <div class="flex-grow"></div>
       {/if}

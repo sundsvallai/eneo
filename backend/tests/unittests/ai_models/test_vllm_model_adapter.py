@@ -1,5 +1,5 @@
-from instorage.ai_models.completion_models.completion_model import Context, Message
-from instorage.ai_models.completion_models.completion_model_adapters.vllm_model_adapter import (
+from intric.ai_models.completion_models.completion_model import Context, Message
+from intric.ai_models.completion_models.completion_model_adapters.vllm_model_adapter import (
     VLMMModelAdapter,
 )
 from tests.fixtures import TEST_MODEL_GPT4

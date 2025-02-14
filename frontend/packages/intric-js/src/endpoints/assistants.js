@@ -2,6 +2,7 @@
 /** @typedef {import('../types/resources').AssistantSession} AssistantSession */
 /** @typedef {import('../types/resources').AssistantResponse} AssistantResponse */
 /** @typedef {import('../types/resources').Group} Group */
+/** @typedef {import('../types/resources').PromptSparse} PromptSparse */
 /** @typedef {import('../client/client').IntricError} IntricError */
 
 /**
@@ -11,29 +12,28 @@ export function initAssistants(client) {
   return {
     /**
      * List all assistants.
-     * @param {{includePublic?: boolean, includeTenant?: boolean} | undefined} [options] Include public assistants? Include all assistant's of this tenant (requires superuser)? Both default to `false`
+     * @param {{includeTenant?: boolean} | undefined} [options] Include all assistant's of this tenant (requires superuser)? Default to `false`
      * @returns {Promise<Assistant[]>}
      * @throws {IntricError}
      * */
     list: async (options) => {
-      const include_public = options?.includePublic ?? false;
       const for_tenant = options?.includeTenant ?? false;
 
       const res = await client.fetch("/api/v1/assistants/", {
         method: "get",
-        params: { query: { include_public, for_tenant } }
+        params: { query: { for_tenant } }
       });
       return res.items;
     },
 
     /**
      * Create a new assistant
-     * @param {import('../types/fetch').JSONRequestBody<"post", "/api/v1/assistants/"> | {spaceId: string, name: string}} assistant
+     * @param {import('../types/fetch').JSONRequestBody<"post", "/api/v1/assistants/"> | ({spaceId: string} & import('../types/fetch').JSONRequestBody<"post", "/api/v1/spaces/{id}/applications/assistants/">)} assistant
      * @throws {IntricError}
      * */
     create: async (assistant) => {
       if ("spaceId" in assistant) {
-        const { spaceId: id, name } = assistant;
+        const { spaceId: id, name, from_template } = assistant;
         const res = await client.fetch("/api/v1/spaces/{id}/applications/assistants/", {
           method: "post",
           params: {
@@ -42,7 +42,7 @@ export function initAssistants(client) {
             }
           },
           requestBody: {
-            "application/json": { name }
+            "application/json": { name, from_template }
           }
         });
         return res;
@@ -133,12 +133,13 @@ export function initAssistants(client) {
      * @param {{id: string | null} | AssistantSession | undefined} params.session Session Id of a session to continue, `null` to start a new session
      * @param {string} params.question Question to ask
      * @param {{id: string}[] | undefined} params.files Question to ask
-     * @param {(token: string) => void} [params.onAnswer] Callback to run when a new token/word of the answer is received
+     * @param {(partialResponse: AssistantResponse, controller: AbortController) => void} [params.onAnswer] Callback to run when a new token/word of the answer is received
      * @param {(response: Response) => Promise<void>} [params.onOpen] Callback to run once the initial response of the backend is received
+     * @param {AbortController} [params.abortController] Optionally pass in an AbortController that can abort the stream
      * @returns {Promise<AssistantResponse>} Once the full answer is received it will be returned
      * @throws {IntricError}
      * */
-    ask: async ({ assistant, session, question, files, onAnswer, onOpen }) => {
+    ask: async ({ assistant, session, question, files, onAnswer, onOpen, abortController }) => {
       const { id } = assistant;
       const session_id = session?.id ?? undefined;
 
@@ -153,27 +154,28 @@ export function initAssistants(client) {
       await client.stream(
         endpoint,
         {
-          params: { path: { id, session_id } },
+          params: { path: { id, session_id }, query: { version: 2 } },
           requestBody: { "application/json": { question, files, stream: true } }
         },
         {
           onOpen: async (response) => {
             if (onOpen) onOpen(response);
           },
-          onMessage: (ev) => {
+          onMessage: (ev, controller) => {
             if (ev.data == "") return;
             try {
               const data = JSON.parse(ev.data);
               response = data;
               if (data.answer) {
                 answer += data.answer;
-                if (onAnswer) onAnswer(data.answer);
+                if (onAnswer) onAnswer(data, controller);
               }
             } catch (e) {
               return;
             }
           }
-        }
+        },
+        abortController
       );
 
       response.question = question;
@@ -183,17 +185,19 @@ export function initAssistants(client) {
 
     /**
      * List all sessions of an assistant.
-     * @param {{id: string} | Assistant} assistant
-     * @returns {Promise<Omit<AssistantSession, "messages">[]>}
+     * @param {Object} params
+     * @param {{id: string} | Assistant} params.assistant
+     * @param {{limit?: number, cursor?: string | undefined }} [params.pagination] - The number of sessions to retrieve.
+     * @returns {Promise<import('../types/resources').Paginated<AssistantSession>>} - Paginated list of sessions. Combines the pagination info with the items.
      * @throws {IntricError}
      * */
-    listSessions: async (assistant) => {
+    listSessions: async ({ assistant, pagination }) => {
       const { id } = assistant;
       const res = await client.fetch("/api/v1/assistants/{id}/sessions/", {
         method: "get",
-        params: { path: { id } }
+        params: { path: { id }, query: pagination }
       });
-      return res.items;
+      return res;
     },
 
     /**
@@ -229,6 +233,56 @@ export function initAssistants(client) {
         method: "delete",
         params: { path: { id, session_id } }
       });
+      return res;
+    },
+
+    /**
+     * Get the list of prompt history for an assistant.
+     * @param  {{id: string} | Assistant} assistant
+     * @returns {Promise<PromptSparse[]>}
+     * */
+    listPrompts: async (assistant) => {
+      const { id } = assistant;
+      const res = await client.fetch("/api/v1/assistants/{id}/prompts/", {
+        method: "get",
+        params: { path: { id } }
+      });
+      return res.items;
+    },
+
+    /**
+     * Publish an assistant inside its space
+     * @param  {{id: string} | Assistant} assistant
+     * @returns {Promise<Assistant>}
+     * */
+    publish: async (assistant) => {
+      const { id } = assistant;
+      const res = await client.fetch("/api/v1/assistants/{id}/publish/", {
+        method: "post",
+        params: {
+          path: { id },
+          query: { published: true }
+        }
+      });
+
+      return res;
+    },
+
+    /**
+     * Unpublish an assistant inside its space
+     * @param  {{id: string} | Assistant} assistant
+     * @returns {Promise<Assistant>}
+     * */
+    unpublish: async (assistant) => {
+      const { id } = assistant;
+      const res = await client.fetch("/api/v1/assistants/{id}/publish/", {
+        method: "post",
+        params: {
+          path: { id },
+          query: { published: false }
+        }
+      });
+
       return res;
     }
   };

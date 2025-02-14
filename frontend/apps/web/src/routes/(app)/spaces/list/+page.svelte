@@ -17,7 +17,7 @@
 
 <Page.Root>
   <Page.Header>
-    <Page.Title>Your spaces</Page.Title>
+    <Page.Title title="Your spaces"></Page.Title>
     <CreateSpaceDialog includeTrigger={true} forwardToNewSpace={false}></CreateSpaceDialog>
   </Page.Header>
 

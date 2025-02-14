@@ -1,4 +1,4 @@
-/* 
+/*
     Copyright (c) 2024 Sundsvalls Kommun
 
     Licensed under the MIT License.
@@ -15,6 +15,11 @@ const behaviours = Object.freeze({
 });
 
 export type ModelBehaviour = keyof typeof behaviours;
+
+export type ModelKwArgs = {
+  temperature?: number | null | undefined;
+  top_p?: number | null | undefined;
+};
 
 export const behaviourList = Object.keys(behaviours) as ModelBehaviour[];
 

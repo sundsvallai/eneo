@@ -9,7 +9,7 @@
 <div
   {...$list}
   use:list
-  class="header-shadow ml-6 flex items-center justify-between gap-2 border-b-[0.5px] border-black/15 pr-3"
+  class="header-shadow ml-6 flex items-center justify-between gap-2 border-b-[0.5px] border-default pr-3"
   aria-label="Main views available for the current resource/site"
 >
   <slot />

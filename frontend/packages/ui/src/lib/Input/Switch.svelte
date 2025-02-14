@@ -38,11 +38,11 @@
   <button
     {...$root}
     use:root
-    class="relative h-6 cursor-pointer rounded-full border-stone-300 bg-stone-200 transition-colors disabled:cursor-not-allowed data-[state=checked]:bg-blue-600"
+    class="relative h-6 cursor-pointer rounded-full bg-tertiary transition-colors disabled:cursor-not-allowed data-[state=checked]:bg-accent-default"
     {id}
     aria-labelledby={label_id}
   >
-    <span class="thumb block rounded-full bg-white transition" />
+    <span class="thumb block rounded-full bg-[var(--text-on-fill)] transition" />
   </button>
   <input {...$input} use:input id={check_id} />
 </fieldset>
@@ -53,7 +53,7 @@
     --padding: 0.15rem;
     width: var(--w);
     min-width: var(--w);
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 0 1px var(--border-stronger);
   }
 
   .thumb {

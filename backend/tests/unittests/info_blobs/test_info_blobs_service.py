@@ -3,11 +3,10 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from instorage.groups.group_service import GroupService
-from instorage.info_blobs.info_blob_repo import InfoBlobRepository
-from instorage.info_blobs.info_blob_service import InfoBlobService
-from instorage.main.exceptions import NameCollisionException, NotFoundException
-from instorage.spaces.space import SpacePermissionsActions
+from intric.groups.group_service import GroupService
+from intric.info_blobs.info_blob_repo import InfoBlobRepository
+from intric.info_blobs.info_blob_service import InfoBlobService
+from intric.main.exceptions import NameCollisionException, NotFoundException
 
 
 @dataclass
@@ -24,10 +23,13 @@ def setup():
 
     service = InfoBlobService(
         repo=repo,
+        space_repo=AsyncMock(),
         user=MagicMock(),
         quota_service=AsyncMock(),
         group_service=group_service,
         website_service=AsyncMock(),
+        space_service=AsyncMock(),
+        actor_manager=MagicMock(),
     )
 
     setup = Setup(repo=repo, service=service, group_service=group_service)
@@ -55,42 +57,6 @@ async def test_delete_info_blob_does_not_exist(setup: Setup):
 
     with pytest.raises(NotFoundException, match="InfoBlob not found"):
         await setup.service.delete("UUID")
-
-
-async def test_get_info_blob_permissions_check(setup: Setup):
-    group = MagicMock(space_id=None)
-    setup.group_service.get_group.return_value = group
-
-    await setup.service.get_by_id(1)
-    setup.group_service.get_group.assert_awaited_once()
-    setup.group_service.check_permissions.assert_awaited_once_with(
-        group=group, action=SpacePermissionsActions.READ
-    )
-
-
-async def test_update_info_blob_permissions_check(setup: Setup):
-    group = MagicMock(space_id=None)
-    setup.group_service.get_group.return_value = group
-
-    setup.repo.get_by_title_and_group.return_value = None
-    await setup.service.update_info_blob(MagicMock())
-
-    setup.group_service.get_group.assert_awaited_once()
-    setup.group_service.check_permissions.assert_awaited_once_with(
-        group=group, action=SpacePermissionsActions.EDIT
-    )
-
-
-async def test_delete_info_blob_permissions_check(setup: Setup):
-    group = MagicMock(space_id=None)
-    setup.group_service.get_group.return_value = group
-
-    await setup.service.delete("UUID")
-
-    setup.group_service.get_group.assert_awaited_once()
-    setup.group_service.check_permissions.assert_awaited_once_with(
-        group=group, action=SpacePermissionsActions.DELETE
-    )
 
 
 async def test_get_by_user_empty_list_when_no_info_blobs(setup: Setup):

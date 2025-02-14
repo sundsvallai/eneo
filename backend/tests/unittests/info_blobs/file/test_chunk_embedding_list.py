@@ -1,7 +1,7 @@
 import pytest
 
-from instorage.files.chunk_embedding_list import ChunkEmbeddingList
-from instorage.main.exceptions import ChunkEmbeddingMisMatchException
+from intric.files.chunk_embedding_list import ChunkEmbeddingList
+from intric.main.exceptions import ChunkEmbeddingMisMatchException
 
 
 def test_add_one_at_a_time():

@@ -3,10 +3,10 @@ from uuid import uuid4
 
 import pytest
 
-from instorage.main.exceptions import AuthenticationException
-from instorage.main.models import ModelId
-from instorage.user_groups.user_group import UserGroupInDB, UserGroupUpdateRequest
-from instorage.user_groups.user_groups_service import UserGroupsService
+from intric.main.exceptions import AuthenticationException
+from intric.main.models import ModelId
+from intric.user_groups.user_group import UserGroupInDB, UserGroupUpdateRequest
+from intric.user_groups.user_groups_service import UserGroupsService
 from tests.fixtures import TEST_TENANT, TEST_USER, TEST_USER_2
 
 

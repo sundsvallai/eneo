@@ -3,10 +3,17 @@ from uuid import uuid4
 
 import pytest
 
-from instorage.main.exceptions import NotFoundException, UnauthorizedException
-from instorage.sessions.session import SessionInDB, SessionUpdate
-from instorage.sessions.session_service import SessionService
-from tests.fixtures import TEST_ASSISTANT, TEST_USER, TEST_UUID
+from intric.assistants.api.assistant_models import AssistantSparse
+from intric.main.exceptions import NotFoundException, UnauthorizedException
+from intric.sessions.session import SessionInDB, SessionUpdate
+from intric.sessions.session_service import SessionService
+from tests.fixtures import TEST_USER, TEST_UUID
+
+TEST_ASSISTANT = AssistantSparse(
+    name="test_assistant",
+    id=TEST_UUID,
+    user_id=TEST_UUID,
+)
 
 
 @pytest.fixture
@@ -52,7 +59,7 @@ async def test_get_error_when_session_does_not_belong_to_assistant(
     )
 
     with pytest.raises(NotFoundException, match="belongs to another assistant"):
-        await service.get_session_by_uuid(TEST_UUID, assistant_id=TEST_UUID)
+        await service.get_session_by_uuid(TEST_UUID, assistant_id=uuid4())
 
 
 async def test_succeeds_with_assistant_id(service: SessionService):

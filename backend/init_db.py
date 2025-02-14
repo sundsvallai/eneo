@@ -22,7 +22,7 @@ class Settings(BaseSettings):
 settings = Settings()
 
 
-logging.getLogger('passlib').setLevel(logging.ERROR)
+logging.getLogger("passlib").setLevel(logging.ERROR)
 
 
 # Alembic command
@@ -73,11 +73,11 @@ def add_tenant_user(
         if user is None:
             hashed_pass, salt = hash_password(user_password)
             add_user_query = sql.SQL(
-                "INSERT INTO users (username, email, password, salt, tenant_id, used_tokens) VALUES (%s, %s, %s, %s, %s, %s) RETURNING id"
+                "INSERT INTO users (username, email, password, salt, tenant_id, used_tokens, state) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id"
             )
             cur.execute(
                 add_user_query,
-                (user_name, user_email, hashed_pass, salt, tenant_id, 0),
+                (user_name, user_email, hashed_pass, salt, tenant_id, 0, "active"),
             )
             user_id = cur.fetchone()[0]
         else:
@@ -85,24 +85,24 @@ def add_tenant_user(
 
         # Check if "Owner" role already exists
         check_role_query = sql.SQL("SELECT id FROM predefined_roles WHERE name = %s")
-        cur.execute(check_role_query, ('Owner',))
+        cur.execute(check_role_query, ("Owner",))
         role = cur.fetchone()
 
         if role is None:
             owner_permissions = [
-                'admin',
-                'assistants',
-                'services',
-                'collections',
-                'insights',
-                'AI',
-                'editor',
-                'websites',
+                "admin",
+                "assistants",
+                "services",
+                "collections",
+                "insights",
+                "AI",
+                "editor",
+                "websites",
             ]
             add_role_query = sql.SQL(
                 "INSERT INTO predefined_roles (name, permissions) VALUES (%s, %s) RETURNING id"
             )
-            cur.execute(add_role_query, ('Owner', owner_permissions))
+            cur.execute(add_role_query, ("Owner", owner_permissions))
             predefined_role_id = cur.fetchone()[0]
         else:
             predefined_role_id = role[0]
@@ -121,10 +121,55 @@ def add_tenant_user(
             )
             cur.execute(assign_role_to_user_query, (user_id, predefined_role_id))
 
+        # Add completion model if it doesn't exist
+        check_model_query = sql.SQL("SELECT id FROM completion_models WHERE name = %s")
+        cur.execute(check_model_query, ("gpt-4o",))
+        model = cur.fetchone()
+
+        if model is None:
+            add_model_query = sql.SQL(
+                """INSERT INTO completion_models 
+                (name, nickname, family, token_limit, stability, hosting, description, org, vision) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id"""
+            )
+            cur.execute(
+                add_model_query,
+                (
+                    "gpt-4o",
+                    "GPT-4o",
+                    "openai",
+                    128000,
+                    "stable",
+                    "usa",
+                    "OpenAI's latest and greatest model, trained on both text and images.",
+                    "OpenAI",
+                    True,
+                ),
+            )
+            model_id = cur.fetchone()[0]
+        else:
+            model_id = model[0]
+
+        # Enable the completion model for the tenant
+        check_model_setting_query = sql.SQL(
+            """SELECT 1 FROM completion_model_settings 
+            WHERE completion_model_id = %s AND tenant_id = %s"""
+        )
+        cur.execute(check_model_setting_query, (model_id, tenant_id))
+        model_setting = cur.fetchone()
+
+        if model_setting is None:
+            enable_model_query = sql.SQL(
+                """INSERT INTO completion_model_settings 
+                (completion_model_id, tenant_id, is_org_enabled, is_org_default) 
+                VALUES (%s, %s, %s, %s)"""
+            )
+            cur.execute(enable_model_query, (model_id, tenant_id, True, True))
+
         conn.commit()
         cur.close()
     except Exception as e:
-        print(f"Error adding tenant and user: {e.with_traceback()}")
+        print(f"Error adding tenant and user: {e.__traceback__}")
         conn.rollback()
 
 
@@ -151,6 +196,8 @@ if __name__ == "__main__":
         "user@example.com",
         "Password1!",
     )
+
+    print("Great! Your Tenant and User are all set up.")
 
     # Close the connection
     conn.close()

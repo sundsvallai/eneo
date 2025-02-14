@@ -5,14 +5,8 @@
 </script>
 
 <section
-  class="flex flex-col justify-start rounded-md border {cls} border-black/20 bg-white"
+  class="flex flex-col justify-start rounded-md border {cls} border-stronger bg-primary shadow-md"
   class:overflow-y-auto={scrollable}
 >
   <slot />
 </section>
-
-<style>
-  section {
-    box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.3);
-  }
-</style>

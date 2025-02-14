@@ -5,17 +5,48 @@
 -->
 
 <script lang="ts">
+  import { IconAssistant } from "@intric/icons/assistant";
+  import { IconAssistants } from "@intric/icons/assistants";
+  import { IconThumb } from "@intric/icons/thumb";
+  import { IconLibrary } from "@intric/icons/library";
+  import { IconCPU } from "@intric/icons/CPU";
+  import { IconBulb } from "@intric/icons/bulb";
   import { page } from "$app/stores";
-  import IconAssistants from "$lib/components/icons/IconAssistants.svelte";
-  import IconAssistant from "$lib/components/icons/IconAssistant.svelte";
-  import IconLibrary from "$lib/components/icons/IconLibrary.svelte";
   import type { ComponentType } from "svelte";
-  import IconThumb from "$lib/components/icons/IconThumb.svelte";
-  import IconCPU from "$lib/components/icons/IconCPU.svelte";
-  import Bulb from "$lib/components/icons/Bulb.svelte";
+  import { getAppContext } from "$lib/core/AppContext";
+  import { Navigation } from "$lib/components/layout";
+  import { IconStorage } from "@intric/icons/storage";
 
   let currentRoute = "";
   $: currentRoute = $page.url.pathname;
+
+  const { featureFlags } = getAppContext();
+
+  const userPages = featureFlags.newAuth
+    ? [
+        {
+          icon: IconAssistant,
+          label: "Users",
+          url: "/admin/users"
+        }
+      ]
+    : [
+        {
+          icon: IconAssistant,
+          label: "Users",
+          url: "/admin/legacy/users"
+        },
+        {
+          icon: IconAssistants,
+          label: "User groups",
+          url: "/admin/legacy/user-groups"
+        },
+        {
+          icon: IconThumb,
+          label: "Roles",
+          url: "/admin/legacy/roles"
+        }
+      ];
 
   const menuItems: {
     icon: ComponentType;
@@ -34,25 +65,16 @@
       url: "/admin/models"
     },
     {
-      icon: Bulb,
+      icon: IconBulb,
       label: "Insights",
       url: "/admin/insights",
       beta: true
     },
+    ...userPages,
     {
-      icon: IconAssistant,
-      label: "Users",
-      url: "/admin/users"
-    },
-    {
-      icon: IconAssistants,
-      label: "User groups",
-      url: "/admin/user-groups"
-    },
-    {
-      icon: IconThumb,
-      label: "Roles",
-      url: "/admin/roles"
+      icon: IconStorage,
+      label: "Storage",
+      url: "/admin/storage"
     }
   ];
 
@@ -64,17 +86,20 @@
   }
 </script>
 
-<nav class="layout-menu flex flex-grow flex-col gap-0.5 py-3">
+<Navigation.Menu>
   {#each menuItems as item}
-    <a href={item.url} data-current={isSelected(item.url, currentRoute) ? "page" : undefined}>
-      <svelte:component this={item.icon}></svelte:component>
-      <span class="hidden md:block">{item.label}</span>
+    <Navigation.Link
+      href={item.url}
+      isActive={isSelected(item.url, currentRoute)}
+      icon={item.icon}
+      label={item.label}
+    >
       {#if item.beta}
         <span
-          class="hidden rounded-md border border-purple-600 px-1 py-0.5 text-xs font-normal !tracking-normal text-purple-600 md:block"
+          class="hidden rounded-md border border-[var(--beta-indicator)] px-1 py-0.5 text-xs font-normal !tracking-normal text-[var(--beta-indicator)] md:block"
           >Beta</span
         >
       {/if}
-    </a>
+    </Navigation.Link>
   {/each}
-</nav>
+</Navigation.Menu>

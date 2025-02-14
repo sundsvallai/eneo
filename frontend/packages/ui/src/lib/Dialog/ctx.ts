@@ -1,10 +1,16 @@
 import { createDialog as createMeltDialog } from "@melt-ui/svelte";
 import { getContext, setContext } from "svelte";
+import type { Writable } from "svelte/store";
 
-const ctxKey = "dialog_" + crypto.randomUUID();
+const ctxKey = Symbol("ui-dialog");
 
-export function createDialog(isAlert: boolean, portal: string | null | undefined) {
+export function createDialog(
+  isAlert: boolean,
+  portal: string | null | undefined,
+  open: Writable<boolean> | undefined
+) {
   const ctx = createMeltDialog({
+    open,
     portal,
     forceVisible: true,
     closeOnOutsideClick: true,

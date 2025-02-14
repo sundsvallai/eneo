@@ -1,0 +1,26 @@
+roles:
+  - name: 'User'
+    permissions:
+      - assistants
+      - apps
+      - collections
+
+  - name: 'AI Configurator'
+    permissions:
+      - assistants
+      - apps
+      - services
+      - collections
+      - AI
+      - websites
+  
+  - name: 'Owner'
+    permissions:
+      - admin
+      - assistants
+      - apps
+      - services
+      - collections
+      - insights
+      - AI
+      - websites

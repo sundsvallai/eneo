@@ -4,14 +4,12 @@
   let div: HTMLDivElement;
 
   const {
-    states: { value, scrolled }
+    states: { value }
   } = getContentTabs();
 
   const scrollPositions: Record<string, number> = {};
-  $: $value, loadPersistedScroll();
-
-  function loadPersistedScroll() {
-    const scrollY = scrollPositions[$value] ?? 0;
+  function loadPersistedScroll(tabKey: string) {
+    const scrollY = scrollPositions[tabKey] ?? 0;
 
     if (div) {
       setTimeout(() => {
@@ -22,13 +20,15 @@
       }, 1);
     }
   }
+
+  $: loadPersistedScroll($value);
 </script>
 
 <div
   bind:this={div}
-  class="duration-400 relative flex flex-grow flex-col overflow-y-auto border-stone-200 pl-6 transition-colors"
+  style="container-type: size;"
+  class="duration-400 relative flex flex-grow flex-col overflow-y-auto pl-6 text-primary transition-colors"
   on:scroll={() => {
-    $scrolled = div.scrollTop;
     scrollPositions[$value] = div.scrollTop;
   }}
 >

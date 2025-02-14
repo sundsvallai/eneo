@@ -44,29 +44,30 @@
   <Dialog.Trigger asFragment let:trigger>
     <Button is={trigger} variant="primary">Create service</Button>
   </Dialog.Trigger>
-  <Dialog.Content wide form>
+  <Dialog.Content width="medium" form>
     <Dialog.Title>Create a new service</Dialog.Title>
 
     <Dialog.Section>
       {#if $currentSpace.completion_models.length < 1}
         <p
-          class="m-4 rounded-md border border-amber-500 bg-amber-50 px-2 py-1 text-sm text-amber-800"
+          class="label-warning m-4 rounded-md border border-label-default bg-label-dimmer px-2 py-1 text-sm text-label-stronger"
         >
           <span class="font-bold">Warning:</span>
           This space does currently not have any completion models enabled. Enable at least one completion
           model to be able to create a service.
         </p>
-        <div class="border-b border-stone-100"></div>
+        <div class="border-b border-default"></div>
       {/if}
       <Input.Text
         bind:value={newServiceName}
+        label="Name!"
         required
-        class="border-b border-stone-100 px-4 py-4 hover:bg-stone-50">Name</Input.Text
-      >
+        class="border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+      ></Input.Text>
     </Dialog.Section>
 
     <Dialog.Controls let:close>
-      <Input.Switch bind:value={openServiceAfterCreation} class="flex-row-reverse  px-2 py-4"
+      <Input.Switch bind:value={openServiceAfterCreation} class="flex-row-reverse p-2"
         >Open service editor after creation</Input.Switch
       >
       <div class="flex-grow"></div>

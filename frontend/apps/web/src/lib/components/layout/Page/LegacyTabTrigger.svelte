@@ -9,7 +9,6 @@
   export let padding: "icon-leading" | "text" = "text";
   export let label: string | undefined = undefined;
 
-  // Sidebar
   const {
     elements: { trigger },
     states: { value }
@@ -25,7 +24,7 @@
 </script>
 
 <div
-  class=" border-y-[0.25rem] border-transparent p-2 text-stone-500 hover:text-black"
+  class=" border-y-[0.25rem] border-transparent p-2 text-secondary hover:text-primary"
   class:active={$value === tab}
 >
   <Button is={[$trigger(tab)]} {padding} {label} on:click={updateUrl}>
@@ -37,6 +36,6 @@
 
 <style lang="postcss">
   .active {
-    @apply border-b-blue-600 font-medium !tracking-normal text-black;
+    @apply border-b-accent-default font-medium !tracking-normal text-primary;
   }
 </style>

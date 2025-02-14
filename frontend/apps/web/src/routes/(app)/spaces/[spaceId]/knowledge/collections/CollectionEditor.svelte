@@ -63,7 +63,7 @@
     </Dialog.Trigger>
   {/if}
 
-  <Dialog.Content wide form>
+  <Dialog.Content width="medium" form>
     {#if mode === "create"}
       <Dialog.Title>Create a new collection</Dialog.Title>
       <Dialog.Description hidden>Create a new collection</Dialog.Description>
@@ -76,19 +76,20 @@
       {#if mode === "create"}
         {#if $currentSpace.embedding_models.length < 1}
           <p
-            class="m-4 rounded-md border border-amber-500 bg-amber-50 px-2 py-1 text-sm text-amber-800"
+            class="label-warning m-4 rounded-md border border-label-default bg-label-dimmer px-2 py-1 text-sm text-label-stronger"
           >
             <span class="font-bold">Warning:</span>
             This space does currently not have any embedding models enabled. Enable at least one embedding
             model to be able to create a collection.
           </p>
-          <div class="border-b border-stone-100"></div>
+          <div class="border-b border-default"></div>
         {/if}
         <Input.Text
           bind:value={collectionName}
+          label="Name"
           required
-          class="border-b border-stone-100 px-4 py-4 hover:bg-stone-50">Name</Input.Text
-        >
+          class="border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+        ></Input.Text>
         <SelectEmbeddingModel
           hideWhenNoOptions
           bind:value={embeddingModel}
@@ -97,9 +98,10 @@
       {:else}
         <Input.Text
           bind:value={collectionName}
+          label="Name"
           required
-          class="border-b border-stone-100 px-4 py-4 hover:bg-stone-50">Name</Input.Text
-        >
+          class="border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+        ></Input.Text>
       {/if}
     </Dialog.Section>
 

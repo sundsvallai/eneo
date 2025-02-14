@@ -1,11 +1,23 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="system">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%sveltekit.assets%/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#ebe9e7" />
+    <link rel="apple-touch-icon" href="/intric_pwa_logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="theme-color"
+      content="oklch(95.06% 0.005 67.76)"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta name="theme-color" content="oklch(16.84% 0 89.88)" media="(prefers-color-scheme: dark)" />
     %sveltekit.head%
+    <script nonce="%sveltekit.nonce%">
+      const theme = localStorage.getItem("theme");
+      if (theme) {
+        document.documentElement.dataset.theme = theme;
+      }
+    </script>
   </head>
   <body data-sveltekit-preload-data="tap" data-sveltekit-preload-code="eager">
     <div style="display: contents">%sveltekit.body%</div>

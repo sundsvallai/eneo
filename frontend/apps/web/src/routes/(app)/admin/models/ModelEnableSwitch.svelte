@@ -7,44 +7,25 @@
 <script lang="ts">
   import { invalidate } from "$app/navigation";
   import { getIntric } from "$lib/core/Intric";
+  import type { CompletionModel, EmbeddingModel } from "@intric/intric-js";
   import { Input, Tooltip } from "@intric/ui";
 
-  export let model: { id: string; is_org_enabled?: boolean; is_locked?: boolean };
-  export let modeltype: "completion" | "embedding";
+  export let model: (CompletionModel | EmbeddingModel) & { is_locked?: boolean | null | undefined };
 
   const intric = getIntric();
 
-  async function updateCompletionModel(
-    completionModel: { id: string },
-    update: { is_org_enabled: boolean }
-  ) {
+  async function toggleEnabled() {
+    const target = "token_limit" in model ? { completionModel: model } : { embeddingModel: model };
     try {
-      await intric.models.update({ completionModel, update });
+      model = await intric.models.update({
+        ...target,
+        update: {
+          is_org_enabled: !model.is_org_enabled
+        }
+      });
       invalidate("admin:models:load");
     } catch (e) {
-      alert(e);
-      console.error(e);
-    }
-  }
-
-  async function updateEmbeddingModel(
-    embeddingModel: { id: string },
-    update: { is_org_enabled: boolean }
-  ) {
-    try {
-      await intric.models.update({ embeddingModel, update });
-      invalidate("admin:models:load");
-    } catch (e) {
-      alert(e);
-      console.error(e);
-    }
-  }
-
-  async function updateModel({ next }: { next: boolean }) {
-    if (modeltype == "completion") {
-      await updateCompletionModel({ id: model.id }, { is_org_enabled: next });
-    } else {
-      await updateEmbeddingModel({ id: model.id }, { is_org_enabled: next });
+      alert(`Error changing status of ${model.name}`);
     }
   }
 
@@ -57,7 +38,10 @@
 
 <div class="-ml-3 flex items-center gap-4">
   <Tooltip text={tooltip}>
-    <Input.Switch sideEffect={updateModel} value={model.is_org_enabled} disabled={model.is_locked}
+    <Input.Switch
+      sideEffect={toggleEnabled}
+      value={model.is_org_enabled}
+      disabled={model.is_locked ?? false}
     ></Input.Switch>
   </Tooltip>
 </div>

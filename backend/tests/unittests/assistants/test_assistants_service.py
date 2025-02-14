@@ -7,22 +7,17 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
-from instorage.ai_models.ai_models_service import AIModelsService
-from instorage.assistants.api.assistant_models import (
+from intric.assistants.api.assistant_models import (
     AskAssistant,
     AssistantBase,
     AssistantCreatePublic,
     AssistantUpdatePublic,
 )
-from instorage.assistants.assistant_factory import AssistantFactory
-from instorage.assistants.assistant_service import AssistantService
-from instorage.main.config import get_settings
-from instorage.main.exceptions import (
-    BadRequestException,
-    NotFoundException,
-    UnauthorizedException,
-)
-from instorage.main.models import ModelId
+from intric.assistants.assistant_service import AssistantService
+from intric.main.config import get_settings
+from intric.main.exceptions import BadRequestException, UnauthorizedException
+from intric.main.models import ModelId
+from intric.prompts.api.prompt_models import PromptCreate
 from tests.fixtures import (
     TEST_ASSISTANT,
     TEST_GROUP,
@@ -46,33 +41,53 @@ def setup_fixture():
     auth_service = MagicMock()
     assistant = AssistantCreatePublic(
         name="test_name",
-        prompt="test_prompt",
+        prompt=PromptCreate(text="test_prompt"),
+        space_id=TEST_UUID,
         completion_model=ModelId(id=TEST_MODEL_GPT4.id),
     )
 
-    ai_models_service = AIModelsService(
-        user=TEST_USER,
-        embedding_model_repo=AsyncMock(),
-        completion_model_repo=AsyncMock(),
-        tenant_repo=AsyncMock(),
-    )
+    space_repo = AsyncMock()
+    space_repo.get_space_by_assistant.return_value = MagicMock()
 
     service = AssistantService(
-        repo,
-        user,
-        auth_service,
-        AsyncMock(),
-        AsyncMock(),
-        ai_models_service=ai_models_service,
+        repo=repo,
+        space_repo=space_repo,
+        user=user,
+        auth_service=auth_service,
+        service_repo=AsyncMock(),
+        step_repo=AsyncMock(),
+        completion_model_crud_service=AsyncMock(),
         group_service=AsyncMock(),
         website_service=AsyncMock(),
         space_service=AsyncMock(),
-        factory=AssistantFactory(),
+        factory=MagicMock(),
+        prompt_service=AsyncMock(),
+        file_service=AsyncMock(),
+        assistant_template_service=AsyncMock(),
+        session_service=AsyncMock(),
+        actor_manager=MagicMock(),
     )
 
     setup = Setup(assistant=assistant, service=service, group_service=AsyncMock())
 
     return setup
+
+
+@pytest.fixture
+async def assistant_service():
+    return AssistantService(
+        repo=AsyncMock(),
+        user=MagicMock(id=uuid4()),
+        auth_service=MagicMock(),
+        service_repo=AsyncMock(),
+        step_repo=AsyncMock(),
+        completion_model_crud_service=AsyncMock(),
+        group_service=AsyncMock(),
+        website_service=AsyncMock(),
+        space_service=AsyncMock(),
+        factory=AsyncMock(),
+        prompt_repo=AsyncMock(),
+    )
 
 
 def with_two_different_groups(setup: Setup, attr: str, value_1: Any, value_2: Any):
@@ -108,16 +123,6 @@ async def test_create_public_assistant_fails_when_not_deployer(setup: Setup):
         await setup.service.create_assistant(setup.assistant)
 
 
-async def test_get_assistant_fails_when_not_owner(setup: Setup):
-    user = MagicMock(id=uuid4())
-    setup.service.user = MagicMock(id=uuid4())
-    setup.service.user = user
-    setup.service.repo.get_by_id.return_value = TEST_ASSISTANT
-
-    with pytest.raises(NotFoundException):
-        await setup.service.get_assistant(TEST_ASSISTANT.id)
-
-
 async def test_ask_assistant_model():
     files_number = get_settings().max_in_question + 1
     files = [ModelId(id=uuid4()) for _ in range(files_number)]
@@ -127,47 +132,39 @@ async def test_ask_assistant_model():
 
 
 async def test_update_space_assistant_not_member(setup: Setup):
-    assistant_update = AssistantUpdatePublic(prompt="new prompt!")
+    assistant_update = AssistantUpdatePublic(name="new name!")
 
-    space = MagicMock()
-    space.can_edit_resource.return_value = False
-    setup.service.space_service.get_space.return_value = space
+    actor = MagicMock()
+    actor.can_edit_assistants.return_value = False
+    setup.service.actor_manager.get_space_actor_from_space.return_value = actor
 
     with pytest.raises(UnauthorizedException):
         await setup.service.update_assistant(assistant_update, TEST_UUID)
 
 
 async def test_update_space_assistant_member(setup: Setup):
-    assistant_update = AssistantUpdatePublic(prompt="new prompt!")
-
-    space = MagicMock()
-    space.can_edit_resource.return_value = True
-    setup.service.space_service.get_space.return_value = space
+    assistant_update = AssistantUpdatePublic(name="new name!")
 
     await setup.service.update_assistant(assistant_update, TEST_UUID)
 
 
 async def test_delete_space_assistant_not_member(setup: Setup):
-    space = MagicMock()
-    space.can_delete_resource.return_value = False
-    setup.service.space_service.get_space.return_value = space
+    actor = MagicMock()
+    actor.can_delete_assistants.return_value = False
+    setup.service.actor_manager.get_space_actor_from_space.return_value = actor
 
     with pytest.raises(UnauthorizedException):
         await setup.service.delete_assistant(TEST_UUID)
 
 
 async def test_delete_space_assistant_member(setup: Setup):
-    space = MagicMock()
-    space.can_delete_resource.return_value = True
-    setup.service.space_service.get_space.return_value = space
-
     await setup.service.delete_assistant(TEST_UUID)
 
 
 async def test_update_assistant_completion_model_not_in_space(setup: Setup):
     space = MagicMock()
     space.is_completion_model_in_space.return_value = False
-    setup.service.space_service.get_space.return_value = space
+    setup.service.space_repo.get_space_by_assistant.return_value = space
 
     with pytest.raises(
         BadRequestException,
@@ -180,57 +177,49 @@ async def test_update_assistant_completion_model_in_space(setup: Setup):
     space = MagicMock()
     space.is_completion_model_in_space.return_value = True
     setup.service.space_service.get_space.return_value = space
+    setup.service.repo.update.return_value = MagicMock(prompt="new prompt!", id=uuid4())
 
     await setup.service.update_assistant(TEST_UUID)
 
 
-async def test_update_assistant_group_not_in_space(setup: Setup):
+async def test_completion_model_disabled_in_space(setup: Setup):
+    assistant = MagicMock(completion_model_id=uuid4(), space_id=uuid4())
     space = MagicMock()
-    space.is_group_in_space.return_value = False
-    setup.service.space_service.get_space.return_value = space
+    space.get_assistant.return_value = assistant
+    space.is_completion_model_in_space.return_value = False
+    setup.service.space_repo.get_space_by_assistant.return_value = space
 
-    assistant = MagicMock(groups=[MagicMock()])
-    setup.service.repo.update.return_value = assistant
-
-    with pytest.raises(
-        BadRequestException,
-        match="Group is not in space.",
-    ):
-        await setup.service.update_assistant(id=TEST_UUID, prompt="new prompt!")
+    with pytest.raises(BadRequestException):
+        await setup.service.ask(question="hello", assistant_id=MagicMock())
 
 
-async def test_update_assistant_group_in_space(setup: Setup):
+async def test_group_embedding_model_disabled_in_space(setup: Setup):
+    assistant = MagicMock(
+        space_id=uuid4(),
+        groups=[MagicMock(embedding_model_id=uuid4())],
+        websites=[],
+    )
+
     space = MagicMock()
-    space.is_group_in_space.return_value = True
-    setup.service.space_service.get_space.return_value = space
+    space.get_assistant.return_value = assistant
+    space.is_embedding_model_in_space.return_value = False
+    setup.service.space_repo.get_space_by_assistant.return_value = space
 
-    assistant = MagicMock(groups=[MagicMock()])
-    setup.service.repo.update.return_value = assistant
-
-    await setup.service.update_assistant(TEST_UUID)
+    with pytest.raises(BadRequestException):
+        await setup.service.ask(question="hello", assistant_id=MagicMock())
 
 
-async def test_update_assistant_website_not_in_space(setup: Setup):
+async def test_website_embedding_model_disabled_in_space(setup: Setup):
+    assistant = MagicMock(
+        space_id=uuid4(),
+        websites=[MagicMock(embedding_model_id=uuid4())],
+        groups=[],
+    )
+
     space = MagicMock()
-    space.is_website_in_space.return_value = False
-    setup.service.space_service.get_space.return_value = space
+    space.get_assistant.return_value = assistant
+    space.is_embedding_model_in_space.return_value = False
+    setup.service.space_repo.get_space_by_assistant.return_value = space
 
-    assistant = MagicMock(websites=[MagicMock()])
-    setup.service.repo.update.return_value = assistant
-
-    with pytest.raises(
-        BadRequestException,
-        match="Website is not in space.",
-    ):
-        await setup.service.update_assistant(TEST_UUID)
-
-
-async def test_update_assistant_website_in_space(setup: Setup):
-    space = MagicMock()
-    space.is_website_in_space.return_value = True
-    setup.service.space_service.get_space.return_value = space
-
-    assistant = MagicMock(websites=[MagicMock()])
-    setup.service.repo.update.return_value = assistant
-
-    await setup.service.update_assistant(TEST_UUID)
+    with pytest.raises(BadRequestException):
+        await setup.service.ask(question="hello", assistant_id=MagicMock())

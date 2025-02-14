@@ -4,11 +4,8 @@ from uuid import uuid4
 
 import pytest
 
-from instorage.main.config import SETTINGS
-from instorage.main.exceptions import BadRequestException, UnauthorizedException
-from instorage.modules.module import Modules
-from instorage.roles.permissions import Permission
-from instorage.spaces.space import UNAUTHORIZED_EXCEPTION_MESSAGE, Space, SpaceRole
+from intric.main.exceptions import BadRequestException, UnauthorizedException
+from intric.spaces.space import UNAUTHORIZED_EXCEPTION_MESSAGE, Space, SpaceRoleValue
 
 
 @pytest.fixture
@@ -21,7 +18,9 @@ def space():
         description=None,
         embedding_models=[],
         completion_models=[],
+        default_assistant=MagicMock(),
         assistants=[],
+        apps=[],
         services=[],
         websites=[],
         groups=[],
@@ -65,26 +64,6 @@ def test_set_embedding_model_when_all_are_not_accessible(space: Space):
         space.embedding_models = embedding_models
 
 
-def test_get_space_no_access(space: Space):
-    assert not space.can_read(MagicMock())
-
-
-def test_get_space_admin_access(space: Space):
-    admin_id = "admin_id"
-    admin = MagicMock(id=admin_id, role=SpaceRole.ADMIN)
-    space.members = {admin_id: admin}
-
-    assert space.can_read(admin)
-
-
-def test_get_space_editor_access(space: Space):
-    editor_id = "editor_id"
-    editor = MagicMock(id=editor_id, role=SpaceRole.EDITOR)
-    space.members = {editor_id: editor}
-
-    assert space.can_read(editor)
-
-
 def test_space_update_embedding_model_no_acces(space: Space):
     embedding_model = MagicMock(can_access=False)
 
@@ -115,26 +94,6 @@ def test_space_update_completion_models(space: Space):
     assert space.completion_models == [completion_model]
 
 
-def test_update_space_admin_access(space: Space):
-    admin_id = "admin_id"
-    admin = MagicMock(id=admin_id, role=SpaceRole.ADMIN)
-    space.members = {admin_id: admin}
-
-    assert space.can_edit(admin)
-
-
-def test_update_space_editor_no_access(space: Space):
-    editor_id = "editor_id"
-    editor = MagicMock(id=editor_id, role=SpaceRole.EDITOR)
-    space.members = {editor_id: editor}
-
-    assert not space.can_edit(editor)
-
-
-def test_delete_space_not_member(space: Space):
-    assert not space.can_edit(MagicMock())
-
-
 def test_get_latest_completion_model(space: Space):
     completion_models = [
         MagicMock(created_at=datetime(2024, 1, 3 - i)) for i in range(3)
@@ -150,6 +109,24 @@ def test_get_latest_completion_model_none(space: Space):
     space.completion_models = []
 
     assert space.get_latest_completion_model() is None
+
+
+def test_get_default_model(space: Space):
+    default_model = MagicMock()
+    default_model.is_org_default = True
+    default_model.can_access = True
+    space.completion_models = [default_model]
+    assert space.get_default_model() is not None
+
+    # Disable access
+    default_model.can_access = False
+    assert space.get_default_model() is None
+
+    non_default_model = MagicMock()
+    non_default_model.is_org_default = False
+    non_default_model.can_access = True
+    space.completion_models = [non_default_model]
+    assert space.get_default_model() is None
 
 
 def test_is_completion_model_in_space(space: Space):
@@ -186,7 +163,7 @@ def test_is_website_not_in_space(space: Space):
 
 
 def test_add_user_that_already_exists(space: Space):
-    space.members = {"admin1": MagicMock(id="admin1", role=SpaceRole.ADMIN)}
+    space.members = {"admin1": MagicMock(id="admin1", role=SpaceRoleValue.ADMIN)}
 
     with pytest.raises(BadRequestException):
         space.add_member(MagicMock(id="admin1"))
@@ -215,26 +192,26 @@ def test_remove_user_if_user_does_not_exist(space: Space):
 
 
 def test_change_role_of_user(space: Space):
-    space.members = {12: MagicMock(role=SpaceRole.ADMIN)}
+    space.members = {12: MagicMock(role=SpaceRoleValue.ADMIN)}
 
-    space.change_member_role(12, SpaceRole.EDITOR)
+    space.change_member_role(12, SpaceRoleValue.EDITOR)
 
-    assert space.get_member(12).role == SpaceRole.EDITOR
+    assert space.get_member(12).role == SpaceRoleValue.EDITOR
 
 
 def test_change_role_of_user_to_same(space: Space):
-    space.members = {12: MagicMock(role=SpaceRole.ADMIN)}
+    space.members = {12: MagicMock(role=SpaceRoleValue.ADMIN)}
 
-    space.change_member_role(12, SpaceRole.ADMIN)
+    space.change_member_role(12, SpaceRoleValue.ADMIN)
 
-    assert space.get_member(12).role == SpaceRole.ADMIN
+    assert space.get_member(12).role == SpaceRoleValue.ADMIN
 
 
 def test_change_role_of_user_if_user_not_exist(space: Space):
     space.members = {}
 
     with pytest.raises(BadRequestException):
-        space.change_member_role("UUID", SpaceRole.ADMIN)
+        space.change_member_role("UUID", SpaceRoleValue.ADMIN)
 
 
 def test_add_member_in_personal_space(space: Space):
@@ -271,160 +248,3 @@ def test_all_models_are_available_if_personal_space(space: Space):
     assert space.completion_models == []
 
     assert space.is_completion_model_in_space(MagicMock())
-
-
-def test_permissions_in_personal_space(space: Space):
-    user_id = "id"
-    user = MagicMock(id=user_id)
-    space.user_id = user_id
-
-    assert space.can_read(user)
-    assert not space.can_edit(user)
-    assert space.can_read_resource(user)
-    assert space.can_edit_resource(user)
-    assert space.can_delete_resource(user, MagicMock())
-
-
-def test_can_create_assistants_in_personal_space(space: Space):
-    user = MagicMock(permissions={Permission.ASSISTANTS})
-    space.user_id = user.id
-
-    assert space.can_create_assistants(user)
-
-
-def test_can_create_services_in_personal_space(space: Space):
-    user = MagicMock(
-        permissions={Permission.SERVICES}, modules=[Modules.INTRIC_APPLICATIONS]
-    )
-    space.user_id = user.id
-
-    assert space.can_create_services(user)
-
-
-def test_can_not_create_assistants_in_personal_space_without_assistant_permission(
-    space: Space,
-):
-    user = MagicMock()
-    space.user_id = user.id
-
-    assert not space.can_create_assistants(user)
-
-
-def test_can_not_create_services_in_personal_space_without_service_permission(
-    space: Space,
-):
-    user = MagicMock()
-    space.user_id = user.id
-
-    assert not space.can_create_services(user)
-
-
-def test_can_create_assistants_in_shared_space_if_editor_or_admin(space: Space):
-    editor = MagicMock(id=1, role=SpaceRole.EDITOR)
-    admin = MagicMock(id=2, role=SpaceRole.ADMIN)
-    space.members = {1: editor, 2: admin}
-
-    assert space.can_create_assistants(editor)
-    assert space.can_create_assistants(admin)
-
-
-def test_can_create_services_in_shared_space_if_editor_or_admin(space: Space):
-    editor = MagicMock(
-        id=1, role=SpaceRole.EDITOR, modules=[Modules.INTRIC_APPLICATIONS]
-    )
-    admin = MagicMock(id=2, role=SpaceRole.ADMIN, modules=[Modules.INTRIC_APPLICATIONS])
-    space.members = {1: editor, 2: admin}
-
-    assert space.can_create_services(editor)
-    assert space.can_create_services(admin)
-
-
-def test_can_create_groups_in_personal_space(space: Space):
-    user = MagicMock(permissions={Permission.COLLECTIONS})
-    space.user_id = user.id
-
-    assert space.can_create_groups(user)
-
-
-def test_can_not_create_groups_in_personal_space_without_group_permission(
-    space: Space,
-):
-    user = MagicMock()
-    space.user_id = user.id
-
-    assert not space.can_create_groups(user)
-
-
-def test_can_create_groups_in_shared_space_if_editor_or_admin(space: Space):
-    editor = MagicMock(id=1, role=SpaceRole.EDITOR)
-    admin = MagicMock(id=2, role=SpaceRole.ADMIN)
-    space.members = {1: editor, 2: admin}
-
-    assert space.can_create_groups(editor)
-    assert space.can_create_groups(admin)
-
-
-def test_can_create_websites_in_personal_space(space: Space):
-    user = MagicMock(permissions={Permission.WEBSITES})
-    space.user_id = user.id
-
-    assert space.can_create_websites(user)
-
-
-def test_can_not_create_websites_in_personal_space_without_website_permission(
-    space: Space,
-):
-    user = MagicMock()
-    space.user_id = user.id
-
-    assert not space.can_create_websites(user)
-
-
-def test_can_create_websites_in_shared_space_if_editor_or_admin(space: Space):
-    editor = MagicMock(id=1, role=SpaceRole.EDITOR)
-    admin = MagicMock(id=2, role=SpaceRole.ADMIN)
-    space.members = {1: editor, 2: admin}
-
-    assert space.can_create_websites(editor)
-    assert space.can_create_websites(admin)
-
-
-def test_can_not_create_websites_if_not_using_intric_proprietary(space: Space):
-    SETTINGS.using_intric_proprietary = False
-    editor = MagicMock(id=1, role=SpaceRole.EDITOR)
-    admin = MagicMock(id=2, role=SpaceRole.ADMIN)
-    space.members = {1: editor, 2: admin}
-
-    assert not space.can_create_websites(editor)
-    assert not space.can_create_websites(admin)
-
-
-def test_can_read_members_in_shared_space(space: Space):
-    editor = MagicMock(id=1, role=SpaceRole.EDITOR)
-    admin = MagicMock(id=2, role=SpaceRole.ADMIN)
-    space.members = {1: editor, 2: admin}
-
-    assert space.can_read_members(editor)
-    assert space.can_read_members(admin)
-
-
-def test_no_one_can_read_members_in_personal_space(space: Space):
-    editor = MagicMock(id=1, role=SpaceRole.EDITOR)
-    admin = MagicMock(id=2, role=SpaceRole.ADMIN)
-    space.members = {1: editor, 2: admin}
-
-    space.user_id = MagicMock()
-
-    assert not space.can_read_members(admin)
-    assert not space.can_read_members(editor)
-
-
-async def test_can_create_services_no_intric_applications(space: Space):
-    user = MagicMock(modules=[])
-    assert not space.can_create_services(user)
-
-
-async def test_can_create_services_with_intric_applications(space: Space):
-    user = MagicMock(id=uuid4(), modules=[Modules.INTRIC_APPLICATIONS])
-    space.members = {user.id: user}
-    assert space.can_create_services(user)

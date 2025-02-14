@@ -1,5 +1,118 @@
 # Changelog
 
+## [1.11.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.10.0...intric/intric.js@v1.11.0) (2025-02-05)
+
+
+### Features
+
+* add setting for preferred completion model ([#148](https://github.com/inooLabs/intric-frontend/issues/148)) ([3484d90](https://github.com/inooLabs/intric-frontend/commit/3484d9015b893f1acabd25e63b9f60ba0ef752c0))
+* add storage overview to admin and spaces ([#141](https://github.com/inooLabs/intric-frontend/issues/141)) ([3edab89](https://github.com/inooLabs/intric-frontend/commit/3edab89048370772186582553a74da227690eba5))
+* allow manual trigger of website crawls ([#152](https://github.com/inooLabs/intric-frontend/issues/152)) ([b7fed64](https://github.com/inooLabs/intric-frontend/commit/b7fed64318e638fbf9e68b7475fd2323a5e3f669))
+
+
+### Bug Fixes
+
+* change naming of "preferred" to "default" model ([#150](https://github.com/inooLabs/intric-frontend/issues/150)) ([dfc62f2](https://github.com/inooLabs/intric-frontend/commit/dfc62f235d381af7a8ddb6378386ab42dfa5481b))
+* get space roles from backend ([#151](https://github.com/inooLabs/intric-frontend/issues/151)) ([f227cd1](https://github.com/inooLabs/intric-frontend/commit/f227cd1b0d25f30a7c27eeca19a57b8bd7fd7dfa))
+* move prompt description hints to right side and make them blue ([dfc62f2](https://github.com/inooLabs/intric-frontend/commit/dfc62f235d381af7a8ddb6378386ab42dfa5481b))
+
+## [1.10.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.9.0...intric/intric.js@v1.10.0) (2025-01-27)
+
+
+### Features
+
+* add new viewer role to spaces ([d504455](https://github.com/inooLabs/intric-frontend/commit/d5044556f88962c314bedcb2dc3ee61ff990d1d0))
+* add publishing to apps and assistants ([#134](https://github.com/inooLabs/intric-frontend/issues/134)) ([d504455](https://github.com/inooLabs/intric-frontend/commit/d5044556f88962c314bedcb2dc3ee61ff990d1d0))
+
+## [1.9.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.8.0...intric/intric.js@v1.9.0) (2025-01-17)
+
+
+### Features
+
+* add default assistant in personal space ([#140](https://github.com/inooLabs/intric-frontend/issues/140)) ([28ac2aa](https://github.com/inooLabs/intric-frontend/commit/28ac2aa65909c71031b6bbaf17633b8229d89a19))
+* enable improved RAG and add inline references ([#138](https://github.com/inooLabs/intric-frontend/issues/138)) ([a66c906](https://github.com/inooLabs/intric-frontend/commit/a66c906315fd4004b12a0680772fe66d0f5468e5))
+* new markdown rendering ([a66c906](https://github.com/inooLabs/intric-frontend/commit/a66c906315fd4004b12a0680772fe66d0f5468e5))
+
+## [1.8.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.7.0...intric/intric.js@v1.8.0) (2024-12-19)
+
+
+### Features
+
+* add prompt history for apps ([#128](https://github.com/inooLabs/intric-frontend/issues/128)) ([390b88e](https://github.com/inooLabs/intric-frontend/commit/390b88e3cd5759ca583ae436fd4e74c1bdd60a10))
+* add templates ([#117](https://github.com/inooLabs/intric-frontend/issues/117)) ([581b47b](https://github.com/inooLabs/intric-frontend/commit/581b47b1cb79d22eb362e3089d49b0c239507eaf))
+
+
+### Bug Fixes
+
+* allow setting of display name for websites ([#133](https://github.com/inooLabs/intric-frontend/issues/133)) ([d47d9f3](https://github.com/inooLabs/intric-frontend/commit/d47d9f3882b85d04f51b39404c113316698513a0))
+* proper truncation of long names on edit pages ([d47d9f3](https://github.com/inooLabs/intric-frontend/commit/d47d9f3882b85d04f51b39404c113316698513a0))
+
+## [1.7.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.6.0...intric/intric.js@v1.7.0) (2024-12-05)
+
+
+### Features
+
+* add websocket communications ([#101](https://github.com/inooLabs/intric-frontend/issues/101)) ([298ac8d](https://github.com/inooLabs/intric-frontend/commit/298ac8da4298b01d9c0f0cc23d78b781d324b746))
+* attachments can now also be uploaded to assistants ([bf48580](https://github.com/inooLabs/intric-frontend/commit/bf4858017ed9313baa629609da17f251bb002488))
+* new interface for editing assistants ([#107](https://github.com/inooLabs/intric-frontend/issues/107)) ([bf48580](https://github.com/inooLabs/intric-frontend/commit/bf4858017ed9313baa629609da17f251bb002488))
+
+
+### Bug Fixes
+
+* add exponential backoff to websocket reconnect attempts ([e8caef7](https://github.com/inooLabs/intric-frontend/commit/e8caef7e76c0f6e5154f5ad61615803942cfd762))
+* prevent websocket memory leak during hmr in local development ([d9543c7](https://github.com/inooLabs/intric-frontend/commit/d9543c7e6b9f158c23433441cc4cf0da352f0f18))
+* simplify socket reconnection on timeout ([79e1f64](https://github.com/inooLabs/intric-frontend/commit/79e1f64b71b415997d1872e0b992e45ea53df214))
+
+## [1.6.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.5.0...intric/intric.js@v1.6.0) (2024-10-25)
+
+
+### Features
+
+* add apps in intric (build-a-service) ([#98](https://github.com/inooLabs/intric-frontend/issues/98)) ([7e40f30](https://github.com/inooLabs/intric-frontend/commit/7e40f3053281613a24dbb89f83d6e7634752ac0b))
+
+## [1.5.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.4.0...intric/intric.js@v1.5.0) (2024-10-09)
+
+
+### Features
+
+* add pagination to chat history ([#85](https://github.com/inooLabs/intric-frontend/issues/85)) ([4b7b09e](https://github.com/inooLabs/intric-frontend/commit/4b7b09ea348a7c4c8268fd730b444bd86e59fd6f))
+* add prompt versioning ([#83](https://github.com/inooLabs/intric-frontend/issues/83)) ([7ab5e3c](https://github.com/inooLabs/intric-frontend/commit/7ab5e3ce18a45c3d3bc10a5a7e62c5570dae07c6))
+* **intric.js:** Add endpoints for prompt-versioning ([#82](https://github.com/inooLabs/intric-frontend/issues/82)) ([d40f8d4](https://github.com/inooLabs/intric-frontend/commit/d40f8d40a6e60c2cb659f1ec7290c0af4d6e869c))
+* **intric.js:** allow cancellation of running file uploads ([b407067](https://github.com/inooLabs/intric-frontend/commit/b407067df9f35b5c9e808d8493a6afca98cf2592))
+
+
+### Bug Fixes
+
+* remove guardrail from frontend ([#76](https://github.com/inooLabs/intric-frontend/issues/76)) ([9242aca](https://github.com/inooLabs/intric-frontend/commit/9242aca995532e11092e383fb0a53d5300749d34))
+
+## [1.4.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.3.0...intric/intric.js@v1.4.0) (2024-09-16)
+
+
+### Features
+
+* add IAM via Zitadel ([#69](https://github.com/inooLabs/intric-frontend/issues/69)) ([c3d20cd](https://github.com/inooLabs/intric-frontend/commit/c3d20cd952b0acfb1d07b8909a0a4bc0c36808eb))
+
+## [1.3.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.2.0...intric/intric.js@v1.3.0) (2024-09-04)
+
+
+### Features
+
+* improve insights ([#73](https://github.com/inooLabs/intric-frontend/issues/73)) ([6c00bc0](https://github.com/inooLabs/intric-frontend/commit/6c00bc0a58c9ff792fd6e41baeb69ff2f2d34d66))
+
+## [1.2.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.1.0...intric/intric.js@v1.2.0) (2024-09-03)
+
+
+### Features
+
+* add dashboard prototype ([c25270e](https://github.com/inooLabs/intric-frontend/commit/c25270e8fbc6b675d7e8b8d6b828b2a2a0b57bba))
+* overhaul chat interface ([#71](https://github.com/inooLabs/intric-frontend/issues/71)) ([c25270e](https://github.com/inooLabs/intric-frontend/commit/c25270e8fbc6b675d7e8b8d6b828b2a2a0b57bba))
+
+
+### Bug Fixes
+
+* add intric error codes ([042e579](https://github.com/inooLabs/intric-frontend/commit/042e57973eabfda1bd7c97d2897701388580e45a))
+* improve server error display ([f4f3ff9](https://github.com/inooLabs/intric-frontend/commit/f4f3ff97715e7f45c69be3f878d748893b90ea80))
+
 ## [1.1.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.0.1...intric/intric.js@v1.1.0) (2024-08-19)
 
 

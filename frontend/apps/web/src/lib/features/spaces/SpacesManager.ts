@@ -1,4 +1,4 @@
-/* 
+/*
     Copyright (c) 2024 Sundsvalls Kommun
 
     Licensed under the MIT License.
@@ -57,11 +57,26 @@ function SpacesManager(data: SpacesManagerParams) {
     }
   }
 
-  async function refreshCurrentSpace() {
+  async function refreshCurrentSpace(type?: "applications" | "knowledge") {
+    let $currentSpace = get(currentSpace);
     try {
-      const updated = await intric.spaces.get(get(currentSpace));
-      currentSpace.set(updated);
-      return updated;
+      if (type) {
+        switch (type) {
+          case "applications": {
+            const applications = await intric.spaces.listApplications($currentSpace);
+            $currentSpace.applications = applications;
+            break;
+          }
+          case "knowledge": {
+            const knowledge = await intric.spaces.listKnowledge($currentSpace);
+            $currentSpace.knowledge = knowledge;
+            break;
+          }
+        }
+      } else {
+        $currentSpace = await intric.spaces.get($currentSpace);
+      }
+      currentSpace.set($currentSpace);
     } catch (e) {
       console.error("Error updating current space", e);
     }
@@ -120,6 +135,23 @@ function SpacesManager(data: SpacesManagerParams) {
     }
   }
 
+  async function updateDefaultAssistant({ completionModel }: { completionModel: { id: string } }) {
+    const id = get(currentSpace).default_assistant.id;
+    try {
+      const updatedAssistant = await intric.assistants.update({
+        assistant: { id },
+        update: { completion_model: completionModel }
+      });
+      currentSpace.update(($currentSpace) => {
+        $currentSpace.default_assistant = updatedAssistant;
+        return $currentSpace;
+      });
+    } catch (e) {
+      alert("Error updating default assistant.");
+      console.error(e);
+    }
+  }
+
   return Object.freeze({
     state: {
       accessibleSpaces: {
@@ -132,7 +164,8 @@ function SpacesManager(data: SpacesManagerParams) {
     createSpace,
     updateSpace,
     deleteSpace,
-    watchPageData
+    watchPageData,
+    updateDefaultAssistant
   });
 }
 
@@ -151,6 +184,7 @@ function derivedCurrentSpace(space: Readable<Space>) {
       members: $space.members.items,
       applications: {
         assistants: $space.applications.assistants.items,
+        apps: $space.applications.apps.items,
         services: $space.applications.services.items.filter((service) => {
           return !service.name.startsWith("_intric");
         })
@@ -165,6 +199,10 @@ function derivedCurrentSpace(space: Readable<Space>) {
             return $space.permissions?.includes(action) ?? false;
           case "assistant":
             return $space.applications.assistants.permissions?.includes(action) ?? false;
+          case "default_assistant":
+            return $space.default_assistant.permissions?.includes(action) ?? false;
+          case "app":
+            return $space.applications.apps.permissions?.includes(action) ?? false;
           case "service":
             return $space.applications.services.permissions?.includes(action) ?? false;
           case "collection":
@@ -181,4 +219,12 @@ function derivedCurrentSpace(space: Readable<Space>) {
   });
 }
 
-type Resource = "space" | "assistant" | "service" | "website" | "collection" | "member";
+type Resource =
+  | "space"
+  | "assistant"
+  | "default_assistant"
+  | "service"
+  | "website"
+  | "collection"
+  | "member"
+  | "app";

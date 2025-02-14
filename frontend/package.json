@@ -1,16 +1,16 @@
 {
-  "version": "1.1.1",
+  "version": "1.13.3",
   "private": true,
   "scripts": {
-    "build": "FORCE_COLOR=1 pnpm run --recursive --filter @intric/web... build",
-    "dev": "FORCE_COLOR=1 pnpm run --recursive --parallel dev",
+    "build": "NODE_ENV=production FORCE_COLOR=1 pnpm run --recursive --filter @intric/web... build",
+    "dev": "NODE_ENV=development FORCE_COLOR=1 pnpm run --recursive --filter @intric/web --filter @intric/ui --parallel dev",
     "lint": "FORCE_COLOR=1 pnpm run --recursive --parallel --no-bail lint",
-    "check": "FORCE_COLOR=1 pnpm run --recursive --parallel --no-bail check",
+    "check": "NODE_ENV=production FORCE_COLOR=1 pnpm run --recursive --parallel --no-bail check",
     "format": "FORCE_COLOR=1 pnpm run --recursive --parallel --no-bail format",
     "setup": "sh setup.sh",
     "setup:github": "GITHUB=TRUE sh setup.sh"
   },
-  "packageManager": "pnpm@8.9.0",
+  "packageManager": "pnpm@9.12.3",
   "engines": {
     "node": ">=18"
   }

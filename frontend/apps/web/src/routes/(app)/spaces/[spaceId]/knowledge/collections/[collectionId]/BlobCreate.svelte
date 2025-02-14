@@ -41,23 +41,25 @@
     <Button {disabled} variant="primary" is={trigger}>Add text</Button>
   </Dialog.Trigger>
 
-  <Dialog.Content wide form>
+  <Dialog.Content width="medium" form>
     <Dialog.Title>Add text</Dialog.Title>
     <Dialog.Description hidden></Dialog.Description>
 
     <Dialog.Section>
       <Input.Text
         bind:value={title}
+        label="Title"
         required
-        class="border-b border-stone-100 px-4 py-4 hover:bg-stone-50">Title</Input.Text
-      >
+        class="border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+      ></Input.Text>
 
       <Input.TextArea
         bind:value={text}
+        label="Content"
         required
         rows={15}
-        class="border-b border-stone-100 px-4 py-4 hover:bg-stone-50">Content</Input.TextArea
-      >
+        class="border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+      ></Input.TextArea>
     </Dialog.Section>
 
     <Dialog.Controls let:close>

@@ -18,13 +18,11 @@
 
   let store = writable(getInitiallySelected());
 
-  function updateValue() {
+  $: {
     if ($store) {
       value = $store.value;
     }
   }
-
-  $: updateValue(), $store;
 
   let cls = "";
   export { cls as class };

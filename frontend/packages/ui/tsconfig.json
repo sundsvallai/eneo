@@ -8,9 +8,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "strict": true,
-    "module": "ESNext",
-    "moduleResolution": "Bundler"
+    "strict": true
   },
   "exclude": ["./dist/*"]
 }

@@ -1,6 +1,6 @@
 {
   "name": "@intric/intric-js",
-  "version": "1.1.0",
+  "version": "1.11.0",
   "type": "module",
   "module": "index.js",
   "main": "index.js",
@@ -11,13 +11,12 @@
     "update": "node update.js && pnpm run format"
   },
   "devDependencies": {
-    "@rollup/plugin-terser": "^0.4.4",
-    "@types/node": "^20.11.15",
-    "eslint": "^8.56.0",
+    "@types/node": "^20.17.16",
+    "eslint": "^9.18.0",
     "eslint-config-prettier": "^9.1.0",
-    "openapi-typescript": "^6.7.3",
-    "prettier": "^3.1.1",
-    "rollup": "^4.9.4"
+    "globals": "^15.14.0",
+    "openapi-typescript": "^6.7.6",
+    "prettier": "^3.4.2"
   },
   "exports": {
     ".": "./index.js"

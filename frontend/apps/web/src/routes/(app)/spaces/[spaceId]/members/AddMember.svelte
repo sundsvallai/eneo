@@ -5,12 +5,14 @@
 -->
 
 <script lang="ts">
+  import { IconSearch } from "@intric/icons/search";
+  import { IconSelectedItem } from "@intric/icons/selected-item";
+  import { Button, Dialog, Select } from "@intric/ui";
   import { getIntric } from "$lib/core/Intric";
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
-  import type { UserSparse } from "@intric/intric-js";
-  import { Button, Dialog, Select } from "@intric/ui";
+  import type { SpaceRole, UserSparse } from "@intric/intric-js";
   import { createCombobox } from "@melt-ui/svelte";
-  import MemberChip from "./MemberChip.svelte";
+  import MemberChip from "$lib/features/spaces/components/MemberChip.svelte";
 
   const intric = getIntric();
   const {
@@ -24,7 +26,7 @@
   $: memberIds = currentMembers.map((member) => member.id);
   $: remainingUsers = allUsers.filter((user) => !memberIds.includes(user.id));
 
-  let selectedRole: "admin" | "editor" = "editor";
+  let selectedRole: SpaceRole = $currentSpace.available_roles[0];
 
   const {
     elements: { menu, input, option },
@@ -34,18 +36,13 @@
     portal: null,
     positioning: {
       sameWidth: true,
-      fitViewport: false,
-
+      fitViewport: true,
       placement: "bottom"
     }
   });
 
   $: filteredUsers = $touchedInput
-    ? remainingUsers.filter(
-        ({ username, email }) =>
-          username.toLowerCase().includes($inputValue.toLowerCase()) ||
-          email.toLowerCase().includes($inputValue.toLowerCase())
-      )
+    ? remainingUsers.filter(({ email }) => email.toLowerCase().includes($inputValue.toLowerCase()))
     : remainingUsers;
 
   $: if (!$open) {
@@ -59,7 +56,7 @@
     try {
       await intric.spaces.members.add({
         spaceId: $currentSpace.id,
-        user: { id, role: selectedRole }
+        user: { id, role: selectedRole.value }
       });
       refreshCurrentSpace();
       $showDialog = false;
@@ -81,11 +78,11 @@
     <Button variant="primary" is={trigger}>Add new member</Button>
   </Dialog.Trigger>
 
-  <Dialog.Content wide form>
+  <Dialog.Content width="medium" form>
     <Dialog.Title>Add new member</Dialog.Title>
 
     <Dialog.Section scrollable={false}>
-      <div class="flex items-center rounded-md hover:bg-stone-50">
+      <div class="flex items-center rounded-md hover:bg-hover-dimmer">
         <div class="flex flex-grow flex-col gap-1 rounded-md pb-4 pl-4 pr-2 pt-2">
           <div>
             <span class="pl-3 font-medium">User</span>
@@ -99,7 +96,7 @@
               required
               use:input
               class="relative h-10 w-full items-center justify-between overflow-hidden rounded-lg
-            border border-stone-300 bg-white px-3 py-2 shadow ring-stone-200 placeholder:text-stone-400 focus-within:ring-2 hover:ring-2 focus-visible:ring-2 disabled:bg-stone-50 disabled:text-stone-500 disabled:shadow-none disabled:hover:ring-0"
+            border border-stronger bg-primary px-3 py-2 shadow ring-default placeholder:text-secondary focus-within:ring-2 hover:ring-2 focus-visible:ring-2 disabled:bg-secondary disabled:text-muted disabled:shadow-none disabled:hover:ring-0"
             />
             <button
               on:click={() => {
@@ -107,75 +104,46 @@
                 $open = true;
               }}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="absolute right-4 top-2 h-6 w-6"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-                />
-              </svg>
+              <IconSearch class="absolute right-4 top-2" />
             </button>
           </div>
           <ul
-            class="relative z-10 flex flex-col gap-1 overflow-y-auto rounded-lg border border-stone-300 bg-white p-1 shadow-md shadow-stone-200 focus:!ring-0"
+            class="shadow-bg-secondary relative z-10 flex flex-col gap-1 overflow-y-auto rounded-lg border border-stronger bg-primary p-1 shadow-md focus:!ring-0"
             {...$menu}
             use:menu
           >
             <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-            <div class="flex flex-col gap-0 bg-white text-black" tabindex="0">
+            <div class="flex flex-col gap-0 bg-primary text-primary" tabindex="0">
               {#each filteredUsers as user, index (index)}
                 <li
                   {...$option({
                     value: user,
-                    label: user.username
+                    label: user.email
                   })}
                   use:option
-                  class="flex items-center gap-1 rounded-md px-2 py-1 hover:cursor-pointer hover:bg-stone-200"
+                  class="flex items-center gap-1 rounded-md px-2 py-1 hover:cursor-pointer hover:bg-hover-default"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="2.5"
-                    stroke="currentColor"
-                    class="h-5 w-5 {$isSelected(user) ? 'block' : 'hidden'} text-blue-600"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="m4.5 12.75 6 6 9-13.5"
-                    />
-                  </svg>
-
-                  <div class="pl-2">
+                  <IconSelectedItem
+                    class="{$isSelected(user) ? 'block' : 'hidden'} text-accent-default"
+                  />
+                  <div class="px-2">
                     <MemberChip member={user}></MemberChip>
                   </div>
 
-                  <div class="flex w-full items-center justify-between py-1">
-                    <span>
-                      {user.username}
-                    </span>
-                    <span class="font-mono text-sm text-stone-400">{user.email}</span>
-                  </div>
+                  <span class="flex w-full items-center justify-between truncate py-1 text-primary">
+                    {user.email}
+                  </span>
                 </li>
               {/each}
             </div>
           </ul>
         </div>
         <Select.Simple
-          fitViewport={false}
+          fitViewport={true}
           class="w-1/3  p-4 pl-2 "
-          options={[
-            { value: "editor", label: "Editor" },
-            { value: "admin", label: "Admin" }
-          ]}
+          options={$currentSpace.available_roles.map((role) => {
+            return { label: role.label, value: role };
+          })}
           bind:value={selectedRole}>Role</Select.Simple
         >
       </div>

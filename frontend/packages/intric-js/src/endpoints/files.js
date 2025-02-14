@@ -14,10 +14,11 @@ export function initFiles(client) {
      * @param {Object} params
      * @param {File} params.file The file to upload
      * @param {(ev: ProgressEvent<EventTarget>) => void} [params.onProgress] Callback to run on upload progress
+     * @param {AbortController} [params.abortController] Pass in an AbortController if you want to be able to cancel this upload
      * @returns {Promise<UploadedFile>}
      * @throws {IntricError}
      * */
-    upload: async ({ file, onProgress }) => {
+    upload: async ({ file, onProgress, abortController }) => {
       const formData = new FormData();
       formData.append("upload_file", file);
       const res = await client.xhr(
@@ -29,7 +30,8 @@ export function initFiles(client) {
         },
         {
           onProgress
-        }
+        },
+        abortController
       );
       return res;
     },

@@ -7,12 +7,12 @@
   {#if collection.metadata}
     {#if collection.metadata.num_info_blobs > 0}
       <span
-        class="block min-w-16 rounded-md border border-blue-600 bg-blue-50 px-2 py-1 text-center text-sm text-blue-700"
+        class="label-blue block min-w-16 rounded-md border border-label-default bg-label-dimmer px-2 py-1 text-center text-sm text-label-stronger"
         >{collection.metadata.num_info_blobs} files</span
       >
     {:else}
       <span
-        class="block min-w-16 rounded-md border border-stone-500 bg-stone-50 px-2 py-1 text-center text-sm text-stone-500"
+        class="label-grey block min-w-16 rounded-md border border-label-default bg-label-dimmer px-2 py-1 text-center text-sm text-label-stronger"
         >Empty</span
       >
     {/if}

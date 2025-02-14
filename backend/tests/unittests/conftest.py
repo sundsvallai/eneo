@@ -2,16 +2,16 @@ import uuid
 
 import pytest
 
-from instorage.ai_models.completion_models.completion_model import (
+from intric.ai_models.completion_models.completion_model import (
     ModelHostingLocation,
     ModelStability,
 )
-from instorage.ai_models.embedding_models.embedding_model import (
+from intric.ai_models.embedding_models.embedding_model import (
     EmbeddingModel,
     EmbeddingModelFamily,
 )
-from instorage.tenants.tenant import TenantInDB
-from instorage.users.user import UserInDB
+from intric.tenants.tenant import TenantInDB
+from intric.users.user import UserInDB
 
 
 @pytest.fixture
@@ -51,4 +51,5 @@ def user(tenant: TenantInDB):
         tenant_id=tenant.id,
         quota_used=0,
         tenant=tenant,
+        state="active",
     )

@@ -1,6 +1,7 @@
 import { createClient } from "./client/client";
 import { initAnalytics } from "./endpoints/analysis";
 import { initAssistants } from "./endpoints/assistants";
+import { initDashboard } from "./endpoints/dashboard";
 import { initFiles } from "./endpoints/files";
 import { initGroups } from "./endpoints/groups";
 import { initInfoBlobs } from "./endpoints/info-blobs";
@@ -15,6 +16,11 @@ import { initUserGroups } from "./endpoints/user-groups";
 import { initUser } from "./endpoints/users";
 import { initVersion } from "./endpoints/version";
 import { initWebsites } from "./endpoints/websites";
+import { initWidgets } from "./endpoints/widgets";
+import { initPrompts } from "./endpoints/prompts";
+import { initApps } from "./endpoints/apps";
+import { initTemplates } from "./endpoints/templates";
+import { initStorage } from "./endpoints/storage";
 
 /**
  * Create an Intric.js object to interact with the intric backend.
@@ -28,6 +34,7 @@ import { initWebsites } from "./endpoints/websites";
 export function createIntric(args) {
   const client = createClient(args);
   return {
+    apps: initApps(client),
     groups: initGroups(client),
     users: initUser(client),
     userGroups: initUserGroups(client),
@@ -38,12 +45,17 @@ export function createIntric(args) {
     analytics: initAnalytics(client),
     logging: initLogging(client),
     jobs: initJobs(client),
+    widgets: initWidgets(client),
     roles: initRoles(client),
     files: initFiles(client),
     models: initModels(client),
     limits: initLimits(client),
     websites: initWebsites(client),
     spaces: initSpaces(client),
+    dashboard: initDashboard(client),
+    prompts: initPrompts(client),
+    templates: initTemplates(client),
+    storage: initStorage(client),
     client
   };
 }

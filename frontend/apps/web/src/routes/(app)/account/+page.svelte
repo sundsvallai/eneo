@@ -1,33 +1,74 @@
 <script lang="ts">
   import { Page } from "$lib/components/layout";
+  import SelectTheme from "$lib/components/SelectTheme.svelte";
   import { getAppContext } from "$lib/core/AppContext.js";
-  const { user, versions } = getAppContext();
+  import UpdateUserName from "./UpdateUserName.svelte";
+  const {
+    user,
+    versions,
+    featureFlags,
+    state: { userInfo }
+  } = getAppContext();
 </script>
 
 <svelte:head>
-  <title>Intric.ai – Account – {user.username}</title>
+  <title>Intric.ai – Account – {$userInfo.firstName}</title>
 </svelte:head>
 
 <Page.Root>
   <Page.Header>
-    <Page.Title>Account</Page.Title>
+    <Page.Title title="Account"></Page.Title>
   </Page.Header>
   <Page.Main>
-    <div class="flex flex-col gap-1 border-b border-stone-100 py-4 pl-2 pr-4 hover:bg-stone-50">
-      <h3 class="font-medium">Username</h3>
-      <pre class="">{user.username}</pre>
-    </div>
-    <div class="flex flex-col gap-1 border-b border-stone-100 py-4 pl-2 pr-4 hover:bg-stone-50">
+    {#if featureFlags.newAuth}
+      <div
+        class="flex items-center gap-12 border-b border-dimmer py-4 pl-2 pr-4 hover:bg-hover-dimmer"
+      >
+        <div class="flex flex-col gap-1">
+          <h3 class="font-medium">First Name</h3>
+          <pre class="">{$userInfo.firstName}</pre>
+        </div>
+        <div class="flex flex-col gap-1">
+          <h3 class="font-medium">Last Name</h3>
+          <pre class="">{$userInfo.lastName}</pre>
+        </div>
+        <div class="flex flex-col gap-1">
+          <h3 class="font-medium">Full Name</h3>
+          <pre class="">{$userInfo.displayName}</pre>
+        </div>
+        <!-- Changing name only supported for username/password users -->
+        {#if !$userInfo.usesIdp}
+          <div class="flex-grow"></div>
+          <UpdateUserName
+            firstName={$userInfo.firstName}
+            lastName={$userInfo.lastName}
+            displayName={$userInfo.displayName}
+          ></UpdateUserName>
+        {/if}
+      </div>
+    {:else}
+      <div class="flex flex-col gap-1 border-b border-dimmer py-4 pl-2 pr-4 hover:bg-hover-dimmer">
+        <h3 class="font-medium">Username</h3>
+        <pre class="">{user.username}</pre>
+      </div>
+    {/if}
+    <div class="flex flex-col gap-1 border-b border-dimmer py-4 pl-2 pr-4 hover:bg-hover-dimmer">
       <h3 class="font-medium">Email</h3>
       <pre class="">{user.email}</pre>
     </div>
-    <div class="flex flex-col gap-1 border-b border-stone-100 py-4 pl-2 pr-4 hover:bg-stone-50">
+    <div
+      class="flex flex-col gap-2 border-b border-dimmer pb-2 pl-2 pr-4 pt-4 hover:bg-hover-dimmer"
+    >
+      <span class="font-medium" aria-hidden="true">Colour scheme</span>
+      <SelectTheme></SelectTheme>
+    </div>
+    <div class="flex flex-col gap-1 border-b border-dimmer py-4 pl-2 pr-4 hover:bg-hover-dimmer">
       <h3 class="font-medium">Versions</h3>
       <pre
         class="">Frontend: {versions.frontend} · Client: {versions.client} · Backend: {versions.backend}</pre>
     </div>
     {#if versions.preview}
-      <div class="flex flex-col gap-1 border-b border-stone-100 py-4 pl-2 pr-4 hover:bg-stone-50">
+      <div class="flex flex-col gap-1 border-b border-dimmer py-4 pl-2 pr-4 hover:bg-hover-dimmer">
         <h3 class="font-medium">Preview</h3>
         <pre class="">Branch: {versions.preview.branch}<br />Commit: {versions.preview.commit}</pre>
       </div>

@@ -1,27 +1,24 @@
 // See https://kit.svelte.dev/docs/types#app
-
-import type { AssistantSession } from "@intric/intric-js";
-
 // for information about these interfaces
+import { getFeatureFlags } from "$lib/core/flags.server";
+
 declare global {
   namespace App {
     interface Error {
       message: string;
       status: number;
-      sessionInvalid: boolean;
+      code: IntricErrorCode;
     }
     interface Locals {
-      user:
-        | {
-            isLoggedIn: true;
-            token: string;
-          }
-        | { isLoggedIn: false };
+      featureFlags: ReturnType<typeof getFeatureFlags>;
+      id_token: string | null;
+      access_token: string | null;
     }
-    interface PageData {}
+    // interface PageData {}
     interface PageState {
       currentSpace?: Space;
-      session?: AssistantSession;
+      /** Selected session in an assistant, useful for keeping history with pushState */
+      session?: { id: string };
       tab?: string;
     }
     // interface Platform {}
@@ -29,7 +26,7 @@ declare global {
 
   // App version
   declare const __FRONTEND_VERSION__: string;
-  declare const __VERCEL_ENV__: string | undefined;
+  declare const __IS_PREVIEW__: boolean | undefined;
   declare const __GIT_BRANCH__: string | undefined;
   declare const __GIT_COMMIT_SHA__: string | undefined;
 
@@ -47,6 +44,12 @@ declare global {
 
   interface CSSStyleDeclaration {
     viewTransitionName: string;
+  }
+
+  interface AriaProps {
+    "aria-labelledby"?: string;
+    "aria-describedby"?: string;
+    "aria-label"?: string;
   }
 }
 

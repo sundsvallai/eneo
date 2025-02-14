@@ -1,13 +1,13 @@
 <script lang="ts">
   import type { GroupSparse } from "@intric/intric-js";
+  import { IconEllipsis } from "@intric/icons/ellipsis";
+  import { IconEdit } from "@intric/icons/edit";
+  import { IconTrash } from "@intric/icons/trash";
+  import { IconMove } from "@intric/icons/move";
   import { Button, Dialog, Dropdown, Select } from "@intric/ui";
   import CollectionEditor from "./CollectionEditor.svelte";
-  import IconEllipsis from "$lib/components/icons/IconEllipsis.svelte";
-  import IconEdit from "$lib/components/icons/IconEdit.svelte";
-  import IconTrash from "$lib/components/icons/IconTrash.svelte";
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
   import { getIntric } from "$lib/core/Intric";
-  import IconMove from "$lib/components/icons/IconMove.svelte";
   import { derived } from "svelte/store";
 
   const {
@@ -67,7 +67,7 @@
 <Dropdown.Root>
   <Dropdown.Trigger let:trigger asFragment>
     <Button is={trigger} padding="icon">
-      <IconEllipsis></IconEllipsis>
+      <IconEllipsis />
     </Button>
   </Dropdown.Trigger>
   <Dropdown.Menu let:item>
@@ -78,7 +78,7 @@
       }}
       padding="icon-leading"
     >
-      <IconEdit size="small"></IconEdit>
+      <IconEdit size="sm" />
       Edit</Button
     >
     {#if collection.permissions?.includes("delete")}
@@ -89,17 +89,17 @@
         }}
         padding="icon-leading"
       >
-        <IconMove size="small"></IconMove>Move</Button
+        <IconMove size="sm" />Move</Button
       >
       <Button
         is={item}
-        destructive
+        variant="destructive"
         on:click={() => {
           $showDeleteDialog = true;
         }}
         padding="icon-leading"
       >
-        <IconTrash size="small"></IconTrash>Delete</Button
+        <IconTrash size="sm" />Delete</Button
       >
     {/if}
   </Dropdown.Menu>
@@ -108,7 +108,7 @@
 <CollectionEditor mode="update" {collection} bind:showDialog={showEditDialog}></CollectionEditor>
 
 <Dialog.Root alert bind:isOpen={showDeleteDialog}>
-  <Dialog.Content>
+  <Dialog.Content width="small">
     <Dialog.Title>Delete collection</Dialog.Title>
     <Dialog.Description
       >Do you really want to delete <span class="italic">{collection.name}</span
@@ -117,7 +117,7 @@
 
     <Dialog.Controls let:close>
       <Button is={close}>Cancel</Button>
-      <Button destructive on:click={deleteResource}
+      <Button variant="destructive" on:click={deleteResource}
         >{isProcessing ? "Deleting..." : "Delete"}</Button
       >
     </Dialog.Controls>
@@ -125,7 +125,7 @@
 </Dialog.Root>
 
 <Dialog.Root bind:isOpen={showMoveDialog}>
-  <Dialog.Content wide form>
+  <Dialog.Content width="medium" form>
     <Dialog.Title>Move collection</Dialog.Title>
 
     <Dialog.Section scrollable={false}>
@@ -133,12 +133,12 @@
         required
         options={$moveTargets}
         bind:value={moveDestination}
-        fitViewport={false}
-        class="rounded-t-md  border-stone-100 px-4 pt-4 hover:bg-stone-50"
+        fitViewport={true}
+        class="rounded-t-md border-default px-4 pt-4 hover:bg-hover-dimmer"
         >Destination</Select.Simple
       >
       <p
-        class="mx-4 mb-4 mt-1.5 rounded-md border border-amber-500 bg-amber-50 px-2 py-1 text-sm text-amber-800"
+        class="label-warning mx-4 mb-4 mt-1.5 rounded-md border border-label-default bg-label-dimmer px-2 py-1 text-sm text-label-stronger"
       >
         <span class="font-bold">Hint:</span>
         The assistants in this space will no longer have access to this collection.
@@ -147,7 +147,7 @@
 
     <Dialog.Controls let:close>
       <Button is={close}>Cancel</Button>
-      <Button destructive on:click={moveCollection}
+      <Button variant="destructive" on:click={moveCollection}
         >{isProcessing ? "Moving..." : "Move collection"}</Button
       >
     </Dialog.Controls>

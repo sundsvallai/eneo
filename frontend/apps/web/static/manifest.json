@@ -1,0 +1,18 @@
+{
+  "name": "Intric",
+  "description": "Easy access to your assistants in intric",
+  "short_name": "intric",
+  "display": "standalone",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "orientation": "portrait-primary",
+  "theme_color": "#1E40AF",
+  "icons": [
+    {
+      "src": "intric_pwa_logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

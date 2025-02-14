@@ -1,4 +1,4 @@
-/* 
+/*
     Copyright (c) 2024 Sundsvalls Kommun
 
     Licensed under the MIT License.
@@ -77,13 +77,25 @@ export function createWithStore<Resource extends Record<string, unknown>>(
     columnPrimary({
       header,
       value,
-      cell
+      cell,
+      sortable
     }: {
       header?: string;
       /** If the Resource does not have a name field */
       value: (item: Resource) => string;
       cell: DataLabel<Resource, Plugins<Resource>, Resource>;
+      sortable?: boolean;
     }) {
+      const sort =
+        sortable === false
+          ? {
+              disable: true
+            }
+          : {
+              getSortValue(item: Resource) {
+                return value(item).toLowerCase();
+              }
+            };
       return table.column({
         accessor: (item: Resource) => item,
         id: "table-primary-key",
@@ -95,11 +107,7 @@ export function createWithStore<Resource extends Record<string, unknown>>(
               return value(item).toLowerCase();
             }
           },
-          sort: {
-            getSortValue(item) {
-              return value(item).toLowerCase();
-            }
-          }
+          sort
         }
       });
     },

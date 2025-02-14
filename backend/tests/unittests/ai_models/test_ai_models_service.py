@@ -3,22 +3,19 @@ from uuid import uuid4
 
 import pytest
 
-from instorage.ai_models.ai_models_service import AIModelsService
-from instorage.ai_models.completion_models.completion_model import CompletionModelFamily
-from instorage.main.config import SETTINGS
-from instorage.main.exceptions import BadRequestException, UnauthorizedException
-from instorage.roles.permissions import Permission
-from instorage.roles.role import RoleInDB
-from instorage.user_groups.user_group import UserGroupInDB
-from instorage.users.user import UserInDB
+from intric.ai_models.ai_models_service import AIModelsService
+from intric.ai_models.completion_models.completion_model import CompletionModelFamily
+from intric.main.config import SETTINGS
+from intric.roles.permissions import Permission
+from intric.roles.role import RoleInDB
+from intric.user_groups.user_group import UserGroupInDB
+from intric.users.user import UserInDB
 from tests.fixtures import (
     TEST_EMBEDDING_MODEL,
     TEST_EMBEDDING_MODEL_ADA,
     TEST_MODEL_AZURE,
     TEST_MODEL_CHATGPT,
-    TEST_MODEL_EU,
     TEST_MODEL_GPT4,
-    TEST_MODEL_MIXTRAL,
     TEST_TENANT,
 )
 
@@ -48,6 +45,7 @@ TEST_ADMIN_USER = UserInDB(
     tenant=TEST_TENANT,
     user_groups=[],
     roles=[TEST_ADMIN_ROLE],
+    state="active",
 )
 TEST_NO_ADMIN_USER = UserInDB(
     id=uuid4(),
@@ -61,6 +59,7 @@ TEST_NO_ADMIN_USER = UserInDB(
     tenant=TEST_TENANT,
     user_groups=[],
     roles=[TEST_NO_ADMIN_ROLE],
+    state="active",
 )
 TEST_USER_GROUP = UserGroupInDB(id=uuid4(), name="test name", tenant_id=TEST_TENANT.id)
 
@@ -116,27 +115,6 @@ async def test_completion_models_flags_settings_not_exists(service: AIModelsServ
     for model in models:
         if model.id == TEST_MODEL_GPT4.id:
             assert not model.is_org_enabled
-
-
-async def test_fails_when_completion_model_is_deprecated(
-    service: AIModelsService,
-):
-    service.completion_model_repo.get_model.return_value = TEST_MODEL_MIXTRAL
-    with pytest.raises(
-        BadRequestException, match="CompletionModel Mixtral not supported anymore."
-    ):
-        await service.get_completion_model(TEST_MODEL_MIXTRAL.id)
-
-
-async def test_fails_when_user_does_not_have_module(
-    service: AIModelsService,
-):
-    service.completion_model_repo.get_model.return_value = TEST_MODEL_EU
-    with pytest.raises(
-        UnauthorizedException,
-        match="Unauthorized. User has no permissions to access.",
-    ):
-        await service.get_completion_model(TEST_MODEL_EU.id)
 
 
 async def test_embedding_models_flags_settings_not_exists(service: AIModelsService):

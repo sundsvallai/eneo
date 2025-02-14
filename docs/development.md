@@ -25,7 +25,7 @@ To run the backend for this project locally, follow these steps:
 5. Run `docker compose up -d` to start the required dependencies.
 6. Run `poetry run python init_db.py` to run the migrations and setup the environment.
 7. Run `poetry run start` to start the project for development.
-8. (Optional) Run `poetry run arq src.instorage.worker.worker.WorkerSettings` to start the worker.
+8. (Optional) Run `poetry run arq src.intric.worker.arq.WorkerSettings` to start the worker.
 
 ## Setup steps: Frontend
 
@@ -158,7 +158,7 @@ We use a [dependency injection framework](https://python-dependency-injector.ets
 
 ### Connecting it together
 
-Add the router [in the main router](https://github.com/inooLabs/intric-release/blob/main/backend/src/instorage/server/routers/__init__.py) in order to connect the endpoints to the application.
+Add the router [in the main router](https://github.com/inooLabs/intric-release/blob/main/backend/src/intric/server/routers/__init__.py) in order to connect the endpoints to the application.
 
 ### Final considerations
 

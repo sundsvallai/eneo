@@ -4,9 +4,9 @@ import jwt
 import pytest
 from pydantic import ValidationError
 
-from instorage.authentication.auth_service import AuthService
-from instorage.main.config import get_settings
-from instorage.main.exceptions import AuthenticationException
+from intric.authentication.auth_service import AuthService
+from intric.main.config import get_settings
+from intric.main.exceptions import AuthenticationException
 from tests.fixtures import TEST_USER
 
 JWT_ALGORITHM = get_settings().jwt_algorithm

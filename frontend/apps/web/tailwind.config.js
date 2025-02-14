@@ -1,18 +1,9 @@
-import defaultTheme from "tailwindcss/defaultTheme";
+import typography from "@tailwindcss/typography";
+import tailwindConfig from "@intric/ui/styles/tailwind-config";
 
 /** @type {import('tailwindcss').Config} */
 export default {
+  ...tailwindConfig,
   content: ["./src/**/*.{html,js,svelte,ts}", "../../packages/ui/dist/**/*.svelte"],
-  theme: {
-    extend: {
-      fontFamily: {
-        sans: ["Inter", ...defaultTheme.fontFamily.sans]
-      },
-
-      animation: {
-        spin: "spin 3s linear infinite"
-      }
-    }
-  },
-  plugins: [require("@tailwindcss/typography")]
+  plugins: [typography]
 };

@@ -1,5 +1,6 @@
 import type { Intric } from "@intric/intric-js";
 import type { PageLoad } from "./$types";
+import { PAGINATION } from "$lib/core/constants";
 
 export const load: PageLoad = async (event) => {
   const { intric }: { intric: Intric } = await event.parent();
@@ -15,20 +16,13 @@ export const load: PageLoad = async (event) => {
       : null;
   };
 
-  event.depends("assistant:get");
-
-  const [assistant, sessions, session] = await Promise.all([
-    intric.assistants.get({ id: selectedAssistantId }),
-    intric.assistants
-      .listSessions({ id: selectedAssistantId })
-      .then((sessions) => sessions.reverse()),
-    loadSession()
-  ]);
-
   return {
-    assistant,
-    sessions,
-    session,
+    assistant: await intric.assistants.get({ id: selectedAssistantId }),
+    history: intric.assistants.listSessions({
+      assistant: { id: selectedAssistantId },
+      pagination: { limit: PAGINATION.PAGE_SIZE }
+    }),
+    initialSession: loadSession(),
     selectedAssistantId
   };
 };

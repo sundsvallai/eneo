@@ -21,7 +21,7 @@ import { xhr } from "./xhr";
  */
 
 export function createClient(args) {
-  const version = "1.60.0"; // # Client version auto-updates when running the updater, do not edit this line.
+  const version = "1.78.1-dev"; // # Client version auto-updates when running the updater, do not edit this line.
   const baseUrl = args.baseUrl;
   const _fetch = args.fetch ?? fetch;
 
@@ -56,26 +56,37 @@ export function createClient(args) {
       }
     },
 
-    stream: async (endpoint, { params, requestBody }, callbacks) => {
+    stream: async (endpoint, { params, requestBody }, callbacks, abortController) => {
       const url = parseUrl(baseUrl, endpoint, params);
       const payload = parsePayload(requestBody);
       const headers = { ...auth, ...payload.header, accept: "text/event-stream" };
       const body = payload.body;
 
+      const controller = abortController ?? new AbortController();
+      /** @type {(ev: {id: string; event: string; data: string;}) => void} */
+      const onMessage = (ev) => {
+        callbacks.onMessage?.(ev, controller);
+      };
+
       try {
         const response = await _fetch(url, {
           body,
           headers,
-          method: "POST"
+          method: "POST",
+          signal: controller.signal
         });
 
-        await readEvents(response, callbacks);
+        await readEvents(response, {
+          onOpen: callbacks.onOpen,
+          onClose: callbacks.onClose,
+          onMessage
+        });
       } catch (error) {
         IntricError.throw(error, { endpoint: `STREAM@${url}`, payload });
       }
     },
 
-    xhr: async (endpoint, { method, params, requestBody }, callbacks) => {
+    xhr: async (endpoint, { method, params, requestBody }, callbacks, abortController) => {
       const url = parseUrl(baseUrl, endpoint, params);
       const payload = parsePayload(requestBody);
       const httpMethod = String(method).toUpperCase();
@@ -91,7 +102,8 @@ export function createClient(args) {
             },
             body: payload.body
           },
-          callbacks
+          callbacks,
+          abortController
         );
         /** @type {any} We need to cast this through any – we just got to hope for the correctness of the schema... */
         const parsed = await parseResponse(response);
@@ -183,7 +195,8 @@ async function parseResponse(response) {
     }
   } catch (err) {
     throw new PartialError("RESPONSE", response.status, {
-      message: `Could not parse server response (1).\n${text ? text : "No body received"}}`
+      message: `Could not parse server response (1).\n${text ? text : "No body received"}`,
+      intric_error_code: 0
     });
   }
 
@@ -200,15 +213,19 @@ export class PartialError extends Error {
    * Construct a new ServerError
    * @param {"CONNECTION" | "SERVER" | "RESPONSE"} stage On what stage the error was thrown, during connection, on the server on while processing the response
    * @param {number} status
-   * @param {{[x: string]: any } & {message?: string}} [parsedResponse] Parsed json response from server
+   * @param {{[x: string]: any } & {message?: string, intric_error_code: import("../types/resources").IntricErrorCode}} [parsedResponse] Parsed json response from server
    */
   constructor(stage, status, parsedResponse) {
-    const message = parsedResponse?.message ?? "See details for more info.";
+    const message =
+      status === 500
+        ? "Upstream server error"
+        : (parsedResponse?.message ?? "See details for more info.");
     super(message);
     /** @type {any | undefined} Server response parsed as JSON object (if possible). */
     this.detail = parsedResponse;
     this.status = status;
     this.stage = stage;
+    this.code = parsedResponse?.intric_error_code ?? 0;
   }
 }
 
@@ -219,15 +236,18 @@ export class IntricError extends Error {
    * @param {string} message Error message
    * @param {"CONNECTION" | "SERVER" | "RESPONSE" | "UNKNOWN"} stage On what stage the error was thrown, during connection, on the server on while processing the response
    * @param {number} status HTTP status
+   * @param {import("../types/resources").IntricErrorCode | 0} code The backend will return an error code in most cases that can give additional info
    * @param {Object} [response] Parsed json response from server
    * @param {{endpoint: string; payload?: object;}} request
    */
-  constructor(message, stage, status, response, request = { endpoint: "" }) {
+  constructor(message, stage, status, code, response, request = { endpoint: "" }) {
     super(message);
     /** @type {"CONNECTION" | "SERVER" | "RESPONSE" | "UNKNOWN"} During what stage the error happened. */
     this.stage = stage;
     /** @type {number} If this was a server error, this is the status code returned by the server. */
     this.status = status;
+    /** @type {import("../types/resources").IntricErrorCode | 0} The backend will return an error code in most cases */
+    this.code = code;
     /** @type {any | undefined} Server response parsed as JSON object. */
     this.response = response;
     /** @type {{endpoint: string; payload?: object;}} Info about the request during which the error occured. */
@@ -236,16 +256,13 @@ export class IntricError extends Error {
 
   /**
    * Get a message that can be presented to users, ie. in an alert
-   * @param {boolean} logDetails Whether to log the error to console in case of validation error. Defaults to false.
    */
-  getReadableMessage(logDetails = false) {
+  getReadableMessage() {
     let message;
     if (this.status === 422) {
-      message =
-        (this.response.detail[0]?.ctx?.reason ?? logDetails)
-          ? "Error: See console for details."
-          : "A validation error occured.";
-      if (logDetails) console.error(this.response);
+      const reason = this.response.detail[0]?.ctx?.reason;
+      const msg = this.response.detail[0]?.msg ?? "A validation error occured.";
+      message = reason ?? msg;
     } else {
       message = this.message;
     }
@@ -259,11 +276,18 @@ export class IntricError extends Error {
    */
   static throw(error, requestInfo) {
     if (error instanceof PartialError) {
-      throw new IntricError(error.message, error.stage, error.status, error.detail, requestInfo);
+      throw new IntricError(
+        error.message,
+        error.stage,
+        error.status,
+        error.code,
+        error.detail,
+        requestInfo
+      );
     }
     if (error instanceof Error) {
-      throw new IntricError(error.message, "CONNECTION", 0, "No response text", requestInfo);
+      throw new IntricError(error.message, "CONNECTION", 0, 0, "No response text", requestInfo);
     }
-    throw new IntricError("UNKNOWN ERROR", "UNKNOWN", 0, "No response text", requestInfo);
+    throw new IntricError("UNKNOWN ERROR", "UNKNOWN", 0, 0, "No response text", requestInfo);
   }
 }

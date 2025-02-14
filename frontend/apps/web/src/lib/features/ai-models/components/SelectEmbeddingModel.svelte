@@ -46,20 +46,20 @@
     });
   }
 
-  function setValue() {
-    if (modelSelectStore && $modelSelectStore.value) {
-      value = { id: $modelSelectStore.value.id };
+  function setValue(currentlySelected: { value: EmbeddingModel; label: string } | undefined) {
+    if (currentlySelected && currentlySelected.value) {
+      value = { id: currentlySelected.value.id };
     }
   }
 
-  $: setValue(), $modelSelectStore;
+  $: setValue($modelSelectStore);
 </script>
 
 {#if !(hideWhenNoOptions && selectableModels.length < 2)}
   <Select.Root
     {disabled}
     customStore={modelSelectStore}
-    class="border-b border-stone-100 px-4 py-4 hover:bg-stone-50"
+    class="border-b border-dimmer px-4 py-4 hover:bg-hover-dimmer"
   >
     <Select.Label>Embedding model</Select.Label>
     <Select.Trigger placeholder="Select..." error={unsupportedModelSelected}></Select.Trigger>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { browser } from "$app/environment";
   import type { CompletionModel } from "@intric/intric-js";
   import { Select } from "@intric/ui";
   import { writable, type Writable } from "svelte/store";
@@ -25,11 +26,13 @@
     const selectedModel = selectableModels.find((model) => model.id === value!.id);
     if (!selectedModel) {
       unsupportedModelSelected = true;
-      setTimeout(() => {
-        alert(
-          "This assistant's completion model is no longer supported. Please change it in the assistants settings."
-        );
-      }, 400);
+      if (browser) {
+        setTimeout(() => {
+          alert(
+            "The selected completion model is no longer supported. Please change it in the assistants settings."
+          );
+        }, 400);
+      }
     }
     modelSelectStore = writable({
       value: selectedModel,
@@ -42,18 +45,18 @@
     });
   }
 
-  function setValue() {
-    if (modelSelectStore && $modelSelectStore.value) {
-      value = { id: $modelSelectStore.value.id };
+  function setValue(currentlySelected: { value: CompletionModel | undefined; label: string }) {
+    if (currentlySelected.value) {
+      value = { id: currentlySelected.value.id };
     }
   }
 
-  $: setValue(), $modelSelectStore;
+  $: setValue($modelSelectStore);
 </script>
 
 <Select.Root
   customStore={modelSelectStore}
-  class="relative w-full border-b border-stone-100 px-4 py-4 hover:bg-stone-50"
+  class="relative w-full border-b border-dimmer px-4 py-4 hover:bg-hover-dimmer"
 >
   <Select.Label>Completion model</Select.Label>
   <Select.Trigger placeholder="Select..." error={unsupportedModelSelected}></Select.Trigger>

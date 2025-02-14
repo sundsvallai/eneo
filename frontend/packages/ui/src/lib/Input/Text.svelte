@@ -2,27 +2,54 @@
   import { uid } from "uid";
   const id = uid(8);
 
-  let cls = "";
+  let containerClass = "";
   let inputElement: HTMLInputElement;
 
-  export { cls as class };
-  export let labelClass = "";
+  export { containerClass as class };
   export let inputClass = "";
+  export let labelClass = "";
+  export let label = "";
+  export let description: string | undefined = undefined;
   export let value: string;
-  export let isValid = false;
-
-  $: (isValid = inputElement?.validity.valid ?? false), value;
+  export let isValid: boolean = false;
+  export let required: boolean = false;
+  export let hiddenLabel: boolean = false;
 </script>
 
-<fieldset class="flex flex-col gap-1 {cls}">
-  <label for={id} class="pl-3 font-medium {labelClass}"><slot /></label>
+<div class="flex flex-col gap-1 {containerClass}">
+  <label for={id} class="pl-3 font-medium {labelClass}" class:sr-only={hiddenLabel}>
+    {#if $$slots.default}
+      <slot />
+    {:else}
+      <div class="flex items-baseline justify-between text-primary">
+        <div>
+          {label}
+          {#if required}
+            <span class="px-2 text-[0.9rem] font-normal text-muted" aria-hidden="true"
+              >(required)</span
+            >
+          {/if}
+        </div>
+        {#if description}
+          <span class="px-2 text-[0.9rem] font-normal text-muted">{description}</span>
+        {/if}
+      </div>
+    {/if}
+  </label>
   <input
     bind:this={inputElement}
+    bind:value
     type="text"
+    on:input={() => {
+      isValid = inputElement?.validity.valid ?? false;
+    }}
     {id}
     {...$$restProps}
-    bind:value
-    class="h-10 items-center justify-between overflow-hidden rounded-lg
-  border border-stone-300 bg-white px-3 py-2 shadow ring-stone-200 placeholder:text-stone-400 focus-within:ring-2 hover:ring-2 focus-visible:ring-2 disabled:bg-stone-50 disabled:text-stone-500 disabled:shadow-none disabled:hover:ring-0 {inputClass}"
+    {required}
+    aria-required={required}
+    aria-describedby={description ? `${id}-description` : undefined}
+    aria-invalid={!isValid}
+    class="h-10 items-center justify-between overflow-hidden rounded-lg border
+  border-stronger bg-primary px-3 py-2 text-primary shadow ring-default placeholder:text-muted focus-within:ring-2 hover:ring-2 focus-visible:ring-2 {inputClass}"
   />
-</fieldset>
+</div>

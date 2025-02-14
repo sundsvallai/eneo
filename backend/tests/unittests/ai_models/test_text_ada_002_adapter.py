@@ -1,15 +1,15 @@
 from uuid import uuid4
 
-from instorage.ai_models.embedding_models.embedding_model import (
+from intric.ai_models.embedding_models.embedding_model import (
     EmbeddingModel,
     EmbeddingModelFamily,
     ModelHostingLocation,
     ModelStability,
 )
-from instorage.ai_models.embedding_models.embedding_model_adapters.text_embedding_openai import (
+from intric.ai_models.embedding_models.embedding_model_adapters.text_embedding_openai import (
     OpenAIEmbeddingAdapter,
 )
-from instorage.info_blobs.info_blob import InfoBlobChunk
+from intric.info_blobs.info_blob import InfoBlobChunk
 from tests.fixtures import TEST_UUID
 
 

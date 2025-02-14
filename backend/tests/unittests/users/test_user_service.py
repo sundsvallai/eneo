@@ -3,11 +3,11 @@ from uuid import uuid4
 
 import pytest
 
-from instorage.authentication.auth_models import AccessToken, ApiKeyCreated
-from instorage.main.exceptions import AuthenticationException, UniqueUserException
-from instorage.settings.settings import SettingsUpsert
-from instorage.users.user import UserAdd, UserAddSuperAdmin, UserInDB, UserUpdate
-from instorage.users.user_service import UserService
+from intric.authentication.auth_models import AccessToken, ApiKeyCreated
+from intric.main.exceptions import AuthenticationException, UniqueUserException
+from intric.settings.settings import SettingsUpsert
+from intric.users.user import UserAdd, UserAddSuperAdmin, UserInDB, UserUpdate
+from intric.users.user_service import UserService
 from tests.fixtures import TEST_TENANT, TEST_USER
 
 
@@ -102,6 +102,7 @@ async def test_register_user_creates_a_user_and_settings(service: UserService):
         tenant_id=TEST_TENANT.id,
         quota_used=0,
         quota_limit=None,
+        state="active",
     )
     expected_user_in_db = UserInDB(
         **expected_user_upsert.model_dump(exclude_none=True),

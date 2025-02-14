@@ -1,5 +1,5 @@
-from instorage.settings.setting_service import SettingService
-from instorage.settings.settings import SettingsInDB, SettingsPublic, SettingsUpsert
+from intric.settings.setting_service import SettingService
+from intric.settings.settings import SettingsInDB, SettingsPublic, SettingsUpsert
 from tests.fixtures import TEST_USER, TEST_UUID
 
 TEST_SETTINGS = SettingsPublic()

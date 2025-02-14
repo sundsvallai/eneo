@@ -1,5 +1,4 @@
 <script lang="ts">
-  import IconCollections from "$lib/components/icons/IconCollections.svelte";
   import { Table } from "@intric/ui";
   import { createRender } from "svelte-headless-table";
   import CollectionActions from "./CollectionActions.svelte";
@@ -7,6 +6,7 @@
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
   import { derived } from "svelte/store";
   import type { GroupSparse } from "@intric/intric-js";
+  import { IconCollections } from "@intric/icons/collections";
 
   const {
     state: { currentSpace }
@@ -58,6 +58,7 @@
         sort: { getSortValue: (item) => item.metadata.num_info_blobs ?? 0 }
       }
     }),
+
     table.columnActions({
       cell: (item) => {
         return createRender(CollectionActions, {

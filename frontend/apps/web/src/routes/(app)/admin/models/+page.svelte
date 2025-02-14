@@ -18,7 +18,7 @@
 
 <Page.Root>
   <Page.Header>
-    <Page.Title>Models</Page.Title>
+    <Page.Title title="Models"></Page.Title>
     <Page.Tabbar>
       <Page.TabTrigger tab="completion_models">Completion models</Page.TabTrigger>
       <Page.TabTrigger tab="embedding_models">Embedding models</Page.TabTrigger>

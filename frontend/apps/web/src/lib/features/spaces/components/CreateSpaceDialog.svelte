@@ -3,6 +3,7 @@
 
     Licensed under the MIT License.
 -->
+
 <script lang="ts">
   import { Button, Dialog, Input } from "@intric/ui";
   import { getSpacesManager } from "../SpacesManager";
@@ -24,15 +25,16 @@
       <Button variant="primary" is={trigger}>Create space</Button>
     </Dialog.Trigger>
   {/if}
-  <Dialog.Content wide form>
+  <Dialog.Content width="medium" form>
     <Dialog.Title>Create a new space</Dialog.Title>
 
     <Dialog.Section>
       <Input.Text
         bind:value={newSpaceName}
+        label="Name"
         required
-        class="border-b border-stone-100 px-4 py-4 hover:bg-stone-50">Name</Input.Text
-      >
+        class="px-4 py-4 hover:bg-hover-dimmer"
+      ></Input.Text>
     </Dialog.Section>
 
     <Dialog.Controls let:close>

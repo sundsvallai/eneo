@@ -1,22 +1,22 @@
 from uuid import uuid4
 
-from instorage.ai_models.completion_models.completion_model import (
+from intric.ai_models.completion_models.completion_model import (
     CompletionModel,
     CompletionModelFamily,
     ModelHostingLocation,
     ModelStability,
 )
-from instorage.ai_models.embedding_models.embedding_model import (
+from intric.ai_models.embedding_models.embedding_model import (
     EmbeddingModel,
     EmbeddingModelFamily,
 )
-from instorage.assistants.assistant import Assistant
-from instorage.authentication.auth_models import ApiKey
-from instorage.groups.group import GroupInDB
-from instorage.roles.permissions import Permission
-from instorage.roles.role import RoleInDB
-from instorage.tenants.tenant import TenantInDB
-from instorage.users.user import UserInDB
+from intric.assistants.assistant import Assistant
+from intric.authentication.auth_models import ApiKey
+from intric.groups.api.group_models import Group
+from intric.roles.permissions import Permission
+from intric.roles.role import RoleInDB
+from intric.tenants.tenant import TenantInDB
+from intric.users.user import UserInDB
 
 TEST_UUID = uuid4()
 
@@ -72,6 +72,7 @@ TEST_USER = UserInDB(
     tenant=TEST_TENANT,
     user_groups=[],
     roles=[TEST_ROLE],
+    state="active",
 )
 
 
@@ -85,6 +86,7 @@ TEST_USER_2 = UserInDB(
     tenant_id=TEST_TENANT_2.id,
     tenant=TEST_TENANT_2,
     roles=[TEST_ROLE],
+    state="active",
 )
 TEST_MODEL_GPT4 = CompletionModel(
     id=uuid4(),
@@ -148,22 +150,24 @@ TEST_MODEL_AZURE = CompletionModel(
 )
 
 
-TEST_GROUP = GroupInDB(
+TEST_GROUP = Group(
     id=uuid4(),
+    space_id=TEST_UUID,
     name="test_group",
+    size=0,
+    published=False,
     user_id=TEST_USER.id,
     user=TEST_USER,
     tenant_id=TEST_TENANT.id,
     is_public=False,
     embedding_model_id=TEST_EMBEDDING_MODEL.id,
     embedding_model=TEST_EMBEDDING_MODEL,
-    index_type="flat",
 )
 
 
 TEST_ASSISTANT = Assistant(
     id=uuid4(),
-    space_id=None,
+    space_id=TEST_UUID,
     name="test_assistant",
     prompt="test_prompt",
     completion_model=TEST_MODEL_CHATGPT,
@@ -172,4 +176,6 @@ TEST_ASSISTANT = Assistant(
     logging_enabled=False,
     websites=[],
     groups=[TEST_GROUP],
+    attachments=[],
+    published=False,
 )

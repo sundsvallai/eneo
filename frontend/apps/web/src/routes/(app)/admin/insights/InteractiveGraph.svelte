@@ -5,12 +5,11 @@
 -->
 
 <script lang="ts">
-  import type { AnalyticsData } from "@intric/intric-js";
+  import { IconSession } from "@intric/icons/session";
+  import { IconQuestionMark } from "@intric/icons/question-mark";
   import { Chart, Button } from "@intric/ui";
+  import type { AnalyticsData } from "@intric/intric-js";
   import { getConfig, prepareData } from "./prepareData";
-
-  import IconSession from "$lib/components/icons/IconSession.svelte";
-  import IconQuestion from "$lib/components/icons/IconQuestion.svelte";
 
   export let data: AnalyticsData;
   export let timeframe: { start: string; end: string };
@@ -25,7 +24,7 @@
 </script>
 
 <div class="flex w-[calc(100%_-_240px)] flex-col gap-4">
-  <div class="flex gap-2 border-b border-stone-100 p-2">
+  <div class="flex gap-2 border-b border-default p-2">
     <Button
       displayActiveState
       data-state={filter === "sessions" ? "active" : "incative"}
@@ -33,7 +32,7 @@
         filter = "sessions";
       }}
     >
-      <IconSession></IconSession>
+      <IconSession />
       New Conversations</Button
     >
     <Button
@@ -43,7 +42,7 @@
         filter = "questions";
       }}
     >
-      <IconQuestion></IconQuestion>
+      <IconQuestionMark />
       New Questions</Button
     >
     <div class="flex-grow"></div>

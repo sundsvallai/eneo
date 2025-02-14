@@ -125,34 +125,53 @@ export function initWebsites(client) {
       return res;
     },
 
-    /**
-     * List all runs of a specific website
-     * @param {{id: string} | Website} website Website
-     * @returns {Promise<CrawlRun[]>}
-     * @throws {IntricError}
-     * */
-    listRuns: async (website) => {
-      const { id } = website;
-      const res = await client.fetch("/api/v1/websites/{id}/runs/", {
-        method: "get",
-        params: { path: { id } }
-      });
-      return res.items;
+    indexedBlobs: {
+      /**
+       * List all info-blobs (=> crawl results) of a specific website
+       * @param {{id: string} | Website} website Website
+       * @returns {Promise<import('./files').InfoBlob[]>}
+       * @throws {IntricError}
+       * */
+      list: async (website) => {
+        const { id } = website;
+        const res = await client.fetch("/api/v1/websites/{id}/info-blobs/", {
+          method: "get",
+          params: { path: { id } }
+        });
+        return res.items;
+      }
     },
 
-    /**
-     * List all info-blobs (=> crawl results) of a specific website
-     * @param {{id: string} | Website} website Website
-     * @returns {Promise<import('./files').InfoBlob[]>}
-     * @throws {IntricError}
-     * */
-    listInfoBlobs: async (website) => {
-      const { id } = website;
-      const res = await client.fetch("/api/v1/websites/{id}/info-blobs/", {
-        method: "get",
-        params: { path: { id } }
-      });
-      return res.items;
+    crawlRuns: {
+      /**
+       * List all runs of a specific website
+       * @param {{id: string} | Website} website Website
+       * @returns {Promise<CrawlRun[]>}
+       * @throws {IntricError}
+       * */
+      list: async (website) => {
+        const { id } = website;
+        const res = await client.fetch("/api/v1/websites/{id}/runs/", {
+          method: "get",
+          params: { path: { id } }
+        });
+        return res.items;
+      },
+
+      /**
+       * Manually trigger a new crawl run
+       * @param {{id: string} | Website} website Website
+       * @returns {Promise<CrawlRun>}
+       * @throws {IntricError}
+       * */
+      create: async (website) => {
+        const { id } = website;
+        const res = await client.fetch("/api/v1/websites/{id}/run/", {
+          method: "post",
+          params: { path: { id } }
+        });
+        return res;
+      }
     }
   };
 }

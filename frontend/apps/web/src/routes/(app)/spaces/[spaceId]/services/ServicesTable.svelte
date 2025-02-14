@@ -5,7 +5,7 @@
   import ServiceTile from "./ServiceTile.svelte";
   import ServiceActions from "./ServiceActions.svelte";
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
-  import IconService from "$lib/components/icons/IconService.svelte";
+  import { IconService } from "@intric/icons/service";
 
   export let services: ServiceSparse[];
   const table = Table.createWithResource(services);

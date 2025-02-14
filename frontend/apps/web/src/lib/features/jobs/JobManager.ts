@@ -1,8 +1,7 @@
 import { browser } from "$app/environment";
 import { invalidate } from "$app/navigation";
 import { createContext } from "$lib/core/context";
-import { getIntric } from "$lib/core/Intric";
-import type { Job } from "@intric/intric-js";
+import type { Intric, Job } from "@intric/intric-js";
 import { derived, writable } from "svelte/store";
 
 export { getJobManager, initJobManager };
@@ -10,17 +9,18 @@ export { getJobManager, initJobManager };
 const [getJobManager, setJobManager] =
   createContext<ReturnType<typeof createJobManager>>("Handles jobs");
 
-function initJobManager() {
-  setJobManager(createJobManager());
+function initJobManager(data: { intric: Intric }) {
+  setJobManager(createJobManager(data));
 }
 
-function createJobManager() {
-  const intric = getIntric();
+function createJobManager(data: { intric: Intric }) {
+  const { intric } = data;
 
   // Panel -------------------------------------------------------------------  //
   const showJobManagerPanel = writable(false);
 
   // Backend jobs -------------------------------------------------------------------  //
+
   let currentJobs: Map<string, Job> = new Map();
   const currentJobStore = writable<Job[]>([]);
 
@@ -58,6 +58,7 @@ function createJobManager() {
         .map((job) => [job.id, job])
     );
     if (updatedJobs.size < currentJobs.size) {
+      // TODO: Some jobs have finished, for now we just blanket invalidate
       if (browser) {
         invalidate("blobs:list");
       }
@@ -94,6 +95,7 @@ function createJobManager() {
   }
 
   // Uploading -------------------------------------------------------------------  //
+
   type Upload = {
     id: string;
     file: File;
@@ -124,6 +126,7 @@ function createJobManager() {
     startSyncingUploads();
     while (runningUploads.size < max_upload_connections && waitingUploads.size > 0) {
       const uploadId = waitingUploads.values().next().value;
+      if (!uploadId) break;
       waitingUploads.delete(uploadId);
       const upload = currentUploads.get(uploadId);
       if (upload) {

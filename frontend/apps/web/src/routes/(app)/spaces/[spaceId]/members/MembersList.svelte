@@ -8,7 +8,7 @@
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
   import { Button } from "@intric/ui";
   import { derived } from "svelte/store";
-  import MemberChip from "./MemberChip.svelte";
+  import MemberChip from "$lib/features/spaces/components/MemberChip.svelte";
 
   const {
     state: { currentSpace }
@@ -28,12 +28,15 @@
   });
 </script>
 
-<Button
-  unstyled
-  class="-mr-2 flex cursor-pointer rounded-lg p-2 pl-4 hover:bg-stone-200"
-  href="/spaces/{$currentSpace.routeId}/members"
->
-  {#each $members as member}
-    <MemberChip {member}></MemberChip>
-  {/each}
-</Button>
+{#if $members.length > 0}
+  <Button
+    unstyled
+    class="-mr-2 flex cursor-pointer rounded-lg p-2 pl-4 hover:bg-hover-default"
+    href="/spaces/{$currentSpace.routeId}/members"
+    aria-label="Go to members page for this space"
+  >
+    {#each $members as member}
+      <MemberChip {member}></MemberChip>
+    {/each}
+  </Button>
+{/if}

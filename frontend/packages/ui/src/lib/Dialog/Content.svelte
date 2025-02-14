@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { fade, scale } from "svelte/transition";
+  import { fade, fly, scale } from "svelte/transition";
   import { getDialog } from "./ctx.js";
   import { cubicOut } from "svelte/easing";
 
@@ -8,9 +8,16 @@
     states: { open }
   } = getDialog();
 
-  export let wide = false;
+  /** Maximum width of the dialog, defaults to small */
+  export let width: "small" | "medium" | "large" | "dynamic" = "small";
   /** Render Dialog into a form element, useful for input validation */
   export let form = false;
+
+  function dialogTransition(node: Element) {
+    return document.documentElement.clientWidth < 768
+      ? fly(node, { y: 600, duration: 200, easing: cubicOut })
+      : scale(node, { start: 1.03, duration: 200, easing: cubicOut });
+  }
 </script>
 
 {#if $open}
@@ -18,19 +25,16 @@
     <div
       {...$overlay}
       use:overlay
-      class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm backdrop-saturate-[0.7]"
+      class="fixed inset-0 z-50 bg-overlay-default backdrop-blur-sm backdrop-saturate-[0.7]"
       in:fade={{ duration: 170, easing: cubicOut }}
       out:fade={{ duration: 230 }}
     ></div>
+
     <svelte:element
       this={form ? "form" : "div"}
-      class="dialog-shadow fixed inset-0 z-[51] m-auto flex
-         h-fit max-h-[85vh] max-w-[90vw] flex-col gap-2
-           rounded-sm border-b-2 border-black/70 bg-stone-100 p-5 pt-4 lg:max-w-[350px]"
-      class:wide
+      class=" dialog-shadow fixed inset-0 z-[51] mt-auto flex h-fit max-h-[85vh] flex-col gap-2 rounded-sm border-b-2 border-strongest bg-secondary px-5 py-3 md:m-auto md:max-w-[90vw] width-{width}"
       {...$content}
-      in:scale={{ start: 1.03, duration: 200, easing: cubicOut }}
-      out:scale={{ start: 1.03, duration: 200 }}
+      transition:dialogTransition
       use:content
     >
       <slot />
@@ -39,8 +43,20 @@
 {/if}
 
 <style lang="postcss">
-  .wide {
-    @apply lg:!max-w-[50vw];
+  .width-small {
+    @apply lg:max-w-[30vw];
+  }
+
+  .width-medium {
+    @apply lg:max-w-[50vw];
+  }
+
+  .width-large {
+    @apply lg:max-w-[80vw];
+  }
+
+  .width-dynamic {
+    @apply w-fit lg:max-w-[80vw];
   }
 
   .dialog-shadow::before {

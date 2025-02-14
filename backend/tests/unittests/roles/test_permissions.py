@@ -2,9 +2,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from instorage.main.exceptions import UnauthorizedException
-from instorage.roles.permissions import Permission, validate_permissions
-from instorage.users.user import UserInDB
+from intric.main.exceptions import UnauthorizedException
+from intric.roles.permissions import Permission, validate_permissions
+from intric.users.user import UserInDB
 
 
 class MockService:

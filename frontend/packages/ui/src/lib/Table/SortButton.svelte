@@ -6,6 +6,9 @@
 
 <script lang="ts">
   import Button from "$lib/Button/Button.svelte";
+  import { IconSortAsc } from "@intric/icons/sort-asc";
+  import { IconSortAscDesc } from "@intric/icons/sort-asc-desc";
+  import { IconSortDesc } from "@intric/icons/sort-desc";
   import type { Readable } from "svelte/store";
 
   export let props: Readable<{
@@ -17,6 +20,8 @@
     };
   }>;
 
+  export let actionPadding: "regular" | "tight" | undefined = undefined;
+
   $: sort = $props.sort;
 </script>
 
@@ -24,54 +29,15 @@
   <Button on:click={sort.toggle}>
     <slot />
     {#if sort.order === "desc"}
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="2"
-        stroke="currentColor"
-        class="h-4 w-4"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"
-        />
-      </svg>
+      <IconSortDesc size="sm" />
     {:else if sort.order === "asc"}
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="2"
-        stroke="currentColor"
-        class="h-4 w-4"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"
-        />
-      </svg>
+      <IconSortAsc size="sm" />
     {:else}
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="2"
-        stroke="currentColor"
-        class="h-4 w-4 text-transparent group-hover:text-black"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
-        />
-      </svg>
+      <IconSortAscDesc size="sm" class="text-transparent group-hover:text-primary" />
     {/if}
   </Button>
 {:else}
-  <div class="min-w-28 px-2">
+  <div class="min-w-12 px-2" class:pl-20={actionPadding === "regular"}>
     <slot />
   </div>
 {/if}

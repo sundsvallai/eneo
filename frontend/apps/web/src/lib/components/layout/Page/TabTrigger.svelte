@@ -8,8 +8,8 @@
   export let tab: string;
   export let padding: "icon-leading" | "text" = "text";
   export let label: string | undefined = undefined;
+  export let asFragment = false;
 
-  // Sidebar
   const {
     elements: { trigger }
   } = getContentTabs();
@@ -23,6 +23,10 @@
   }
 </script>
 
-<Button is={[$trigger(tab)]} {padding} {label} on:click={updateUrl} displayActiveState>
-  <slot />
-</Button>
+{#if asFragment}
+  <slot trigger={[$trigger(tab)]} />
+{:else}
+  <Button is={[$trigger(tab)]} {padding} {label} on:click={updateUrl} displayActiveState>
+    <slot trigger={[$trigger(tab)]} />
+  </Button>
+{/if}

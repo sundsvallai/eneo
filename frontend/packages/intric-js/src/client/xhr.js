@@ -9,10 +9,22 @@
  * @param {(ev: ProgressEvent) => void} [callbacks.onProgress]
  * @param {(xhr: XMLHttpRequest) => void} [callbacks.onError]
  * @param {(xhr: XMLHttpRequest) => void} [callbacks.onTimeout]
+ * @param {AbortController | undefined} abortController
  */
-export function xhr(url, { method, headers, body }, { onProgress, onError, onTimeout }) {
+export function xhr(
+  url,
+  { method, headers, body },
+  { onProgress, onError, onTimeout },
+  abortController
+) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
+    if (abortController) {
+      abortController.signal.onabort = () => {
+        xhr.abort();
+        reject(new Error("Cancelled after receiving abort signal."));
+      };
+    }
     xhr.open(method, url);
     Object.entries(headers).forEach(([name, value]) => {
       xhr.setRequestHeader(name, value);

@@ -15,8 +15,10 @@
 
 <Page.Root>
   <Page.Header>
-    <Page.Title>Services</Page.Title>
-    <CreateService></CreateService>
+    <Page.Title title="Services"></Page.Title>
+    {#if $currentSpace.hasPermission("create", "service")}
+      <CreateService></CreateService>
+    {/if}
   </Page.Header>
   <Page.Main>
     <ServicesTable services={$currentSpace.applications.services}></ServicesTable>

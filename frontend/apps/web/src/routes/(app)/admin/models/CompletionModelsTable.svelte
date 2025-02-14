@@ -13,10 +13,9 @@
     default as ModelLabels,
     getLabels
   } from "$lib/features/ai-models/components/ModelLabels.svelte";
-  import ModelTile from "./ModelTile.svelte";
-  import ModelNameAndVendor, {
-    modelOrgs
-  } from "$lib/features/ai-models/components/ModelNameAndVendor.svelte";
+  import { modelOrgs } from "$lib/features/ai-models/components/ModelNameAndVendor.svelte";
+  import ModelActions from "./ModelActions.svelte";
+  import ModelCardDialog from "$lib/features/ai-models/components/ModelCardDialog.svelte";
 
   export let completionModels: CompletionModel[];
   const table = Table.createWithResource(completionModels);
@@ -26,7 +25,7 @@
       accessor: (model) => model,
       header: "Name",
       cell: (item) => {
-        return createRender(ModelNameAndVendor, { model: item.value });
+        return createRender(ModelCardDialog, { model: item.value, includeTrigger: true });
       },
       plugins: {
         sort: {
@@ -46,19 +45,20 @@
       accessor: (model) => model,
       header: "Enabled",
       cell: (item) => {
-        return createRender(ModelEnabledSwitch, { model: item.value, modeltype: "completion" });
+        return createRender(ModelEnabledSwitch, { model: item.value });
       },
       plugins: {
         sort: {
           getSortValue(value) {
-            return value.can_access ? 1 : 0;
+            return value.is_org_enabled ? 1 : 0;
           }
         }
       }
     }),
+
     table.column({
       accessor: (model) => model,
-      header: "Labels",
+      header: "Details",
       cell: (item) => {
         return createRender(ModelLabels, { model: item.value });
       },
@@ -76,13 +76,10 @@
         }
       }
     }),
-    table.columnCard({
-      value: (item) => item.name,
+
+    table.columnActions({
       cell: (item) => {
-        return createRender(ModelTile, {
-          model: item.value,
-          modeltype: "completion"
-        });
+        return createRender(ModelActions, { model: item.value });
       }
     })
   ]);

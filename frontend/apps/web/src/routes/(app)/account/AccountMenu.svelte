@@ -1,8 +1,9 @@
 <script lang="ts">
+  import { IconAssistant } from "@intric/icons/assistant";
+  import { IconKey } from "@intric/icons/key";
   import { page } from "$app/stores";
-  import IconAssistant from "$lib/components/icons/IconAssistant.svelte";
   import type { ComponentType } from "svelte";
-  import IconKey from "$lib/components/icons/IconKey.svelte";
+  import { Navigation } from "$lib/components/layout";
 
   let currentRoute = "";
   $: currentRoute = $page.url.pathname;
@@ -11,7 +12,6 @@
     icon: ComponentType;
     label: string;
     url: string;
-    beta?: boolean;
   }[] = [
     {
       icon: IconAssistant,
@@ -26,17 +26,13 @@
   ];
 </script>
 
-<nav class="layout-menu flex flex-grow flex-col gap-0.5 py-3">
+<Navigation.Menu>
   {#each menuItems as item}
-    <a href={item.url} data-current={currentRoute === item.url ? "page" : undefined}>
-      <svelte:component this={item.icon}></svelte:component>
-      <span class="hidden md:block">{item.label}</span>
-      {#if item.beta}
-        <span
-          class="hidden rounded-md border border-purple-600 px-1 py-0.5 text-xs font-normal text-purple-600 md:block"
-          >Beta</span
-        >
-      {/if}
-    </a>
+    <Navigation.Link
+      href={item.url}
+      icon={item.icon}
+      isActive={currentRoute === item.url}
+      label={item.label}
+    ></Navigation.Link>
   {/each}
-</nav>
+</Navigation.Menu>

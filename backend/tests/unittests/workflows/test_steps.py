@@ -1,8 +1,8 @@
 from unittest.mock import AsyncMock
 
-from instorage.services.service import DatastoreResult, RunnerResult
-from instorage.workflows.filters import ContinuationFilter
-from instorage.workflows.steps import Step
+from intric.services.service import DatastoreResult, RunnerResult
+from intric.workflows.filters import ContinuationFilter
+from intric.workflows.steps import Step
 
 
 async def test_steps_when_not_continuation():

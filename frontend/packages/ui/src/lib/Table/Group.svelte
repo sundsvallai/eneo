@@ -5,8 +5,8 @@
 -->
 
 <script lang="ts" generics="T extends unknown">
+  import { IconChevronDown } from "@intric/icons/chevron-down";
   import Button from "$lib/Button/Button.svelte";
-
   import { derived, writable } from "svelte/store";
   import { Render, Subscribe } from "svelte-headless-table";
   import { getCardCell, getTableContext } from "./create.js";
@@ -32,27 +32,14 @@
   <tbody {...$tableBodyAttrs}>
     {#if title}
       <tr>
-        <td colspan="99" class=" !border-b-black/15 py-2 !pl-2.5">
+        <td colspan="99" class=" !border-b-default py-2 !pl-2.5">
           <Button
             on:click={() => ($open = !$open)}
             padding="icon-leading"
             class="py-2 font-mono font-medium"
           >
             <div class="flex w-full gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="{$open ? 'rotate-0' : '-rotate-90'} w-5 transition-all"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                />
-              </svg>
+              <IconChevronDown class="{$open ? 'rotate-0' : '-rotate-90'} w-5 transition-all" />
               <span>{title}</span>
             </div>
           </Button>
@@ -62,7 +49,7 @@
     {#if $open}
       {#each $filteredRows as row (row.id)}
         <Subscribe rowAttrs={row.attrs()} let:rowAttrs>
-          <tr {...rowAttrs}>
+          <tr {...rowAttrs} class="relative">
             {#each row.cells as cell (cell.id)}
               {#if cell.id !== "table-card-key"}
                 <Subscribe attrs={cell.attrs()} let:attrs>
@@ -81,28 +68,19 @@
           </tr>
         </Subscribe>
       {/each}
-      <div class="h-4"></div>
+      <tr class="!h-6"></tr>
     {/if}
   </tbody>
 {:else}
   {#if title}
-    <div class="flex border-b !border-b-black/15 !pl-2.5 pb-2 pt-4">
+    <div class="flex border-b !border-b-default !pl-2.5 pb-2 pt-4">
       <Button
         on:click={() => ($open = !$open)}
         padding="icon-leading"
         class="py-2 font-mono font-medium"
       >
         <div class="flex w-full gap-2">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="{$open ? 'rotate-0' : '-rotate-90'} w-5 transition-all"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-          </svg>
+          <IconChevronDown class="{$open ? 'rotate-0' : '-rotate-90'} w-5 transition-all" />
           <span>{title}</span>
         </div>
       </Button>
@@ -134,16 +112,8 @@
     @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5;
   }
 
-  .table-border {
-    @apply overflow-clip rounded-xl border border-stone-400 bg-white shadow;
-  }
-
   td {
-    @apply w-[0%] whitespace-nowrap border-b border-black/5 px-4 pr-8  text-left font-normal first-of-type:pr-0 last-of-type:pr-4;
-  }
-
-  .th-padded {
-    @apply h-14 w-[10%] border-b border-stone-300 px-2 text-left font-medium;
+    @apply w-[0%] whitespace-nowrap border-b border-dimmer px-4 pr-8 text-left font-normal first-of-type:pr-0 last-of-type:pr-4;
   }
 
   td.table-primary-key {
@@ -151,6 +121,6 @@
   }
 
   tbody tr {
-    @apply h-16 hover:bg-stone-50;
+    @apply h-16 hover:bg-hover-dimmer;
   }
 </style>

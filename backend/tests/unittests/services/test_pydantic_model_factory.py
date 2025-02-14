@@ -1,7 +1,7 @@
 import pytest
 
-from instorage.main.exceptions import ValidationException
-from instorage.services.output_parsing.pydantic_model_factory import (
+from intric.main.exceptions import ValidationException
+from intric.services.output_parsing.pydantic_model_factory import (
     PydanticModelFactory,
 )
 

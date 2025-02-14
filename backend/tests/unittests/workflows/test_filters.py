@@ -1,4 +1,4 @@
-from instorage.workflows.filters import ContinuationFilter
+from intric.workflows.filters import ContinuationFilter
 
 
 def test_cont_filter_filter_on_true():

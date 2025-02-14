@@ -5,7 +5,7 @@
 -->
 
 <script lang="ts">
-  import IconAssistant from "$lib/components/icons/IconAssistant.svelte";
+  import { IconAssistant } from "@intric/icons/assistant";
   import type { Assistant } from "@intric/intric-js";
   import { Table } from "@intric/ui";
   import { createRender } from "svelte-headless-table";
@@ -38,4 +38,4 @@
   $: table.update(assistants);
 </script>
 
-<Table.Root {viewModel} emptyMessage="assistant"></Table.Root>
+<Table.Root {viewModel} resourceName="assistant"></Table.Root>

@@ -7,10 +7,10 @@
 <script lang="ts">
   import { getAppContext } from "$lib/core/AppContext";
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
-  import MemberChip from "./MemberChip.svelte";
+  import MemberChip from "$lib/features/spaces/components/MemberChip.svelte";
   import AddMember from "./AddMember.svelte";
   import MemberRole from "./MemberRole.svelte";
-  import { Page } from "$lib/components/layout";
+  import { Page, Settings } from "$lib/components/layout";
 
   export let data;
 
@@ -19,6 +19,16 @@
   const {
     state: { currentSpace }
   } = getSpacesManager();
+
+  const isViewerRoleAvailable = $currentSpace.available_roles.some(
+    (role) => role.value === "viewer"
+  );
+
+  $: editors = $currentSpace.members.filter(
+    (member) => member.role === "admin" || member.role === "editor"
+  );
+
+  $: viewers = $currentSpace.members.filter((member) => member.role === "viewer");
 </script>
 
 <svelte:head>
@@ -27,59 +37,76 @@
 
 <Page.Root>
   <Page.Header>
-    <Page.Title>Members</Page.Title>
+    <Page.Title title="Members"></Page.Title>
     {#if $currentSpace.hasPermission("add", "member")}
       <AddMember allUsers={data.users} currentMembers={$currentSpace.members}></AddMember>
     {/if}
   </Page.Header>
   <Page.Main>
-    <div class="flex flex-col gap-4 py-5 pr-6 lg:flex-row lg:gap-12">
-      <div class="pl-2 lg:w-2/5">
-        <h3 class="pb-1 text-lg font-medium">Admins & Editors</h3>
-        <p class="text-stone-500">
-          People that can open and edit this space, including creating new assistants and uploading
-          knowledge.
-        </p>
-      </div>
-
-      <div class="flex flex-grow flex-col">
-        {#each $currentSpace.members as member}
-          <div
-            class="flex items-center justify-between gap-4 border-b border-black/10 py-4 pl-4 pr-4 hover:bg-stone-50"
-          >
-            <MemberChip {member}></MemberChip>
-            {#if user.id === member.id}
-              {member.username} <span class="text-stone-500">(you)</span>
-            {:else}
-              {member.username}
-            {/if}
-            <div class="flex-grow"></div>
-            {#if $currentSpace.hasPermission("edit", "member") && user.id !== member.id}
-              <MemberRole {member}></MemberRole>
-            {:else}
-              <span class="px-2 capitalize text-stone-500">{member.role}</span>
-            {/if}
-          </div>
-        {/each}
-      </div>
-    </div>
-
-    <div class="flex flex-col gap-4 py-5 pr-6 lg:flex-row lg:gap-12">
-      <div class="pl-2 lg:w-2/5">
-        <h3 class="pb-1 text-lg font-medium">Viewers</h3>
-        <p class="text-stone-500">
-          People that can see and interact with this space's published assistants in their
-          Dashboard.
-        </p>
-      </div>
-
-      <div class="flex flex-grow flex-col">
-        <div
-          class="flex items-center justify-between border-b border-black/10 py-4 pl-2 pr-4 hover:bg-stone-50"
+    <Settings.Page>
+      <Settings.Group title="Current members">
+        <Settings.Row
+          title="Admins & Editors"
+          description="People that can create and edit new assistants and apps, and manage this space's knowledge."
         >
-          Coming soon...
-        </div>
-      </div>
-    </div>
+          <div class="flex flex-grow flex-col">
+            {#each editors as member}
+              <div
+                class="flex items-center justify-between gap-4 border-b border-default py-4 pl-4 pr-4 hover:bg-hover-dimmer"
+              >
+                <MemberChip {member}></MemberChip>
+                {#if user.id === member.id}
+                  <span class="text-primary">{member.email} (you)</span>
+                {:else}
+                  <span class="text-primary">{member.email}</span>
+                {/if}
+                <div class="flex-grow"></div>
+                {#if $currentSpace.hasPermission("edit", "member") && user.id !== member.id}
+                  <MemberRole {member}></MemberRole>
+                {:else}
+                  <span class="px-2 capitalize text-secondary">{member.role}</span>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        </Settings.Row>
+
+        {#if isViewerRoleAvailable}
+          <Settings.Row
+            title="Viewers"
+            description="People that can see and use this space's published assistants and apps."
+          >
+            <div class="flex flex-grow flex-col">
+              {#if viewers.length > 0}
+                {#each viewers as member}
+                  <div
+                    class="flex items-center justify-between gap-4 border-b border-default py-4 pl-4 pr-4 hover:bg-hover-dimmer"
+                  >
+                    <MemberChip {member}></MemberChip>
+                    {#if user.id === member.id}
+                      <span class="text-primary">{member.email} (you)</span>
+                    {:else}
+                      <span class="text-primary">{member.email}</span>
+                    {/if}
+                    <div class="flex-grow"></div>
+                    {#if $currentSpace.hasPermission("edit", "member") && user.id !== member.id}
+                      <MemberRole {member}></MemberRole>
+                    {:else}
+                      <span class="px-2 capitalize text-secondary">{member.role}</span>
+                    {/if}
+                  </div>
+                {/each}
+              {:else}
+                <div
+                  class="flex items-center justify-between gap-4 border-b border-default py-4 pl-4 pr-4 text-muted hover:bg-hover-dimmer"
+                >
+                  There are currently no viewers in this space
+                </div>
+              {/if}
+            </div>
+          </Settings.Row>
+        {/if}
+      </Settings.Group>
+    </Settings.Page>
   </Page.Main>
 </Page.Root>

@@ -48,6 +48,36 @@ export function initSpaces(client) {
     },
 
     /**
+     * Get all applications of a space via its id.
+     * @param  {{id: string}} space The space / id in question
+     * @returns {Promise<Space["applications"]>} Full info about the queried space's applications
+     * @throws {IntricError}
+     * */
+    listApplications: async (space) => {
+      const { id } = space;
+      const res = await client.fetch("/api/v1/spaces/{id}/applications/", {
+        method: "get",
+        params: { path: { id } }
+      });
+      return res;
+    },
+
+    /**
+     * Get all applications of a space via its id.
+     * @param  {{id: string}} space The space / id in question
+     * @returns {Promise<Space["knowledge"]>} Full info about the queried space's applications
+     * @throws {IntricError}
+     * */
+    listKnowledge: async (space) => {
+      const { id } = space;
+      const res = await client.fetch("/api/v1/spaces/{id}/knowledge/", {
+        method: "get",
+        params: { path: { id } }
+      });
+      return res;
+    },
+
+    /**
      * Get the user's personal space
      * @returns {Promise<Space>} Full info about the personal space
      * @throws {IntricError}

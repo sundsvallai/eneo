@@ -1,4 +1,4 @@
-/* 
+/*
     Copyright (c) 2024 Sundsvalls Kommun
 
     Licensed under the MIT License.
@@ -114,6 +114,7 @@ export function prepareData(data: AnalyticsData, timeframe: { start: string; end
       type: "category",
       data: Array.from(new Array(7), (x, i) => i),
       axisLabel: {
+        // @ts-expect-error ignore any type
         formatter: (value) => {
           if (typeof value === "string" && Object.hasOwn(days, value)) {
             // @ts-expect-error type doesnt narrow properly
@@ -167,6 +168,7 @@ export function getConfig(data: PreparedData, filter: "sessions" | "questions"):
         axisPointer: {
           type: "line",
           label: {
+            // @ts-expect-errorignore any type
             formatter: (params) => {
               // @ts-expect-error axisLabel is not properly typed?
               return data.xAxis?.axisLabel?.formatter(params.value) ?? params.value.toString();

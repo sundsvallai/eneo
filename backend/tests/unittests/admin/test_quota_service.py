@@ -2,10 +2,10 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from instorage.admin.quota_service import QuotaService
-from instorage.main.exceptions import QuotaExceededException
-from instorage.tenants.tenant import TenantInDB
-from instorage.users.user import UserInDB
+from intric.admin.quota_service import QuotaService
+from intric.main.exceptions import QuotaExceededException
+from intric.tenants.tenant import TenantInDB
+from intric.users.user import UserInDB
 
 
 @pytest.fixture

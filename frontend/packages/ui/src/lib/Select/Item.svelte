@@ -12,7 +12,7 @@
 </script>
 
 <div
-  class="flex items-center gap-1 rounded-md px-2 hover:cursor-pointer hover:bg-stone-200"
+  class="flex items-center gap-1 rounded-md bg-primary px-2 text-primary hover:cursor-pointer"
   {...$option({ value, label, disabled })}
   use:option
 >
@@ -22,7 +22,7 @@
     viewBox="0 0 24 24"
     stroke-width="2.5"
     stroke="currentColor"
-    class="h-5 w-5 {$isSelected(value) ? 'block' : 'hidden'} text-blue-600"
+    class="h-5 w-5 {$isSelected(value) ? 'block' : 'hidden'} text-accent-default"
   >
     <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
   </svg>
@@ -37,7 +37,7 @@
 
 <style lang="postcss">
   div[data-highlighted] {
-    @apply bg-stone-200;
+    @apply bg-hover-default;
   }
 
   /* div[data-selected] { } */

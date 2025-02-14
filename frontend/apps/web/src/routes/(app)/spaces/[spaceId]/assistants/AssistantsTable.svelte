@@ -3,9 +3,9 @@
   import { Table } from "@intric/ui";
   import { createRender } from "svelte-headless-table";
   import AssistantTile from "./AssistantTile.svelte";
-  import IconAssistant from "$lib/components/icons/IconAssistant.svelte";
   import AssistantActions from "./AssistantActions.svelte";
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
+  import { IconAssistant } from "@intric/icons/assistant";
 
   export let assistants: AssistantSparse[];
   const table = Table.createWithResource(assistants);
@@ -55,4 +55,6 @@
   gapX={1.5}
   gapY={1.5}
   layout="grid"
-></Table.Root>
+>
+  <Table.Group></Table.Group>
+</Table.Root>

@@ -1,7 +1,7 @@
 import pytest
 
-from instorage.ai_models.embedding_models.datastore.datastore import autocut
-from instorage.info_blobs.info_blob import InfoBlobChunkWithEmbedding
+from intric.ai_models.embedding_models.datastore.datastore import autocut
+from intric.info_blobs.info_blob import InfoBlobChunkWithEmbedding
 from tests.fixtures import TEST_UUID
 
 

@@ -3,7 +3,7 @@
   import { Label } from "@intric/ui";
 
   export let updateInterval: WebsiteSparse["update_interval"];
-
+  /* TODO colours */
   const intervalInfo: Record<string, { label: string; color: Label.LabelColor; tooltip?: string }> =
     {
       weekly: {

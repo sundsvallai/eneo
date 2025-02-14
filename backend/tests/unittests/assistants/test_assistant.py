@@ -2,9 +2,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from instorage.ai_models.completion_models.completion_model import ModelKwargs
-from instorage.assistants.assistant import Assistant
-from instorage.main.exceptions import BadRequestException
+from intric.ai_models.completion_models.completion_model import ModelKwargs
+from intric.assistants.assistant import Assistant
+from intric.main.exceptions import BadRequestException
 
 
 @pytest.fixture
@@ -20,6 +20,8 @@ def assistant():
         logging_enabled=False,
         websites=[],
         groups=[],
+        attachments=[],
+        published=False,
     )
 
 
@@ -165,3 +167,27 @@ def test_can_set_groups_to_empty_list_and_websites_to_new_embedding_model(
 
     assert assistant.websites == websites
     assert assistant.groups == []
+
+
+def test_has_knowledge(assistant: Assistant):
+    embedding_model = MagicMock()
+
+    # Test when both groups and websites are non-empty
+    assistant.groups = [MagicMock(embedding_model=embedding_model)]
+    assistant.websites = [MagicMock(embedding_model=embedding_model)]
+    assert assistant.has_knowledge()
+
+    # Test when only groups are non-empty
+    assistant.groups = [MagicMock(embedding_model=embedding_model)]
+    assistant.websites = []
+    assert assistant.has_knowledge()
+
+    # Test when only websites are non-empty
+    assistant.groups = []
+    assistant.websites = [MagicMock(embedding_model=embedding_model)]
+    assert assistant.has_knowledge()
+
+    # Test when both groups and websites are empty
+    assistant.groups = []
+    assistant.websites = []
+    assert not assistant.has_knowledge()

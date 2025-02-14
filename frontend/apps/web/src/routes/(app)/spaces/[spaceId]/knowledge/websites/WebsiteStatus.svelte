@@ -8,7 +8,7 @@
   dayjs.extend(utc);
 
   export let website: WebsiteSparse;
-
+  /* TODO colours */
   function statusInfo(): { label: string; color: Label.LabelColor; tooltip?: string } {
     switch (website.latest_crawl?.status) {
       case "complete": {

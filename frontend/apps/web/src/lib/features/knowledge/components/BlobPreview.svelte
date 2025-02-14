@@ -1,11 +1,11 @@
 <script lang="ts">
   import { browser } from "$app/environment";
   import type { InfoBlob } from "@intric/intric-js";
-
+  import { IconDocument } from "@intric/icons/document";
   import { Button, Dialog, Markdown } from "@intric/ui";
-  import IconDocument from "$lib/components/icons/IconDocument.svelte";
   import { getIntric } from "$lib/core/Intric";
   export let blob: InfoBlob;
+  export let index: number | undefined = undefined;
   export let isTableView = false;
 
   const intric = getIntric();
@@ -61,33 +61,49 @@
       }, 2000);
     }
   }
+
+  const showBlob = () => {
+    $isOpen = true;
+    loadBlob();
+  };
 </script>
 
 <Dialog.Root bind:isOpen>
-  <Button
-    class={isTableView ? "-ml-1" : "bg-white shadow-sm"}
-    on:click={() => {
-      $isOpen = true;
-      loadBlob();
-    }}
-    padding="icon-leading"
-  >
-    <IconDocument class="text-stone-400"></IconDocument>
+  {#if $$slots.default}
+    <slot {showBlob}></slot>
+  {:else}
+    <Button
+      class={isTableView ? "-ml-1" : "bg-preview max-w-[30ch] border !border-default shadow-sm"}
+      on:click={showBlob}
+      padding="icon-leading"
+    >
+      {#if index}
+        <span
+          class="min-h-7 min-w-7 rounded-md border border-b-2 border-default bg-secondary text-center font-mono font-normal"
+        >
+          {index}
+        </span>
+      {:else}
+        <IconDocument class="text-muted" />
+      {/if}
 
-    {blob.metadata.title}
-  </Button>
+      {blob.metadata.title}
+    </Button>
+  {/if}
 
-  <Dialog.Content wide>
+  <Dialog.Content width="medium">
     <Dialog.Title>{blob.metadata.title}</Dialog.Title>
     <Dialog.Description hidden>File contents of {blob.metadata.title}</Dialog.Description>
 
-    <div class="max-h-[80vh] overflow-y-auto rounded-md border p-2">
-      {#if loadingBlob}
-        <pre>Loading...</pre>
-      {:else}
-        <Markdown.Plain source={blob.text ?? ""}></Markdown.Plain>
-      {/if}
-    </div>
+    <Dialog.Section scrollable>
+      <div class="p-4">
+        {#if loadingBlob}
+          <pre>Loading...</pre>
+        {:else}
+          <Markdown source={blob.text ?? ""}></Markdown>
+        {/if}
+      </div>
+    </Dialog.Section>
 
     <Dialog.Controls let:close>
       {#if blob.text}

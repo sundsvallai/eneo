@@ -64,7 +64,7 @@ export function initUser(client) {
 
     /**
      * Registers a new user for the current tenant. Requires super user privileges.
-     * @param {Omit<User, "used_tokens" | "email_verified" | "is_superuser" | "quota_limit" | "created_with"> & {password:string}} user
+     * @param {import('../types/fetch').JSONRequestBody<"post", "/api/v1/admin/users/">} user
      * @returns {Promise<User>} Returns the created user
      * @throws {IntricError}
      * */
@@ -79,37 +79,70 @@ export function initUser(client) {
     },
 
     /**
-     * Delete an user by username. Requires super user privileges.
-     * @param {{username: string} | User} user User to delete
+     * "Invites" a new user for the current tenant. This will create a new user without activating it.
+     * It is a prerequisite to be able to login via zitadel. On first zitadel login the user will become active.
+     * The Requires super user privileges.
+     * @param {import('../types/fetch').JSONRequestBody<"post", "/api/v1/users/admin/invite/">} user
+     * @returns {Promise<User>} Returns the invited user
+     * @throws {IntricError}
+     * */
+    invite: async (user) => {
+      const res = await client.fetch("/api/v1/users/admin/invite/", {
+        method: "post",
+        requestBody: { "application/json": user }
+      });
+      return res;
+    },
+
+    /**
+     * Delete an user by id. Requires super user privileges.
+     * @param {{id: string}} user User to delete
      * @returns {Promise<boolean>} Returns true on success
      * @throws {IntricError}
      * */
     delete: async (user) => {
-      const { username } = user;
-      const res = await client.fetch("/api/v1/admin/users/{username}", {
+      const { id } = user;
+      await client.fetch("/api/v1/users/admin/{id}/", {
         method: "delete",
-        params: { path: { username } }
+        params: { path: { id } }
       });
-      return res.success;
+      return true;
     },
 
     /**
      * Update an existing user. Requires super user privileges.
-     * @param {Object} params
-     * @param {{username: string} | User} params.user User to update; most important to set the current user name here, as it identifies the user on the server
-     * @param {Partial<User> & {password?: string;}} params.update Supply properties to update.
-     * @returns {Promise<User>} Returns true on success
+     * @typedef {import('../types/fetch').JSONRequestBody<"post", "/api/v1/admin/users/{username}/">} UserLegacyUpdate
+     * @typedef {import('../types/fetch').JSONRequestBody<"patch", "/api/v1/users/admin/{id}/">} UserUpdate
+     * @param {{user: {id: string, username?: never}, update: UserUpdate} | {user: {username: string, id?: never}, update: UserLegacyUpdate}} params
+     * @returns {Promise<User>}
      * @throws {IntricError}
      * */
-    update: async ({ user, update }) => {
-      const { username } = user;
+    update: async (params) => {
+      if ("username" in params.user && params.user.username) {
+        const username = params.user.username;
+        // We can cast this as we are on the "username" path
+        const update = /** @type {UserLegacyUpdate} */ (params.update);
+        const res = await client.fetch("/api/v1/admin/users/{username}/", {
+          method: "post",
+          params: { path: { username } },
+          requestBody: { "application/json": update }
+        });
+        return res;
+      }
 
-      const res = await client.fetch("/api/v1/admin/users/{username}/", {
-        method: "post",
-        params: { path: { username } },
-        requestBody: { "application/json": update }
-      });
-      return res;
+      if ("id" in params.user && params.user.id) {
+        const id = params.user.id;
+        // We can cast this as we are on the "username" path
+        const update = /** @type {UserUpdate} */ (params.update);
+        const res = await client.fetch("/api/v1/users/admin/{id}/", {
+          method: "patch",
+          params: { path: { id } },
+          requestBody: { "application/json": update }
+        });
+        return res;
+      }
+
+      throw Error("Either username or id are required to edit user");
     }
   };
 }

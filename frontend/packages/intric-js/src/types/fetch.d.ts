@@ -73,6 +73,8 @@ type IntricFetchFunction = <
 type IntricStreamingEndpoints =
   | "/api/v1/assistants/{id}/sessions/{session_id}/"
   | "/api/v1/assistants/{id}/sessions/"
+  | "/api/v1/widgets/{id}/sessions/{session_id}/"
+  | "/api/v1/widgets/{id}/sessions/"
   | "/api/v1/analysis/assistants/{assistant_id}/";
 
 type IntricStreamFunction = <Endpoint extends IntricStreamingEndpoints>(
@@ -84,9 +86,13 @@ type IntricStreamFunction = <Endpoint extends IntricStreamingEndpoints>(
   callbacks: {
     onOpen?: (response: Response) => Promise<void>;
     onClose?: () => void;
-    onMessage?: (ev: { id: string; event: string; data: string }) => void;
+    onMessage?: (
+      ev: { id: string; event: string; data: string },
+      controller: AbortController
+    ) => void;
     onError?: (err: any) => number | null | undefined | void;
-  }
+  },
+  abortController?: AbortController | undefined
 ) => Promise<void>;
 
 type IntricXhrFunction = <
@@ -113,5 +119,6 @@ type IntricXhrFunction = <
           params: IntricParams<Endpoint, Method>;
           requestBody: IntricRequestBody<Endpoint, Method>;
         },
-  callbacks: { onProgress?: (ev: ProgressEvent) => void }
+  callbacks: { onProgress?: (ev: ProgressEvent) => void },
+  abortController?: AbortController | undefined
 ) => Promise<SuccessResponse<Responses<Endpoint, Method>>>;

@@ -1,26 +1,20 @@
-import { dev } from "$app/environment";
-import { IntricError } from "@intric/intric-js";
+import { IntricError, type IntricErrorCode } from "@intric/intric-js";
+import type { HandleClientError } from "@sveltejs/kit";
 
-export const handleError = async ({ error, status, message }) => {
-  let sessionInvalid = false;
-
+export const handleError: HandleClientError = async ({ error, status, message }) => {
+  let code: IntricErrorCode = 0;
   if (error instanceof IntricError) {
     status = error.status;
-    message = error.getReadableMessage(false);
-    // We assume the frontend is not generating any real 404 intric errors
-    if (error.status === 404 || error.status === 401) {
-      sessionInvalid = true;
-    }
-  }
-
-  if (dev) {
-    console.error("client error");
+    message = error.getReadableMessage();
+    code = error.code;
+  } else {
+    // On the client we always log the error
     console.error(error);
   }
 
   return {
     status,
     message,
-    sessionInvalid
+    code
   };
 };

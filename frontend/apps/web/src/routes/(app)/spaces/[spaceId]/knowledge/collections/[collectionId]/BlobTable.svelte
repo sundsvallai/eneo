@@ -4,6 +4,7 @@
   import { createRender } from "svelte-headless-table";
   import BlobPreview from "$lib/features/knowledge/components/BlobPreview.svelte";
   import BlobActions from "./BlobActions.svelte";
+  import { formatBytes } from "$lib/core/formatting/formatBytes";
 
   export let blobs: InfoBlob[];
   export let canEdit: boolean;
@@ -20,6 +21,16 @@
         });
       }
     }),
+
+    table.column({
+      header: "Size",
+      accessor: (item) => item,
+      cell: (item) => formatBytes(item.value.metadata.size),
+      plugins: {
+        sort: { getSortValue: (item) => item.metadata.size }
+      }
+    }),
+
     table.columnActions({
       cell: (item) => {
         return createRender(BlobActions, {
