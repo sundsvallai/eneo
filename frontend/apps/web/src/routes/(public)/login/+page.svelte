@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { enhance } from "$app/forms";
   import { Button, Input } from "@intric/ui";
   import { goto } from "$app/navigation";
@@ -7,12 +7,13 @@
   import { LoadingScreen } from "$lib/components/layout";
   import IntricWordMark from "$lib/assets/IntricWordMark.svelte";
 
-  export let data;
-  let loginFailed = false;
-  let isAwaitingLoginResponse = false;
+  const { data } = $props();
 
-  $: message = $page.url.searchParams.get("message") ?? null;
-  $: showUsernameAndPassword = $page.url?.searchParams.get("showUsernameAndPassword");
+  let loginFailed = $state(false);
+  let isAwaitingLoginResponse = $state(false);
+
+  let message = $derived(page.url.searchParams.get("message") ?? null);
+  let showUsernameAndPassword = $derived(page.url?.searchParams.get("showUsernameAndPassword"));
 
   // We don't redirect on the server so we can render a loader/spinner during the redirection period
   if (data.zitadelLink && browser) {
@@ -30,26 +31,26 @@
   <div class="relative flex h-[100vh] w-[100vw] items-center justify-center">
     <div class="box w-[400px] justify-center">
       <h1 class="flex justify-center">
-        <IntricWordMark class="h-16 w-20 text-brand-intric" />
+        <IntricWordMark class="text-brand-intric h-16 w-20" />
         <span class="sr-only">Intric</span>
       </h1>
 
       <div aria-live="polite">
         {#if message === "logout"}
           <div
-            class="mb-2 flex flex-col gap-3 bg-positive-dimmer p-4 text-positive-default shadow-lg"
+            class="bg-positive-dimmer text-positive-default mb-2 flex flex-col gap-3 p-4 shadow-lg"
           >
             Successfully logged out!
           </div>{/if}
         {#if message === "expired"}
           <div
-            class="mb-2 flex flex-col gap-3 bg-warning-dimmer p-4 text-warning-default shadow-lg"
+            class="bg-warning-dimmer text-warning-default mb-2 flex flex-col gap-3 p-4 shadow-lg"
           >
             Session expired. Please login again.
           </div>{/if}
         {#if message === "mobilityguard_login_error"}
           <div
-            class="mb-2 flex flex-col gap-3 bg-negative-dimmer p-4 text-negative-default shadow-lg"
+            class="bg-negative-dimmer text-negative-default mb-2 flex flex-col gap-3 p-4 shadow-lg"
           >
             The selected login method was not successful. Please use a different login method or try
             again later.
@@ -58,7 +59,7 @@
 
       <form
         method="POST"
-        class="flex flex-col gap-3 border-default bg-primary p-4"
+        class="border-default bg-primary flex flex-col gap-3 p-4"
         action="?/login"
         use:enhance={() => {
           isAwaitingLoginResponse = true;
@@ -74,10 +75,10 @@
           };
         }}
       >
-        <input type="text" hidden value={$page.url.searchParams.get("next") ?? ""} name="next" />
+        <input type="text" hidden value={page.url.searchParams.get("next") ?? ""} name="next" />
 
         {#if loginFailed}
-          <div class="label-negative rounded-lg bg-label-dimmer p-4 text-label-stronger">
+          <div class="label-negative bg-label-dimmer text-label-stronger rounded-lg p-4">
             Incorrect credentials. Please provide a valid username and a valid password.
           </div>
         {/if}

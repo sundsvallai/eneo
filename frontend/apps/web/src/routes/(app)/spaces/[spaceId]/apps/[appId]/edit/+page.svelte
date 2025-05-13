@@ -9,10 +9,12 @@
   import { fade } from "svelte/transition";
   import { initAppEditor } from "$lib/features/apps/AppEditor";
   import AppSettingsAttachments from "./AppSettingsAttachments.svelte";
-  import SelectCompletionModelV2 from "$lib/features/ai-models/components/SelectCompletionModelV2.svelte";
+  import SelectAIModelV2 from "$lib/features/ai-models/components/SelectAIModelV2.svelte";
   import SelectBehaviourV2 from "$lib/features/ai-models/components/SelectBehaviourV2.svelte";
   import PromptVersionDialog from "$lib/features/prompts/components/PromptVersionDialog.svelte";
   import dayjs from "dayjs";
+  import PublishingSetting from "$lib/features/publishing/components/PublishingSetting.svelte";
+  import { page } from "$app/state";
 
   export let data;
   const {
@@ -49,6 +51,7 @@
 
   let previousRoute = `/spaces/${$currentSpace.routeId}/apps/${data.app.id}`;
   afterNavigate(({ from }) => {
+    if (page.url.searchParams.get("next") === "default") return;
     if (from) previousRoute = from.url.toString();
   });
 
@@ -94,7 +97,7 @@
         >
       {:else}
         {#if showSavesChangedNotice}
-          <p class="px-4 text-positive-stronger" transition:fade>All changes saved!</p>
+          <p class="text-positive-stronger px-4" transition:fade>All changes saved!</p>
         {/if}
         <Button variant="primary" class="w-32" href={previousRoute}>Done</Button>
       {/if}
@@ -117,7 +120,7 @@
             type="text"
             {...aria}
             bind:value={$update.name}
-            class="rounded-lg border border-stronger bg-primary px-3 py-2 text-primary shadow ring-default focus-within:ring-2 hover:ring-2 focus-visible:ring-2"
+            class="border-stronger bg-primary text-primary ring-default rounded-lg border px-3 py-2 shadow focus-within:ring-2 hover:ring-2 focus-visible:ring-2"
           />
         </Settings.Row>
 
@@ -133,9 +136,22 @@
           <textarea
             {...aria}
             bind:value={$update.description}
-            class=" min-h-24 rounded-lg border border-stronger bg-primary px-3 py-2 text-primary shadow ring-default focus-within:ring-2 hover:ring-2 focus-visible:ring-2"
-          />
+            class=" border-stronger bg-primary text-primary ring-default min-h-24 rounded-lg border px-3 py-2 shadow focus-within:ring-2 hover:ring-2 focus-visible:ring-2"
+          ></textarea>
         </Settings.Row>
+
+        {#if data.app.permissions?.includes("publish")}
+          <Settings.Row
+            title="Status"
+            description="Publishing your app will make it available to all users of this space, including viewers."
+          >
+            <PublishingSetting
+              endpoints={data.intric.apps}
+              resource={data.app}
+              hasUnsavedChanges={$currentChanges.hasUnsavedChanges}
+            />
+          </Settings.Row>
+        {/if}
       </Settings.Group>
 
       <Settings.Group title="Input">
@@ -173,8 +189,8 @@
             on:change={() => {
               $update.prompt.description = "";
             }}
-            class="min-h-24 rounded-lg border border-stronger bg-primary px-6 py-4 text-lg text-primary shadow ring-default focus-within:ring-2 hover:ring-2 focus-visible:ring-2"
-          />
+            class="border-stronger bg-primary text-primary ring-default min-h-24 rounded-lg border px-6 py-4 text-lg shadow focus-within:ring-2 hover:ring-2 focus-visible:ring-2"
+          ></textarea>
         </Settings.Row>
 
         <Settings.Row
@@ -191,6 +207,24 @@
       </Settings.Group>
 
       <Settings.Group title="AI Settings">
+        {#if $update.input_fields.some( (field) => ["audio-recorder", "audio-upload"].includes(field.type) )}
+          <Settings.Row
+            title="Transcription model"
+            description="This model will be used to transcribe audio input to text before processing it further."
+            hasChanges={$currentChanges.diff.transcription_model !== undefined}
+            revertFn={() => {
+              discardChanges("transcription_model");
+            }}
+            let:aria
+          >
+            <SelectAIModelV2
+              bind:selectedModel={$update.transcription_model}
+              availableModels={$currentSpace.transcription_models}
+              {aria}
+            ></SelectAIModelV2>
+          </Settings.Row>
+        {/if}
+
         <Settings.Row
           title="Completion model"
           description="This model will be used to process the app's input and generate a response."
@@ -200,16 +234,16 @@
           }}
           let:aria
         >
-          <SelectCompletionModelV2
+          <SelectAIModelV2
             bind:selectedModel={$update.completion_model}
             availableModels={$currentSpace.completion_models}
             {aria}
-          ></SelectCompletionModelV2>
+          ></SelectAIModelV2>
         </Settings.Row>
 
         <Settings.Row
           title="Model behaviour"
-          description="Select a preset for how this model should behave, or configure its parameters manually."
+          description="Select a preset for how the completion model should behave, or configure its parameters manually."
           hasChanges={$currentChanges.diff.completion_model_kwargs !== undefined}
           revertFn={() => {
             discardChanges("completion_model_kwargs");

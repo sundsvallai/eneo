@@ -16,11 +16,14 @@ import { initUserGroups } from "./endpoints/user-groups";
 import { initUser } from "./endpoints/users";
 import { initVersion } from "./endpoints/version";
 import { initWebsites } from "./endpoints/websites";
-import { initWidgets } from "./endpoints/widgets";
 import { initPrompts } from "./endpoints/prompts";
 import { initApps } from "./endpoints/apps";
 import { initTemplates } from "./endpoints/templates";
-import { initStorage } from "./endpoints/storage";
+import { initUsage } from "./endpoints/usage";
+import { initGroupChats } from "./endpoints/group-chats";
+import { initIntegrations } from "./endpoints/integrations";
+import { initConversations } from "./endpoints/conversations";
+import { initSecurityClassifications } from "./endpoints/security-classifications";
 
 /**
  * Create an Intric.js object to interact with the intric backend.
@@ -45,7 +48,6 @@ export function createIntric(args) {
     analytics: initAnalytics(client),
     logging: initLogging(client),
     jobs: initJobs(client),
-    widgets: initWidgets(client),
     roles: initRoles(client),
     files: initFiles(client),
     models: initModels(client),
@@ -55,7 +57,11 @@ export function createIntric(args) {
     dashboard: initDashboard(client),
     prompts: initPrompts(client),
     templates: initTemplates(client),
-    storage: initStorage(client),
+    usage: initUsage(client),
+    groupChats: initGroupChats(client),
+    integrations: initIntegrations(client),
+    conversations: initConversations(client),
+    securityClassifications: initSecurityClassifications(client),
     client
   };
 }

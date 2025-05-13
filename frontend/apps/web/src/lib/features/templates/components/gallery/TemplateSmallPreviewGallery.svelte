@@ -12,7 +12,7 @@
 </script>
 
 <div class="grid max-h-[220px] w-full grid-cols-3 gap-2 overflow-hidden p-1">
-  {#each allTemplates.slice(0, 3) as template}
+  {#each allTemplates.slice(0, 3) as template (template.id)}
     <button
       on:click|preventDefault={() => {
         selectTemplate(template);
@@ -23,11 +23,11 @@
       class="rounded-2xl"
     >
       <div
-        class="tile-bg flex h-full flex-col gap-2.5 overflow-clip rounded-2xl border border-default p-3 transition-all"
+        class="tile-bg border-default flex h-full flex-col gap-2.5 overflow-clip rounded-2xl border p-3 transition-all"
       >
         <TemplateIcon {template} size="large"></TemplateIcon>
         <div class="flex-grow"></div>
-        <h4 class="line-clamp-2 text-left text-lg font-medium leading-6 text-dynamic-stronger">
+        <h4 class="text-dynamic-stronger line-clamp-2 text-left text-lg leading-6 font-medium">
           {formatEmojiTitle(template.name)}
         </h4>
       </div>
@@ -36,12 +36,13 @@
 </div>
 
 <style lang="postcss">
+  @reference "@intric/ui/styles";
   .tile-bg {
     background: linear-gradient(183deg, var(--dynamic-dimmer) 0%, var(--background-primary) 50%);
   }
 
   .tile-bg:hover {
     background: var(--dynamic-dimmer);
-    @apply ring-2 ring-default;
+    @apply ring-default ring-2;
   }
 </style>

@@ -1,16 +1,13 @@
-@layer base {
-  .bg-frosted-glass-primary {
-    background-color: oklch(from var(--background-primary) l c h / 75%);
-    backdrop-filter: blur(12px);
-  }
-  .bg-frosted-glass-secondary {
-    background-color: oklch(from var(--background-secondary) l c h / 75%);
-    backdrop-filter: blur(12px);
-  }
+@utility bg-frosted-glass-primary {
+  background-color: oklch(from var(--background-primary) l c h / 75%);
+  backdrop-filter: blur(12px);
 }
 
-@layer utilities {
-  .stable-gutter {
-    scrollbar-gutter: stable both-edges;
-  }
+@utility bg-frosted-glass-secondary {
+  background-color: oklch(from var(--background-secondary) l c h / 75%);
+  backdrop-filter: blur(12px);
+}
+
+@utility stable-gutter {
+  scrollbar-gutter: stable both-edges;
 }

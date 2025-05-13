@@ -1,13 +1,13 @@
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Union
 from uuid import UUID
 
 from intric.ai_models.completion_models.completion_model import (
     CompletionModelSparse,
     ModelKwargs,
 )
-from intric.ai_models.completion_models.completion_service import CompletionService
 from intric.apps.apps.api.app_models import InputField, InputFieldType
+from intric.completion_models.infrastructure.completion_service import CompletionService
 from intric.files.audio import AudioMimeTypes
 from intric.files.file_models import File, FileInfo
 from intric.files.image import ImageMimeTypes
@@ -15,11 +15,15 @@ from intric.files.text import TextMimeTypes
 from intric.files.transcriber import Transcriber
 from intric.main.exceptions import BadRequestException
 from intric.main.logging import get_logger
+from intric.main.models import NOT_PROVIDED, NotProvided
 from intric.prompts.prompt import Prompt
 from intric.templates.app_template.app_template import AppTemplate
 
 if TYPE_CHECKING:
     from intric.completion_models.domain import CompletionModel
+    from intric.transcription_models.domain.transcription_model import (
+        TranscriptionModel,
+    )
 
 logger = get_logger(__name__)
 
@@ -60,11 +64,13 @@ class App:
         description: str | None,
         prompt: Prompt | None,
         completion_model: "CompletionModel",
+        transcription_model: "TranscriptionModel",
         completion_model_kwargs: ModelKwargs | None,
         input_fields: list[InputField],
         attachments: list[FileInfo],
         published: bool,
         source_template: AppTemplate | None = None,
+        data_retention_days: Optional[int] = None,
     ):
         self._input_fields = input_fields
         self._attachments = attachments
@@ -82,12 +88,13 @@ class App:
         self.completion_model_kwargs = completion_model_kwargs
         self.published = published
         self.source_template = source_template
+        self.transcription_model = transcription_model
+        self.data_retention_days = data_retention_days
 
     def _input_field_types(self):
         return [input_field.type for input_field in self.input_fields]
 
     def _allowed_mimetype(self, mimetype: str):
-
         def _is_mimetype_allowed_for_field(input_field: InputField, mimetype):
             mimetype_checker = INPUT_FIELD_MIME_TYPES.get(input_field.type)
 
@@ -122,15 +129,10 @@ class App:
     @input_fields.setter
     def input_fields(self, input_fields: list[InputField]):
         if len(input_fields) > 1:
-            raise BadRequestException(
-                f"A {self.__class__.__name__} can only have one input."
-            )
+            raise BadRequestException(f"A {self.__class__.__name__} can only have one input.")
 
         for input_field in input_fields:
-            if (
-                input_field.type == InputFieldType.IMAGE_UPLOAD
-                and not self.completion_model.vision
-            ):
+            if input_field.type == InputFieldType.IMAGE_UPLOAD and not self.completion_model.vision:
                 raise BadRequestException(
                     "Need to have a vision model enabled in order to specify image upload"
                 )
@@ -163,6 +165,8 @@ class App:
         input_fields: list[InputField] | None = None,
         attachments: list[FileInfo] | None = None,
         published: bool | None = None,
+        transcription_model: "TranscriptionModel" = None,
+        data_retention_days: Union[int, None, NotProvided] = NOT_PROVIDED,
     ):
         if name is not None:
             self.name = name
@@ -179,6 +183,9 @@ class App:
         if completion_model_kwargs is not None:
             self.completion_model_kwargs = completion_model_kwargs
 
+        if transcription_model is not None:
+            self.transcription_model = transcription_model
+
         if input_fields is not None:
             self.input_fields = input_fields
 
@@ -187,6 +194,9 @@ class App:
 
         if published is not None:
             self.published = published
+
+        if data_retention_days is not NOT_PROVIDED:
+            self.data_retention_days = data_retention_days
 
     def is_valid_input(self, files: list[FileInfo], text: str | None = None):
         if not files and not text:
@@ -201,6 +211,10 @@ class App:
                     return False
 
                 if file.size > self._max_size(file.mimetype):
+                    return False
+
+                # Check if there are audio files that require a transcription model
+                if AudioMimeTypes.has_value(file.mimetype) and not self.transcription_model:
                     return False
 
             total_size = sum(file.size for file in files)
@@ -235,21 +249,21 @@ class App:
         if text is None:
             text = ""
 
-        audio_files = [
-            file for file in files if AudioMimeTypes.has_value(file.mimetype)
+        audio_files = [file for file in files if AudioMimeTypes.has_value(file.mimetype)]
+
+        transcriptions = [
+            await transcriber.transcribe(file, self.transcription_model) for file in audio_files
         ]
-        transcriptions = [await transcriber.transcribe(file) for file in audio_files]
 
         text_files = [file for file in files if TextMimeTypes.has_value(file.mimetype)]
 
-        image_files = [
-            file for file in files if ImageMimeTypes.has_value(file.mimetype)
-        ]
+        image_files = [file for file in files if ImageMimeTypes.has_value(file.mimetype)]
 
         return await completion_service.get_response(
             text_input=text,
             transcription_inputs=transcriptions,
             files=image_files + text_files,
+            model=self.completion_model,
             prompt=self._get_prompt_text(),
             prompt_files=self.attachments,
             model_kwargs=self.completion_model_kwargs,

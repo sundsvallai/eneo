@@ -28,7 +28,7 @@ test("Detect change in child object when comparing specific prop", () => {
   const a = { id: "1", person: { name: "test", age: 20 } };
   const b = { id: "1", person: { name: "test", age: 30 } };
 
-  expect(getDiff(a, b, { compare: { person: ["age"] } })).toEqual({
+  expect(getDiff(a, b, { compare: { person: { age: true } } })).toEqual({
     person: { age: 30 }
   });
 });
@@ -37,7 +37,7 @@ test("Detect change in child object when comparing specific prop, include all sp
   const a = { id: "1", person: { name: "test", age: 20 } };
   const b = { id: "1", person: { name: "test", age: 30 } };
 
-  expect(getDiff(a, b, { compare: { person: ["name", "age"] } })).toEqual({
+  expect(getDiff(a, b, { compare: { person: { name: true, age: true } } })).toEqual({
     person: { name: "test", age: 30 }
   });
 });
@@ -137,4 +137,121 @@ test("Empty comparison returns empty object", () => {
   const a = { id: "1" };
   const b = { id: "1", name: "group2" };
   expect(getDiff(a, b, { compare: {} })).toEqual({});
+});
+
+test("Detect nested object diff with nested arrays", () => {
+  const original = {
+    id: "1",
+    name: "group1",
+    tools: {
+      assistants: [
+        { id: "asst1", name: "Assistant 1" },
+        { id: "asst2", name: "Assistant 2" }
+      ]
+    }
+  };
+
+  const modified = {
+    id: "1",
+    name: "group1",
+    tools: {
+      assistants: [
+        { id: "asst1", name: "Assistant 1" },
+        { id: "asst3", name: "Assistant 3" }
+      ]
+    }
+  };
+
+  // Compare with nested fields configuration
+  const diff = getDiff(original, modified, {
+    compare: {
+      tools: {
+        assistants: ["id"]
+      }
+    }
+  });
+
+  // Expected: only the IDs in the assistants array should be compared
+  expect(diff).toEqual({
+    tools: {
+      assistants: [{ id: "asst1" }, { id: "asst3" }]
+    }
+  });
+});
+
+test("Omit nested property when no changes", () => {
+  const original = {
+    id: "1",
+    name: "group1",
+    tools: {
+      assistants: [
+        { id: "asst1", name: "Assistant 1" },
+        { id: "asst2", name: "Assistant 2" }
+      ],
+      integrations: [{ id: "int1", name: "Integration 1" }]
+    }
+  };
+
+  const modified = {
+    id: "1",
+    name: "group1",
+    tools: {
+      assistants: [
+        { id: "asst1", name: "Changed Name" },
+        { id: "asst2", name: "Assistant 2" }
+      ],
+      integrations: [{ id: "int1", name: "Integration 1" }]
+    }
+  };
+
+  // Compare with nested fields configuration
+  const diff = getDiff(original, modified, {
+    compare: {
+      tools: {
+        assistants: ["id"],
+        integrations: ["id"]
+      }
+    }
+  });
+
+  // Since only IDs are compared and IDs haven't changed, integrations should not appear in the diff
+  // assistants shouldn't appear either since the IDs are the same
+  expect(diff).toEqual({});
+});
+
+test("Multiple nested properties with changes", () => {
+  const original = {
+    id: "1",
+    name: "group1",
+    tools: {
+      assistants: [{ id: "asst1", name: "Assistant 1" }],
+      integrations: [{ id: "int1", name: "Integration 1" }]
+    }
+  };
+
+  const modified = {
+    id: "1",
+    name: "group1",
+    tools: {
+      assistants: [{ id: "asst1", name: "Assistant 1" }],
+      integrations: [{ id: "int2", name: "Integration 2" }]
+    }
+  };
+
+  // Compare with nested fields configuration
+  const diff = getDiff(original, modified, {
+    compare: {
+      tools: {
+        assistants: ["id"],
+        integrations: ["id"]
+      }
+    }
+  });
+
+  // Only integrations have changed
+  expect(diff).toEqual({
+    tools: {
+      integrations: [{ id: "int2" }]
+    }
+  });
 });

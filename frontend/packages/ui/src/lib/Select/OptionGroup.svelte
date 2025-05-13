@@ -10,7 +10,7 @@
 
 <div {...$group(label)} use:group>
   <div
-    class="px-2 py-1 text-[0.7rem] font-medium uppercase tracking-wide text-secondary"
+    class="text-secondary px-2 py-1 text-[0.7rem] font-medium tracking-wide uppercase"
     {...$groupLabel(label)}
     use:groupLabel
   >

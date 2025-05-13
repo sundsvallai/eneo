@@ -7,8 +7,8 @@ from intric.ai_models.completion_models.completion_model import (
     ModelStability,
 )
 from intric.ai_models.embedding_models.embedding_model import (
-    EmbeddingModel,
     EmbeddingModelFamily,
+    EmbeddingModelLegacy,
 )
 from intric.tenants.tenant import TenantInDB
 from intric.users.user import UserInDB
@@ -16,7 +16,7 @@ from intric.users.user import UserInDB
 
 @pytest.fixture
 def embedding_model_small():
-    return EmbeddingModel(
+    return EmbeddingModelLegacy(
         id=uuid.uuid4(),
         name="text-embedding-3-small",
         family=EmbeddingModelFamily.OPEN_AI,
@@ -30,7 +30,7 @@ def embedding_model_small():
 
 
 @pytest.fixture
-def tenant(embedding_model_small: EmbeddingModel):
+def tenant(embedding_model_small: EmbeddingModelLegacy):
     return TenantInDB(
         id=uuid.uuid4(),
         name="test_tenant",

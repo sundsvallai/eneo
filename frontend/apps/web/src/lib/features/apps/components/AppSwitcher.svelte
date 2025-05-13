@@ -37,28 +37,28 @@
   {...$trigger}
   use:trigger
   in:fly|global={{ x: -5, duration: parent ? 300 : 0, easing: quadInOut, opacity: 0.3 }}
-  class="group flex max-w-[calc(100%_-_1rem)] items-center justify-between gap-2 overflow-hidden rounded-lg border border-transparent py-0.5 pl-2 pr-1 text-[1.4rem] font-extrabold leading-normal text-primary hover:border-dimmer hover:bg-hover-default"
+  class="group text-primary hover:border-dimmer hover:bg-hover-default flex max-w-[calc(100%_-_1rem)] items-center justify-between gap-2 overflow-hidden rounded-lg border border-transparent py-0.5 pr-1 pl-2 text-[1.4rem] leading-normal font-extrabold"
 >
   <span class="truncate">{currentApp.name}</span>
   <!-- translate-y to make it look on the same line as the chevron in the space selector -->
   <IconChevronUpDown
-    class="h-6 w-6 min-w-6 translate-y-[0.05rem] text-secondary group-hover:text-primary"
+    class="text-secondary group-hover:text-primary h-6 w-6 min-w-6 translate-y-[0.05rem]"
   ></IconChevronUpDown>
 </button>
 
 <div
-  class="z-10 flex min-w-[24vw] flex-col overflow-y-auto rounded-lg border border-default bg-primary shadow-xl"
+  class="border-default bg-primary z-10 flex min-w-[24vw] flex-col overflow-y-auto rounded-lg border shadow-xl"
   {...$menu}
   use:menu
 >
   <div
-    class="bg-frosted-glass-secondary sticky top-0 border-b border-default px-4 py-2 pr-12 font-mono text-sm"
+    class="bg-frosted-glass-secondary border-default sticky top-0 border-b px-4 py-2 pr-12 font-mono text-sm"
   >
     Select an app
   </div>
-  {#each $currentSpace.applications.apps as app}
+  {#each $currentSpace.applications.apps as app (app.id)}
     <div
-      class="flex min-h-16 items-center gap-4 border-b border-default px-4 hover:cursor-pointer hover:bg-hover-default"
+      class="border-default hover:bg-hover-default flex min-h-16 items-center gap-4 border-b px-4 hover:cursor-pointer"
       {...$option({ value: { id: app.id } })}
       use:option
     >
@@ -66,13 +66,14 @@
       {formatEmojiTitle(app.name)}
       <div class="flex-grow"></div>
       <div class="check {$isSelected({ id: app.id }) ? 'block' : 'hidden'}">
-        <IconCheck class="!size-8 text-positive-stronger"></IconCheck>
+        <IconCheck class="text-positive-stronger !size-8"></IconCheck>
       </div>
     </div>
   {/each}
 </div>
 
 <style lang="postcss">
+  @reference "@intric/ui/styles";
   div[data-highlighted] {
     @apply bg-hover-default;
   }

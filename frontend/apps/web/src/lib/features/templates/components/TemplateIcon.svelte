@@ -7,12 +7,13 @@
 
 <div
   {...dynamicColour({ basedOn: template.category })}
-  class="flex items-center justify-center rounded-lg border border-dynamic-stronger bg-dynamic-dimmer {size}"
+  class="border-dynamic-stronger bg-dynamic-dimmer flex items-center justify-center rounded-lg border {size}"
 >
   <span class=" text-dynamic-stronger">{[...template.name][0]}</span>
 </div>
 
 <style lang="postcss">
+  @reference "@intric/ui/styles";
   .medium {
     @apply h-7 w-7 min-w-7 text-lg font-medium;
   }

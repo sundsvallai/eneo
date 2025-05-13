@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
 
 from intric.ai_models.completion_models.completion_model import (
-    CompletionModelSparse,
     ModelKwargs,
 )
 from intric.apps.apps.api.app_models import (
@@ -11,6 +10,7 @@ from intric.apps.apps.api.app_models import (
     InputFieldType,
 )
 from intric.apps.apps.app import App
+from intric.completion_models.presentation import CompletionModelAssembler
 from intric.files.audio import AudioMimeTypes
 from intric.files.file_models import (
     AcceptedFileType,
@@ -21,13 +21,17 @@ from intric.files.file_models import (
 from intric.files.image import ImageMimeTypes
 from intric.files.text import TextMimeTypes
 from intric.prompts.api.prompt_assembler import PromptAssembler
+from intric.transcription_models.presentation import TranscriptionModelPublic
 
 if TYPE_CHECKING:
     from intric.main.models import ResourcePermission
 
 
 class AppAssembler:
-    def __init__(self, prompt_assembler: PromptAssembler):
+    def __init__(
+        self,
+        prompt_assembler: PromptAssembler,
+    ):
         self.prompt_assembler = prompt_assembler
 
     def _get_accepted_file_types(self, input_type: InputFieldType):
@@ -72,11 +76,8 @@ class AppAssembler:
                 return Limit(max_files=2, max_size=41943040)
 
     def _get_input_fields(self, input_fields: list[InputField]):
-
         def _get_input_field(input_field: InputField):
-            accepted_file_types = self._get_accepted_file_types(
-                input_type=input_field.type
-            )
+            accepted_file_types = self._get_accepted_file_types(input_type=input_field.type)
             limit = self._get_limit(input_type=input_field.type)
 
             return InputFieldPublic(
@@ -87,21 +88,19 @@ class AppAssembler:
 
         return [_get_input_field(input_field) for input_field in input_fields]
 
-    def from_app_to_model(
-        self, app: App, permissions: list["ResourcePermission"] = None
-    ):
+    def from_app_to_model(self, app: App, permissions: list["ResourcePermission"] = None):
         permissions = permissions or []
 
         input_fields = self._get_input_fields(app.input_fields)
-        attachments = [
-            FilePublic(**attachment.model_dump()) for attachment in app.attachments
-        ]
+        attachments = [FilePublic(**attachment.model_dump()) for attachment in app.attachments]
         prompt = (
             self.prompt_assembler.from_prompt_to_model(app.prompt)
             if app.prompt is not None
             else None
         )
-        completion_model = CompletionModelSparse(**app.completion_model.model_dump())
+        completion_model = CompletionModelAssembler.from_completion_model_to_sparse(
+            completion_model=app.completion_model
+        )
         model_kwargs = (
             app.completion_model_kwargs
             if app.completion_model_kwargs is not None
@@ -114,6 +113,8 @@ class AppAssembler:
             ],
             limit=Limit(max_files=3, max_size=26214400),
         )
+
+        transcription_model = TranscriptionModelPublic.from_domain(app.transcription_model)
 
         return AppPublic(
             created_at=app.created_at,
@@ -129,4 +130,6 @@ class AppAssembler:
             allowed_attachments=allowed_attachments,
             published=app.published,
             permissions=permissions,
+            transcription_model=transcription_model,
+            data_retention_days=app.data_retention_days,
         )

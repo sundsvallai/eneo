@@ -6,11 +6,11 @@ from uuid import uuid4
 import pytest
 
 from intric.ai_models.completion_models.completion_model import Message
-from intric.ai_models.completion_models.context_builder import (
+from intric.completion_models.infrastructure.context_builder import (
     ContextBuilder,
     count_tokens,
 )
-from intric.ai_models.completion_models.static_prompts import (
+from intric.completion_models.infrastructure.static_prompts import (
     HALLUCINATION_GUARD,
     SHOW_REFERENCES_PROMPT,
 )

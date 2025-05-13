@@ -7,12 +7,12 @@ from intric.ai_models.completion_models.completion_model import (
     ModelStability,
 )
 from intric.ai_models.embedding_models.embedding_model import (
-    EmbeddingModel,
     EmbeddingModelFamily,
+    EmbeddingModelLegacy,
 )
 from intric.assistants.assistant import Assistant
 from intric.authentication.auth_models import ApiKey
-from intric.groups.api.group_models import Group
+from intric.collections.domain.collection import Collection
 from intric.roles.permissions import Permission
 from intric.roles.role import RoleInDB
 from intric.tenants.tenant import TenantInDB
@@ -20,7 +20,7 @@ from intric.users.user import UserInDB
 
 TEST_UUID = uuid4()
 
-TEST_EMBEDDING_MODEL = EmbeddingModel(
+TEST_EMBEDDING_MODEL = EmbeddingModelLegacy(
     id=uuid4(),
     name="text-embedding-3-small-test",
     family=EmbeddingModelFamily.OPEN_AI,
@@ -32,7 +32,7 @@ TEST_EMBEDDING_MODEL = EmbeddingModel(
     is_deprecated=False,
 )
 
-TEST_EMBEDDING_MODEL_ADA = EmbeddingModel(
+TEST_EMBEDDING_MODEL_ADA = EmbeddingModelLegacy(
     id=uuid4(),
     name="text-embedding-ada-002-test",
     family=EmbeddingModelFamily.OPEN_AI,
@@ -98,6 +98,7 @@ TEST_MODEL_GPT4 = CompletionModel(
     stability=ModelStability.STABLE,
     hosting=ModelHostingLocation.USA,
     vision=True,
+    reasoning=False,
 )
 
 TEST_MODEL_CHATGPT = CompletionModel(
@@ -110,6 +111,7 @@ TEST_MODEL_CHATGPT = CompletionModel(
     stability=ModelStability.STABLE,
     hosting=ModelHostingLocation.USA,
     vision=False,
+    reasoning=False,
 )
 
 
@@ -123,6 +125,7 @@ TEST_MODEL_MIXTRAL = CompletionModel(
     stability=ModelStability.EXPERIMENTAL,
     hosting=ModelHostingLocation.EU,
     vision=False,
+    reasoning=False,
 )
 
 TEST_MODEL_EU = CompletionModel(
@@ -135,6 +138,7 @@ TEST_MODEL_EU = CompletionModel(
     stability=ModelStability.EXPERIMENTAL,
     hosting=ModelHostingLocation.EU,
     vision=False,
+    reasoning=False,
 )
 
 TEST_MODEL_AZURE = CompletionModel(
@@ -147,21 +151,15 @@ TEST_MODEL_AZURE = CompletionModel(
     stability=ModelStability.STABLE,
     hosting=ModelHostingLocation.USA,
     vision=True,
+    reasoning=False,
 )
 
 
-TEST_GROUP = Group(
-    id=uuid4(),
+TEST_COLLECTION = Collection.create(
     space_id=TEST_UUID,
-    name="test_group",
-    size=0,
-    published=False,
-    user_id=TEST_USER.id,
-    user=TEST_USER,
-    tenant_id=TEST_TENANT.id,
-    is_public=False,
-    embedding_model_id=TEST_EMBEDDING_MODEL.id,
+    name="test_collection",
     embedding_model=TEST_EMBEDDING_MODEL,
+    user=TEST_USER,
 )
 
 
@@ -175,7 +173,7 @@ TEST_ASSISTANT = Assistant(
     user=TEST_USER,
     logging_enabled=False,
     websites=[],
-    groups=[TEST_GROUP],
+    collections=[TEST_COLLECTION],
     attachments=[],
     published=False,
 )

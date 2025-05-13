@@ -1,11 +1,12 @@
+import hashlib
 from uuid import UUID
 
 from fastapi import UploadFile
 
-from intric.files.file_models import FileCreate
+from intric.files.file_models import File, FileBaseWithContent, FileCreate, FileType
 from intric.files.file_protocol import FileProtocol
 from intric.files.file_repo import FileRepository
-from intric.main.exceptions import UnauthorizedException
+from intric.main.exceptions import NotFoundException, UnauthorizedException
 from intric.users.user import UserInDB
 
 
@@ -26,15 +27,48 @@ class FileService:
             )
         )
 
+    async def save_image_from_bytes(
+        self,
+        image_data: bytes,
+        name: str = "generated_image.jpeg",
+        mimetype: str = "image/jpeg",
+    ):
+        """Create a file from raw image bytes returned by an AI model."""
+        checksum = hashlib.md5(image_data).hexdigest()
+        size = len(image_data)
+
+        file_base = FileBaseWithContent(
+            name=name,
+            checksum=checksum,
+            size=size,
+            file_type=FileType.IMAGE,
+            mimetype=mimetype,
+            blob=image_data,
+        )
+
+        return await self.repo.add(
+            FileCreate(
+                **file_base.model_dump(),
+                user_id=self.user.id,
+                tenant_id=self.user.tenant_id,
+            )
+        )
+
     async def get_file_by_id(self, file_id: UUID):
         file = await self.repo.get_by_id(file_id=file_id)
+
         if file.user_id != self.user.id:
             raise UnauthorizedException()
+
         return file
 
-    async def get_files_by_ids(self, file_ids: list[UUID]):
+    async def get_files_by_ids(
+        self, file_ids: list[UUID], include_transcription: bool = True
+    ):
         return await self.repo.get_list_by_id_and_user(
-            ids=file_ids, user_id=self.user.id
+            ids=file_ids,
+            user_id=self.user.id,
+            include_transcription=include_transcription,
         )
 
     async def get_files(self):
@@ -56,3 +90,33 @@ class FileService:
             raise UnauthorizedException()
 
         return file_deleted
+
+    async def update_file(self, file: File) -> File:
+        if file.user_id != self.user.id:
+            raise UnauthorizedException()
+
+        return await self.repo.update(file)
+
+    async def get_file_content(self, file_id: UUID):
+        file = await self.repo.get_by_id(file_id=file_id)
+
+        if file.user_id != self.user.id:
+            raise UnauthorizedException()
+
+        if file.text is None and file.blob is None:
+            raise NotFoundException(detail="File content not found")
+
+        return file
+
+    async def get_file_content_no_auth(self, file_id: UUID):
+        """Get file content without checking user authorization.
+
+        This method should only be used by endpoints that verify authorization
+        through other means, such as signed URLs.
+        """
+        file = await self.repo.get_by_id(file_id=file_id)
+
+        if file.text is None and file.blob is None:
+            raise NotFoundException(detail="File content not found")
+
+        return file

@@ -1,26 +1,39 @@
 <script lang="ts">
   import type { Icon } from "@intric/icons";
+  import { cva } from "class-variance-authority";
+
   export let href: string;
   export let isActive: boolean;
   export let icon: Icon;
   export let label: string;
+
+  const link = cva(
+    [
+      "relative",
+      "flex",
+      "gap-4",
+      "px-[1.45rem]",
+      "py-2.5",
+      "hover:font-medium",
+      "hover:tracking-normal",
+      "hover:text-primary"
+    ],
+    {
+      variants: {
+        active: {
+          true: ["bg-hover-dimmer", "hover:bg-hover-default", "font-medium"],
+          false: ["hover:bg-hover-dimmer", "tracking-[0.008rem]", "text-secondary"]
+        }
+      }
+    }
+  );
 </script>
 
-<a
-  class="relative flex gap-4 bg-primary px-[1.45rem] py-2.5 tracking-[0.008rem] text-secondary hover:bg-hover-dimmer hover:font-medium hover:tracking-normal hover:text-primary"
-  aria-current={isActive ? "page" : undefined}
-  {href}
->
+<a class={link({ active: isActive })} aria-current={isActive ? "page" : undefined} {href}>
   {#if isActive}
-    <div class="absolute bottom-0 left-0 top-0 w-[4px] rounded-r-full bg-dynamic-default"></div>
+    <div class="bg-dynamic-default absolute top-0 bottom-0 left-0 w-[4px] rounded-r-full"></div>
   {/if}
   <svelte:component this={icon} class="size-6" />
   <span>{label}</span>
   <slot />
 </a>
-
-<style lang="postcss">
-  a[aria-current="page"] {
-    @apply bg-hover-dimmer font-medium tracking-normal text-primary hover:bg-hover-default;
-  }
-</style>

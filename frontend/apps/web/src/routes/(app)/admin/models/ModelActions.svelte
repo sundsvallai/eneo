@@ -5,7 +5,7 @@
 -->
 
 <script lang="ts">
-  import type { CompletionModel, EmbeddingModel } from "@intric/intric-js";
+  import type { CompletionModel, EmbeddingModel, TranscriptionModel } from "@intric/intric-js";
   import { IconEllipsis } from "@intric/icons/ellipsis";
   import { Button, Dropdown } from "@intric/ui";
   import { getIntric } from "$lib/core/Intric";
@@ -17,20 +17,26 @@
   import { IconCheck } from "@intric/icons/check";
   import { IconArrowUpToLine } from "@intric/icons/arrow-up-to-line";
   import { IconArrowDownToLine } from "@intric/icons/arrow-down-to-line";
+  import ModelClassificationDialog from "$lib/features/security-classifications/components/ModelClassificationDialog.svelte";
+  import { IconLockClosed } from "@intric/icons/lock-closed";
 
-  export let model: CompletionModel | EmbeddingModel;
+  export let model: CompletionModel | EmbeddingModel | TranscriptionModel;
+  export let type: "completionModel" | "embeddingModel" | "transcriptionModel";
 
   const intric = getIntric();
 
   async function togglePreferred() {
     if (!("is_org_default" in model)) return;
     try {
-      model = await intric.models.update({
-        completionModel: model,
-        update: {
-          is_org_default: !model.is_org_default
+      model = await intric.models.update(
+        //@ts-expect-error ts doesn't understand this
+        {
+          [type]: model,
+          update: {
+            is_org_default: !model.is_org_default
+          }
         }
-      });
+      );
       invalidate("admin:models:load");
     } catch (e) {
       alert(`Error changing status of ${model.name}`);
@@ -38,14 +44,16 @@
   }
 
   async function toggleEnabled() {
-    const target = "token_limit" in model ? { completionModel: model } : { embeddingModel: model };
     try {
-      model = await intric.models.update({
-        ...target,
-        update: {
-          is_org_enabled: !model.is_org_enabled
+      model = await intric.models.update(
+        //@ts-expect-error ts doesn't understand this
+        {
+          [type]: model,
+          update: {
+            is_org_enabled: !model.is_org_enabled
+          }
         }
-      });
+      );
       invalidate("admin:models:load");
     } catch (e) {
       alert(`Error changing status of ${model.name}`);
@@ -53,6 +61,7 @@
   }
 
   const showCardDialog = writable(false);
+  const showSecurityDialog = writable(false);
 </script>
 
 <Dropdown.Root>
@@ -70,6 +79,15 @@
       }}
     >
       <IconInfo></IconInfo>Show model info
+    </Button>
+    <Button
+      is={item}
+      padding="icon-leading"
+      on:click={() => {
+        $showSecurityDialog = true;
+      }}
+    >
+      <IconLockClosed></IconLockClosed>Edit security classification
     </Button>
     {#if "is_org_default" in model}
       <Button is={item} on:click={togglePreferred} padding="icon-leading">
@@ -98,3 +116,6 @@
 </Dropdown.Root>
 
 <ModelCardDialog {model} openController={showCardDialog} includeTrigger={false}></ModelCardDialog>
+
+<ModelClassificationDialog {model} {type} openController={showSecurityDialog}
+></ModelClassificationDialog>

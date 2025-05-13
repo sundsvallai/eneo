@@ -19,9 +19,9 @@
 </script>
 
 <div class="outer relative flex flex-grow flex-col items-start justify-start text-left">
-  <div class=" flex w-full flex-col border-default px-10 pb-10 pt-12">
+  <div class=" border-default flex w-full flex-col px-10 pt-12 pb-10">
     <h3 class="px-4 pb-1 text-2xl font-extrabold">Create a new {resourceName.singular}</h3>
-    <p class="max-w-[60ch] pl-4 pr-36 text-secondary">
+    <p class="text-secondary max-w-[60ch] pr-36 pl-4">
       {#if featureFlags.showTemplates}
         Create a new {resourceName.singular} from scratch or get started with a premade {resourceName.singular}
         from our template gallery.
@@ -31,8 +31,8 @@
       {/if}
     </p>
     <!-- <div class="h-8"></div> -->
-    <div class="mb-2 mt-14 border-t border-dimmer"></div>
-    <div class="flex flex-col gap-1 pb-4 pt-6">
+    <div class="border-dimmer mt-14 mb-2 border-t"></div>
+    <div class="flex flex-col gap-1 pt-6 pb-4">
       <span class="px-4 pb-1 text-lg font-medium">{resourceName.singularCapitalised} name</span>
       <Input.Text bind:value={$name} hiddenLabel inputClass="!text-lg !py-6 !px-4" required
         >{resourceName.singularCapitalised} name</Input.Text
@@ -47,7 +47,7 @@
         >
           <div class="flex w-full items-center justify-start gap-2 text-left">
             <IconFile></IconFile>
-            <span class="line-clamp-2 text-dynamic-stronger">
+            <span class="text-dynamic-stronger line-clamp-2">
               Create a blank {resourceName.singular}</span
             >
           </div>
@@ -66,7 +66,7 @@
             <div class="flex w-full items-center justify-start gap-2 pr-6 text-left">
               {#if $selectedTemplate}
                 <TemplateIcon template={$selectedTemplate}></TemplateIcon>
-                <span class="truncate text-dynamic-stronger"
+                <span class="text-dynamic-stronger truncate"
                   >{formatEmojiTitle($selectedTemplate.name)}</span
                 >
               {:else}
@@ -77,7 +77,7 @@
             </div>
           </button>
           <button
-            class="absolute right-2 top-[50%] -translate-y-[50%] rounded border border-default p-1 text-secondary hover:bg-hover-default"
+            class="border-default text-secondary hover:bg-hover-default absolute top-[50%] right-2 -translate-y-[50%] rounded border p-1"
             on:click|preventDefault={() => {
               $showTemplateGallery = true;
             }}
@@ -88,7 +88,7 @@
       </div>
 
       {#if $hasWizard}
-        <p class="translate-y-5 p-2 text-center text-secondary">
+        <p class="text-secondary translate-y-5 p-2 text-center">
           <IconInfo class="inline"></IconInfo>
           This template offers additional options. You can configure them in the next step.
         </p>
@@ -100,15 +100,16 @@
 </div>
 
 <style lang="postcss">
+  @reference "@intric/ui/styles";
   button.selector {
-    @apply flex h-[3.25rem] flex-grow items-center justify-between overflow-hidden rounded-lg border border-default p-3 pr-2 text-muted shadow;
+    @apply border-default text-muted flex h-[3.25rem] flex-grow items-center justify-between overflow-hidden rounded-lg border p-3 pr-2 shadow;
   }
 
   button:hover.selector {
-    @apply cursor-pointer border-stronger bg-hover-default text-primary ring-2 ring-default;
+    @apply border-stronger bg-hover-default text-primary ring-default cursor-pointer ring-2;
   }
 
   button[data-selected="true"].selector {
-    @apply border-accent-default bg-accent-dimmer text-accent-stronger shadow-lg shadow-accent-dimmer ring-1 ring-accent-default focus:outline-offset-4;
+    @apply border-accent-default bg-accent-dimmer text-accent-stronger shadow-accent-dimmer ring-accent-default shadow-lg ring-1 focus:outline-offset-4;
   }
 </style>

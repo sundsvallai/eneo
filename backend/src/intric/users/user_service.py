@@ -1,9 +1,8 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
 import jwt
 
-from intric.assistants.assistant_repo import AssistantRepository
 from intric.authentication.auth_models import AccessToken
 from intric.authentication.auth_service import AuthService
 from intric.info_blobs.info_blob_repo import InfoBlobRepository
@@ -12,6 +11,7 @@ from intric.main.exceptions import (
     AuthenticationException,
     BadRequestException,
     NotFoundException,
+    TenantSuspendedException,
     UniqueUserException,
     UserInactiveException,
 )
@@ -21,6 +21,7 @@ from intric.predefined_roles.predefined_role import PredefinedRoleName
 from intric.predefined_roles.predefined_roles_repo import PredefinedRolesRepository
 from intric.settings.settings import SettingsUpsert
 from intric.settings.settings_repo import SettingsRepository
+from intric.tenants.tenant import TenantState
 from intric.tenants.tenant_repo import TenantRepository
 from intric.users.user import (
     UserAdd,
@@ -32,13 +33,8 @@ from intric.users.user import (
 )
 from intric.users.user_repo import UsersRepository
 
-
 if TYPE_CHECKING:
     from intric.users.user import UserInDB
-
-if SETTINGS.using_intric_proprietary:
-
-    from intric_prop.authentication.auth import get_user_from_token
 
 
 logger = get_logger(__name__)
@@ -51,7 +47,6 @@ class UserService:
         auth_service: AuthService,
         settings_repo: SettingsRepository,
         tenant_repo: TenantRepository,
-        assistant_repo: AssistantRepository,
         info_blob_repo: InfoBlobRepository,
         predefined_roles_repo: Optional[PredefinedRolesRepository] = None,
     ):
@@ -59,23 +54,17 @@ class UserService:
         self.auth_service = auth_service
         self.settings_repo = settings_repo
         self.tenant_repo = tenant_repo
-        self.assistant_repo = assistant_repo
         self.predefined_roles_repo = predefined_roles_repo
         self.info_blob_repo = info_blob_repo
 
     async def _validate_email(self, user: UserBase):
-        if (
-            await self.repo.get_user_by_email(email=user.email, with_deleted=True)
-            is not None
-        ):
+        if await self.repo.get_user_by_email(email=user.email, with_deleted=True) is not None:
             raise UniqueUserException("That email is already taken.")
 
     async def _validate_username(self, user: UserBase):
         if (
             user.username is not None
-            and await self.repo.get_user_by_username(
-                username=user.username, with_deleted=True
-            )
+            and await self.repo.get_user_by_username(username=user.username, with_deleted=True)
             is not None
         ):
             raise UniqueUserException("That username is already taken.")
@@ -87,12 +76,13 @@ class UserService:
             raise AuthenticationException("No such user")
 
         if user.password is None:
-            raise AuthenticationException(
-                "User has not enabled username and password login"
-            )
+            raise AuthenticationException("User has not enabled username and password login")
 
         if not self.auth_service.verify_password(password, user.salt, user.password):
             raise AuthenticationException("Wrong password")
+
+        # Check if the user or tenant state prevents login
+        await self._check_user_and_tenant_state(user)
 
         return AccessToken(
             access_token=self.auth_service.create_access_token_for_user(user=user),
@@ -148,14 +138,11 @@ class UserService:
             was_federated = True
 
         else:
-            if user_in_db.state == UserState.INACTIVE:
-                raise UserInactiveException()
+            await self._check_user_and_tenant_state(user_in_db)
 
         return (
             AccessToken(
-                access_token=self.auth_service.create_access_token_for_user(
-                    user=user_in_db
-                ),
+                access_token=self.auth_service.create_access_token_for_user(user=user_in_db),
                 token_type="bearer",
             ),
             was_federated,
@@ -171,9 +158,7 @@ class UserService:
             raise BadRequestException(f"Tenant {new_user.tenant_id} does not exist")
 
         if new_user.password is not None:
-            salt, hashed_pass = self.auth_service.create_salt_and_hashed_password(
-                new_user.password
-            )
+            salt, hashed_pass = self.auth_service.create_salt_and_hashed_password(new_user.password)
         else:
             salt = None
             hashed_pass = None
@@ -193,23 +178,15 @@ class UserService:
         api_key = await self.generate_api_key(user_id=user_in_db.id)
 
         access_token = AccessToken(
-            access_token=self.auth_service.create_access_token_for_user(
-                user=user_in_db
-            ),
+            access_token=self.auth_service.create_access_token_for_user(user=user_in_db),
             token_type="bearer",
         )
 
         return user_in_db, access_token, api_key
 
     async def _get_user_from_token(self, token: str):
-        if SETTINGS.using_intric_proprietary and SETTINGS.using_iam:
-            return await get_user_from_token(token=token, repo=self.repo)
-
-        else:
-            username = self.auth_service.get_username_from_token(
-                token, SETTINGS.jwt_secret
-            )
-            return await self.repo.get_user_by_username(username)
+        username = self.auth_service.get_username_from_token(token, SETTINGS.jwt_secret)
+        return await self.repo.get_user_by_username(username)
 
     async def _get_user_from_api_key(self, api_key: str):
         key = await self.auth_service.get_api_key(api_key)
@@ -253,8 +230,7 @@ class UserService:
         if user_in_db is None:
             raise AuthenticationException("No authenticated user.")
 
-        if user_in_db.state == UserState.INACTIVE:
-            raise UserInactiveException()
+        await self._check_user_and_tenant_state(user_in_db)
 
         if with_quota_used:
             user_in_db.quota_used = await self.info_blob_repo.get_total_size_of_user(
@@ -262,6 +238,18 @@ class UserService:
             )
 
         return user_in_db
+
+    async def _check_user_and_tenant_state(self, user_in_db):
+        """
+        Check if the user or their tenant has restrictions.
+        Raises appropriate exceptions if user is inactive or tenant is suspended.
+        """
+        if user_in_db.state == UserState.INACTIVE:
+            raise UserInactiveException()
+
+        # Check if the tenant is suspended
+        if user_in_db.tenant.state == TenantState.SUSPENDED.value:
+            raise TenantSuspendedException()
 
     async def authenticate_with_assistant_api_key(
         self,
@@ -281,8 +269,7 @@ class UserService:
         if user_in_db is None:
             raise AuthenticationException("No authenticated user.")
 
-        if user_in_db.state == UserState.INACTIVE:
-            raise UserInactiveException()
+        await self._check_user_and_tenant_state(user_in_db)
 
         return user_in_db
 
@@ -322,9 +309,7 @@ class UserService:
         await self._validate_email(user_update_public)
         await self._validate_username(user_update_public)
 
-        user_update = UserUpdate(
-            id=user_id, **user_update_public.model_dump(exclude_unset=True)
-        )
+        user_update = UserUpdate(id=user_id, **user_update_public.model_dump(exclude_unset=True))
 
         if user_update_public.password is not None:
             salt, hashed_pass = self.auth_service.create_salt_and_hashed_password(
@@ -356,9 +341,7 @@ class UserService:
         if user is None:
             raise NotFoundException("No such user exists.")
 
-        user.quota_used = await self.info_blob_repo.get_total_size_of_user(
-            user_id=user.id
-        )
+        user.quota_used = await self.info_blob_repo.get_total_size_of_user(user_id=user.id)
         return user
 
     async def generate_api_key(self, user_id: UUID):

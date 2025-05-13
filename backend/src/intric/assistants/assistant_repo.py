@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 import sqlalchemy as sa
@@ -8,21 +9,33 @@ from intric.assistants.assistant import Assistant
 from intric.assistants.assistant_factory import AssistantFactory
 from intric.database.database import AsyncSession
 from intric.database.tables.assistant_table import (
+    AssistantIntegrationKnowledge,
     Assistants,
     AssistantsFiles,
     AssistantsGroups,
     AssistantsWebsites,
 )
-from intric.database.tables.groups_table import Groups
+from intric.database.tables.collections_table import CollectionsTable
 from intric.database.tables.info_blobs_table import InfoBlobs
+from intric.database.tables.integration_table import IntegrationKnowledge
+from intric.database.tables.integration_table import (
+    TenantIntegration as TenantIntegrationDBModel,
+)
+from intric.database.tables.integration_table import (
+    UserIntegration as UserIntegrationDBModel,
+)
 from intric.database.tables.prompts_table import Prompts, PromptsAssistants
 from intric.database.tables.users_table import Users
 from intric.database.tables.websites_table import CrawlRuns, Websites
-from intric.database.tables.workflow_tables import assistants_steps_guardrails_table
 from intric.files.file_models import FileInfo
-from intric.groups.api.group_models import Group
 from intric.prompts.prompt import Prompt
-from intric.websites.website_models import WebsiteSparse
+
+if TYPE_CHECKING:
+    from intric.collections.domain.collection import Collection
+    from intric.completion_models.domain.completion_model_repo import (
+        CompletionModelRepository,
+    )
+    from intric.websites.domain.website import Website
 
 
 class AssistantRepository:
@@ -30,14 +43,15 @@ class AssistantRepository:
         self,
         session: AsyncSession,
         factory: AssistantFactory,
+        completion_model_repo: "CompletionModelRepository",
     ):
         self.session = session
         self.factory = factory
+        self.completion_model_repo = completion_model_repo
 
     @staticmethod
     def _options():
         return [
-            selectinload(Assistants.completion_model),
             selectinload(Assistants.user).selectinload(Users.tenant),
             selectinload(Assistants.user).selectinload(Users.roles),
             selectinload(Assistants.user).selectinload(Users.predefined_roles),
@@ -47,6 +61,13 @@ class AssistantRepository:
             selectinload(Assistants.websites).selectinload(Websites.embedding_model),
             selectinload(Assistants.attachments).selectinload(AssistantsFiles.file),
             selectinload(Assistants.template),
+            selectinload(Assistants.integration_knowledge_list).selectinload(
+                IntegrationKnowledge.embedding_model
+            ),
+            selectinload(Assistants.integration_knowledge_list)
+            .selectinload(IntegrationKnowledge.user_integration)
+            .selectinload(UserIntegrationDBModel.tenant_integration)
+            .selectinload(TenantIntegrationDBModel.integration),
         ]
 
     async def _set_is_selected_to_false(self, assistant_id: UUID):
@@ -98,9 +119,7 @@ class AssistantRepository:
                 assistant_id=assistant_id, prompt_id=prompt.id
             )
         else:
-            await self._add_assistant_prompt_entry(
-                assistant_id=assistant_id, prompt_id=prompt.id
-            )
+            await self._add_assistant_prompt_entry(assistant_id=assistant_id, prompt_id=prompt.id)
 
         return prompt
 
@@ -116,20 +135,15 @@ class AssistantRepository:
 
         return await self.session.scalar(stmt)
 
-    async def _set_attachments(
-        self, assistant_in_db: Assistants, attachments: list[FileInfo]
-    ):
+    async def _set_attachments(self, assistant_in_db: Assistants, attachments: list[FileInfo]):
         # Delete all
-        stmt = sa.delete(AssistantsFiles).where(
-            AssistantsFiles.assistant_id == assistant_in_db.id
-        )
+        stmt = sa.delete(AssistantsFiles).where(AssistantsFiles.assistant_id == assistant_in_db.id)
         await self.session.execute(stmt)
 
         # Add attachments
         if attachments:
             attachments_dicts = [
-                dict(assistant_id=assistant_in_db.id, file_id=file.id)
-                for file in attachments
+                dict(assistant_id=assistant_in_db.id, file_id=file.id) for file in attachments
             ]
 
             stmt = sa.insert(AssistantsFiles).values(attachments_dicts)
@@ -137,27 +151,22 @@ class AssistantRepository:
 
         await self.session.refresh(assistant_in_db)
 
-    async def _set_groups(self, assistant_in_db: Assistants, groups: list[Group]):
+    async def _set_collections(self, assistant_in_db: Assistants, collections: list["Collection"]):
         # Delete all
         stmt = sa.delete(AssistantsGroups).where(
             AssistantsGroups.assistant_id == assistant_in_db.id
         )
         await self.session.execute(stmt)
 
-        if groups:
+        if collections:
             stmt = sa.insert(AssistantsGroups).values(
-                [
-                    dict(group_id=group.id, assistant_id=assistant_in_db.id)
-                    for group in groups
-                ]
+                [dict(group_id=group.id, assistant_id=assistant_in_db.id) for group in collections]
             )
             await self.session.execute(stmt)
 
         await self.session.refresh(assistant_in_db)
 
-    async def _set_websites(
-        self, assistant_in_db: Assistants, websites: list[WebsiteSparse]
-    ):
+    async def _set_websites(self, assistant_in_db: Assistants, websites: list["Website"]):
         # Delete all
         stmt = sa.delete(AssistantsWebsites).where(
             AssistantsWebsites.assistant_id == assistant_in_db.id
@@ -175,35 +184,47 @@ class AssistantRepository:
 
         await self.session.refresh(assistant_in_db)
 
+    async def _set_integration_knowledge(
+        self,
+        assistant_in_db: Assistants,
+        integration_knowledge: list[AssistantIntegrationKnowledge],
+    ):
+        # Delete all
+        stmt = sa.delete(AssistantIntegrationKnowledge).where(
+            AssistantIntegrationKnowledge.assistant_id == assistant_in_db.id
+        )
+        await self.session.execute(stmt)
+
+        if integration_knowledge:
+            stmt = sa.insert(AssistantIntegrationKnowledge).values(
+                [
+                    dict(
+                        integration_knowledge_id=knowledge.id,
+                        assistant_id=assistant_in_db.id,
+                    )
+                    for knowledge in integration_knowledge
+                ]
+            )
+            await self.session.execute(stmt)
+
+        await self.session.refresh(assistant_in_db)
+
     async def _get_groups(self, assistant_id: UUID):
         query = (
             sa.select(
-                Groups,
+                CollectionsTable,
                 sa.func.coalesce(sa.func.count(InfoBlobs.id).label("infoblob_count")),
             )
-            .outerjoin(InfoBlobs, Groups.id == InfoBlobs.group_id)
-            .outerjoin(AssistantsGroups, AssistantsGroups.group_id == Groups.id)
+            .outerjoin(InfoBlobs, CollectionsTable.id == InfoBlobs.group_id)
+            .outerjoin(AssistantsGroups, AssistantsGroups.group_id == CollectionsTable.id)
             .where(AssistantsGroups.assistant_id == assistant_id)
-            .group_by(Groups.id)
-            .order_by(Groups.created_at)
-            .options(selectinload(Groups.embedding_model))
+            .group_by(CollectionsTable.id)
+            .order_by(CollectionsTable.created_at)
+            .options(selectinload(CollectionsTable.embedding_model))
         )
 
         res = await self.session.execute(query)
         return res.all()
-
-    async def _get_from_query(self, query: sa.Select):
-        entry_in_db = await self.get_record_with_options(query)
-
-        if not entry_in_db:
-            return
-
-        groups = await self._get_groups(entry_in_db.id)
-        prompt = await self._get_selected_prompt(entry_in_db.id)
-
-        return self.factory.create_assistant_from_db(
-            entry_in_db, groups_in_db=groups, prompt=prompt
-        )
 
     async def get_record_with_options(self, query):
         for option in self._options():
@@ -219,17 +240,14 @@ class AssistantRepository:
 
     async def add(self, assistant: Assistant):
         completion_model_id = (
-            assistant.completion_model.id
-            if assistant.completion_model is not None
-            else None
+            assistant.completion_model.id if assistant.completion_model is not None else None
         )
 
-        template_id = (
-            assistant.source_template.id if assistant.source_template else None
-        )
+        template_id = assistant.source_template.id if assistant.source_template else None
         query = (
             sa.insert(Assistants)
             .values(
+                id=assistant.id,
                 name=assistant.name,
                 user_id=assistant.user.id,
                 completion_model_id=completion_model_id,
@@ -240,26 +258,19 @@ class AssistantRepository:
                 is_default=assistant.is_default,
                 published=assistant.published,
                 template_id=template_id,
+                type=assistant.type,
             )
             .returning(Assistants)
         )
-        entry_in_db = await self.get_record_with_options(query)
+        entry_in_db = await self.session.scalar(query)
 
         # Assign groups and websites
-        await self._set_groups(entry_in_db, assistant.groups)
+        await self._set_collections(entry_in_db, assistant.collections)
         await self._set_websites(entry_in_db, assistant.websites)
         await self._set_attachments(entry_in_db, attachments=assistant.attachments)
 
         if assistant.prompt:
             await self._add_prompt(assistant_id=entry_in_db.id, prompt=assistant.prompt)
-
-        prompt = await self._get_selected_prompt(entry_in_db.id)
-
-        return self.factory.create_assistant_from_db(entry_in_db, prompt=prompt)
-
-    async def get_by_id(self, id: UUID):
-        query = sa.select(Assistants).where(Assistants.id == id)
-        return await self._get_from_query(query)
 
     async def get_for_user(self, user_id: UUID, search_query: str = None):
         query = (
@@ -273,7 +284,12 @@ class AssistantRepository:
 
         records = await self.get_records_with_options(query)
 
-        return [self.factory.create_assistant_from_db(record) for record in records]
+        completion_models = await self.completion_model_repo.all()
+
+        return [
+            self.factory.create_assistant_from_db(record, completion_model_list=completion_models)
+            for record in records
+        ]
 
     async def get_for_tenant(
         self,
@@ -299,8 +315,12 @@ class AssistantRepository:
             query = query.filter(Assistants.name.like(f"%{search_query}%"))
 
         records = await self.get_records_with_options(query)
+        completion_models = await self.completion_model_repo.all()
 
-        return [self.factory.create_assistant_from_db(record) for record in records]
+        return [
+            self.factory.create_assistant_from_db(record, completion_model_list=completion_models)
+            for record in records
+        ]
 
     async def update(self, assistant: Assistant):
         query = (
@@ -312,64 +332,22 @@ class AssistantRepository:
                 logging_enabled=assistant.logging_enabled,
                 space_id=assistant.space_id,
                 published=assistant.published,
+                description=assistant.description,
+                type=assistant.type,
+                insight_enabled=assistant.insight_enabled,
+                data_retention_days=assistant.data_retention_days,
+                metadata_json=assistant.metadata_json,
             )
             .where(Assistants.id == assistant.id)
             .returning(Assistants)
         )
-        entry_in_db = await self.get_record_with_options(query)
+        entry_in_db = await self.session.scalar(query)
 
         # assign groups and websites
-        await self._set_groups(entry_in_db, assistant.groups)
+        await self._set_collections(entry_in_db, assistant.collections)
         await self._set_websites(entry_in_db, assistant.websites)
+        await self._set_integration_knowledge(entry_in_db, assistant.integration_knowledge_list)
         await self._set_attachments(entry_in_db, assistant.attachments)
 
         if assistant.prompt:
             await self._add_prompt(assistant_id=entry_in_db.id, prompt=assistant.prompt)
-
-        groups = await self._get_groups(assistant.id)
-        prompt = await self._get_selected_prompt(assistant.id)
-
-        return self.factory.create_assistant_from_db(
-            entry_in_db, groups_in_db=groups, prompt=prompt
-        )
-
-    async def delete(self, id: UUID):
-        query = sa.delete(Assistants).where(Assistants.id == id)
-        await self.session.execute(query)
-
-    async def add_guard(self, guard_step_id: UUID, assistant_id: UUID):
-        stmt = sa.insert(assistants_steps_guardrails_table).values(
-            assistant_id=assistant_id, step_id=guard_step_id
-        )
-
-        await self.session.execute(stmt)
-
-    async def add_assistant_to_space(self, assistant_id: UUID, space_id: UUID):
-        query = (
-            sa.update(Assistants)
-            .where(Assistants.id == assistant_id)
-            .values(space_id=space_id)
-            .returning(Assistants)
-        )
-
-        return await self._get_from_query(query)
-
-    async def get_by_space(self, space_id: UUID):
-        query = (
-            sa.select(Assistants)
-            .where(Assistants.space_id == space_id)
-            .order_by(Assistants.created_at)
-        )
-
-        records = await self.get_records_with_options(query)
-
-        assistants = []
-        for record in records:
-            groups = await self._get_groups(record.id)
-            prompt = await self._get_selected_prompt(record.id)
-            assistant = self.factory.create_assistant_from_db(
-                record, prompt=prompt, groups_in_db=groups
-            )
-            assistants.append(assistant)
-
-        return assistants

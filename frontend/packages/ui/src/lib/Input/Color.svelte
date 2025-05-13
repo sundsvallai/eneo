@@ -16,7 +16,7 @@
 </script>
 
 <div class="flex flex-col gap-1 {containerClass}">
-  <label for={id} class="pl-3 font-medium text-primary {labelClass}">
+  <label for={id} class="text-primary pl-3 font-medium {labelClass}">
     {#if $$slots.default}
       <slot />
     {:else}
@@ -24,13 +24,13 @@
         <div>
           {label}
           {#if required}
-            <span class="px-2 text-[0.9rem] font-normal text-muted" aria-hidden="true"
+            <span class="text-muted px-2 text-[0.9rem] font-normal" aria-hidden="true"
               >(required)</span
             >
           {/if}
         </div>
         {#if description}
-          <span class="px-2 text-[0.9rem] font-normal text-muted">{description}</span>
+          <span class="text-muted px-2 text-[0.9rem] font-normal">{description}</span>
         {/if}
       </div>
     {/if}
@@ -47,13 +47,13 @@
       }}
       aria-required={required}
       bind:value
-      class="ult mr-4 h-10 w-full items-center
-      overflow-hidden rounded-lg border border-stronger bg-primary px-3 py-2 shadow ring-default placeholder:text-muted focus-within:ring-2 hover:ring-2 focus-visible:ring-2 {inputClass}"
+      class="ult border-stronger bg-primary ring-default placeholder:text-muted
+      mr-4 h-10 w-full items-center overflow-hidden rounded-lg border px-3 py-2 shadow focus-within:ring-2 hover:ring-2 focus-visible:ring-2 {inputClass}"
     />
     <input
       type="color"
       bind:value
-      class="h-10 min-h-10 w-10 min-w-10 rounded-lg border border-stronger bg-primary px-1 py-0.5"
+      class="border-stronger bg-primary h-10 min-h-10 w-10 min-w-10 rounded-lg border px-1 py-0.5"
     />
   </div>
 </div>

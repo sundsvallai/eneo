@@ -47,13 +47,4 @@ interface FileSystem {
   readonly root: FileSystemDirectoryEntry;
 }
 
-interface HTMLInputElement {
-  webkitdirectory: boolean;
-  readonly webkitEntries: readonly FileSystemEntry[];
-}
-
-interface DataTransferItem {
-  webkitGetAsEntry(): FileSystemEntry | null;
-}
-
 export { FileSystemEntry, FileSystemFileEntry, FileSystemDirectoryEntry };

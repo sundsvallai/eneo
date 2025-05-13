@@ -1,6 +1,6 @@
-<div class="hidden border-b border-dimmer py-3 pr-3 lg:block">
+<div class="border-dimmer hidden border-b py-3 pr-3 lg:block">
   <div
-    class="label-warning flex items-center gap-8 rounded-lg border border-label-default bg-label-dimmer px-4 py-3 text-label-stronger shadow"
+    class="label-warning border-label-default bg-label-dimmer text-label-stronger flex items-center gap-8 rounded-lg border px-4 py-3 shadow"
   >
     <div class="flex flex-col">
       <span class="font-mono text-xs uppercase">crawling</span>

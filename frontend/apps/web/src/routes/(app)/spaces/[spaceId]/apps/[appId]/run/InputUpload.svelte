@@ -30,28 +30,30 @@
 </script>
 
 {#if $attachments.length > 0}
-  <div class="w-[60ch] rounded-lg border border-default bg-primary p-2">
+  <div class="border-default bg-primary w-[60ch] rounded-lg border p-2">
     <div class="flex flex-col">
-      {#each $attachments as attachment}
+      {#each $attachments as attachment (attachment.id)}
         <AttachmentItem {attachment}></AttachmentItem>
       {/each}
     </div>
   </div>
 {/if}
 
-<label
-  for="fileInput"
-  class="flex cursor-pointer gap-2 rounded-full border border-stronger bg-primary px-6 py-3 text-lg shadow-lg hover:border-stronger hover:bg-dynamic-default hover:text-on-fill"
->
-  <IconUpload></IconUpload>
-  {description}</label
->
-<input
-  type="file"
-  bind:this={fileInput}
-  id="fileInput"
-  accept={attachmentRules.acceptString}
-  multiple={true}
-  on:change={uploadFiles}
-  class="pointer-events-none absolute h-11 w-11 rounded-lg file:border-none file:bg-transparent file:text-transparent"
-/>
+{#if attachmentRules.maxTotalCount ? $attachments.length < attachmentRules.maxTotalCount : true}
+  <label
+    for="fileInput"
+    class="border-stronger bg-primary hover:border-stronger hover:bg-dynamic-default hover:text-on-fill flex cursor-pointer gap-2 rounded-full border px-6 py-3 text-lg shadow-lg"
+  >
+    <IconUpload></IconUpload>
+    {description}</label
+  >
+  <input
+    type="file"
+    bind:this={fileInput}
+    id="fileInput"
+    accept={attachmentRules.acceptString}
+    multiple={true}
+    on:change={uploadFiles}
+    class="pointer-events-none absolute h-11 w-11 rounded-lg file:border-none file:bg-transparent file:text-transparent"
+  />
+{/if}

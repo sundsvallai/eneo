@@ -16,8 +16,8 @@
   {:else if run.status === "in progress"}
     <Tooltip text="Running">
       <div class="relative h-3 w-3">
-        <span class="absolute h-full w-full animate-ping rounded-full bg-accent-default"></span>
-        <span class="absolute h-full w-full rounded-full bg-accent-default"></span>
+        <span class="bg-accent-default absolute h-full w-full animate-ping rounded-full"></span>
+        <span class="bg-accent-default absolute h-full w-full rounded-full"></span>
       </div>
     </Tooltip>
   {:else if run.status === "failed"}
@@ -31,6 +31,7 @@
 </div>
 
 <style lang="postcss">
+  @reference "@intric/ui/styles";
   .complete {
     @apply bg-positive-dimmer text-positive-stronger;
   }

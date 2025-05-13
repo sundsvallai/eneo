@@ -36,4 +36,5 @@
 | JWT_ALGORITHM                    | x        | Example: HS256                                           |
 | JWT_SECRET                       | x        |                                                          |
 | JWT_TOKEN_PREFIX                 | x        | In the header - eg `Bearer`                              |
+| URL_SIGNING_KEY                  | x        | Key for temporary file access URLs (use a strong random string) |
 | LOGLEVEL                         |          | one of ´INFO´, ´DEBUG´, ´WARNING´, ´ERROR´               |

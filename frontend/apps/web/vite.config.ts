@@ -1,6 +1,7 @@
 import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vitest/config";
 import type { PluginOption } from "vite";
+import tailwindcss from "@tailwindcss/vite";
 // Visualiser to analyse bundle sizes
 // import { visualizer } from "rollup-plugin-visualizer";
 
@@ -18,13 +19,15 @@ export default defineConfig({
     //   emitFile: true,
     //   filename: "stats.html"
     // }),
-    intricIcons(),
+    tailwindcss() as PluginOption,
+    intricIcons() as PluginOption,
     sveltekit() as PluginOption
   ],
   test: {
     include: ["src/**/*.{test,spec}.{js,ts}"]
   },
   server: {
+    host: process.env.HOST ? "0.0.0.0" : undefined,
     port: 3000,
     strictPort: true
   },

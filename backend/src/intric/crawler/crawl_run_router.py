@@ -12,12 +12,10 @@ router = APIRouter()
 logger = get_logger(__name__)
 
 
-@router.get(
-    "/{id}/", response_model=CrawlRunPublic, responses=responses.get_responses([404])
-)
+@router.get("/{id}/", response_model=CrawlRunPublic, responses=responses.get_responses([404]))
 async def get_crawl_run(
     id: UUID,
     container: Container = Depends(get_container(with_user=True)),
 ):
-    service = container.website_service()
-    return await service.get_crawl_run(id)
+    service = container.website_crud_service()
+    return await service.get_crawl_run(id=id)

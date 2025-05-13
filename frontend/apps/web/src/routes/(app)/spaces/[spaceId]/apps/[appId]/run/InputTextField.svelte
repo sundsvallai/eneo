@@ -13,7 +13,7 @@
 </script>
 
 <div
-  class="flex max-h-[40vh] min-w-[50ch] max-w-[80ch] flex-col justify-center rounded-[1.2rem] border border-stronger bg-secondary p-0.5 shadow-xl"
+  class="border-stronger bg-secondary flex max-h-[40vh] max-w-[80ch] min-w-[50ch] flex-col justify-center rounded-[1.2rem] border p-0.5 shadow-xl"
 >
   <textarea
     aria-label="Enter your question here"
@@ -30,6 +30,6 @@
     name="textinput"
     placeholder={description ?? "Enter text here..."}
     rows="4"
-    class="flex-grow resize-none overflow-y-auto rounded-[1rem] border border-default bg-primary px-6 py-3 text-lg placeholder:text-secondary"
+    class="border-default bg-primary placeholder:text-secondary flex-grow resize-none overflow-y-auto rounded-[1rem] border px-6 py-3 text-lg"
   ></textarea>
 </div>

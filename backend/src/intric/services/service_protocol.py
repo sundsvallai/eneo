@@ -5,6 +5,7 @@ from intric.info_blobs.info_blob import InfoBlobMetadata, InfoBlobPublic
 from intric.main.logging import get_logger
 from intric.questions.question import Question
 from intric.services.service import Service, ServicePublicWithUser, ServiceRun
+from intric.ai_models.completion_models.completion_model import CompletionModelPublic
 
 if TYPE_CHECKING:
     from intric.main.models import ResourcePermission
@@ -19,7 +20,9 @@ def from_domain_service(
 
     # TODO: Look into how we surface permissions to the presentation layer
     return ServicePublicWithUser(
-        **service.model_dump(exclude={"permissions"}), permissions=permissions
+        **service.model_dump(exclude={"permissions", "completion_model"}),
+        completion_model=CompletionModelPublic.from_domain(service.completion_model),
+        permissions=permissions,
     )
 
 
@@ -34,7 +37,7 @@ def to_question(question: Question, service: Service):
         id=question.id,
         input=question.question,
         output=output,
-        completion_model=service.completion_model,
+        completion_model=CompletionModelPublic.from_domain(service.completion_model),
         references=[
             InfoBlobPublic(
                 **blob.model_dump(), metadata=InfoBlobMetadata(**blob.model_dump())

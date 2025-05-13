@@ -142,7 +142,7 @@
         bind:value={moveDestination}
         fitViewport={true}
         resourceName="space"
-        class="rounded-t-md border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+        class="border-default hover:bg-hover-dimmer rounded-t-md border-b px-4 py-4"
         >Destination</Select.Simple
       >
     </Dialog.Section>

@@ -42,13 +42,13 @@
   <Select.Root
     multiple
     customStore={roleSelectStore}
-    class="border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+    class="border-default hover:bg-hover-dimmer border-b px-4 py-4"
   >
     <Select.Label>Roles & Permissions</Select.Label>
     <Select.Trigger placeholder="Select..."></Select.Trigger>
     <Select.Options>
       <Select.OptionGroup label="Default Roles">
-        {#each defaultRoles as role}
+        {#each defaultRoles as role (role.id)}
           <Select.Item value={role} label={role.name}>
             <div class="flex w-full items-center justify-between py-1">
               <span>
@@ -60,7 +60,7 @@
       </Select.OptionGroup>
       {#if customRoles.length > 0}
         <Select.OptionGroup label="Custom roles">
-          {#each customRoles as role}
+          {#each customRoles as role (role.id)}
             <Select.Item value={role} label={role.name}></Select.Item>
           {/each}
         </Select.OptionGroup>

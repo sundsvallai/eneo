@@ -1,23 +1,23 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
+from uuid import UUID
+
+from intric.base.base_entity import Entity
 
 if TYPE_CHECKING:
-    from uuid import UUID
-
     from intric.integration.domain.entities.integration import Integration
 
 
-class TenantIntegration:
+class TenantIntegration(Entity):
     def __init__(
         self,
-        id: "UUID",
-        tenant_id: "UUID",
+        tenant_id: UUID,
         integration: "Integration",
-        enabled: bool = False,
+        id: Optional[UUID] = None,
     ):
-        self.id = id
+        super().__init__(id=id)
         self.tenant_id = tenant_id
         self.integration = integration
-        self.enabled = enabled
 
-    def toggle(self, enabled: bool) -> None:
-        self.enabled = enabled
+    @property
+    def integration_type(self) -> str:
+        return self.integration.integration_type

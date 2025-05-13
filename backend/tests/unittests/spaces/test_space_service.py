@@ -23,11 +23,15 @@ def service(actor: MagicMock):
     service = SpaceService(
         repo=AsyncMock(),
         completion_model_crud_service=AsyncMock(),
+        transcription_model_crud_service=AsyncMock(),
+        embedding_model_crud_service=AsyncMock(),
         factory=MagicMock(),
         user_repo=AsyncMock(),
-        ai_models_service=AsyncMock(),
         user=TEST_USER,
         actor_manager=actor_manager,
+        completion_model_service=AsyncMock(),
+        transcription_model_service=AsyncMock(),
+        security_classification_service=AsyncMock(),
     )
 
     return service
@@ -42,7 +46,9 @@ async def test_create_space_is_created_with_latest_available_embedding_model(
         for i in range(3)
     ]
     service.factory.create_space.return_value = space
-    service.ai_models_service.get_embedding_models.return_value = embedding_models
+    service.embedding_model_crud_service.get_embedding_models.return_value = (
+        embedding_models
+    )
 
     await service.create_space(MagicMock())
 
@@ -117,34 +123,6 @@ async def test_can_not_change_role_of_self(service: SpaceService):
 
     with pytest.raises(BadRequestException):
         await service.change_role_of_member(MagicMock(), id, MagicMock())
-
-
-async def test_get_personal_space_returns_all_available_completion_models(
-    service: SpaceService,
-):
-    personal_space = MagicMock()
-    completion_models = [MagicMock(), MagicMock()]
-    service.repo.get_personal_space.return_value = personal_space
-    service.completion_model_crud_service.get_available_completion_models.return_value = (
-        completion_models
-    )
-
-    space = await service.get_personal_space()
-
-    assert space.completion_models == completion_models
-
-
-async def test_get_personal_space_returns_all_available_embedding_models(
-    service: SpaceService,
-):
-    personal_space = MagicMock()
-    embedding_models = [MagicMock(), MagicMock()]
-    service.repo.get_personal_space.return_value = personal_space
-    service.ai_models_service.get_embedding_models.return_value = embedding_models
-
-    space = await service.get_personal_space()
-
-    assert space.embedding_models == embedding_models
 
 
 async def test_get_spaces_and_personal_space_returns_personal_space_first(

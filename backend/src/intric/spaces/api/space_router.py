@@ -4,8 +4,10 @@ from fastapi import APIRouter, Depends
 
 from intric.apps.apps.api.app_models import AppPublic
 from intric.assistants.api.assistant_models import AssistantPublic
+from intric.collections.presentation.collection_models import CollectionPublic
+from intric.group_chat.presentation.models import GroupChatCreate, GroupChatPublic
 from intric.main.container.container import Container
-from intric.main.models import ModelId, PaginatedResponse
+from intric.main.models import NOT_PROVIDED, ModelId, PaginatedResponse
 from intric.server import protocol
 from intric.server.dependencies.container import get_container
 from intric.server.protocol import responses
@@ -15,19 +17,19 @@ from intric.spaces.api.space_models import (
     CreateSpaceAppRequest,
     CreateSpaceAssistantRequest,
     CreateSpaceGroupsRequest,
-    CreateSpaceGroupsResponse,
+    CreateSpaceIntegrationKnowledge,
     CreateSpaceRequest,
     CreateSpaceServiceRequest,
     CreateSpaceServiceResponse,
-    CreateSpaceWebsitesRequest,
-    CreateSpaceWebsitesResponse,
     Knowledge,
     SpaceMember,
     SpacePublic,
     SpaceSparse,
+    UpdateSpaceDryRunResponse,
     UpdateSpaceMemberRequest,
     UpdateSpaceRequest,
 )
+from intric.websites.presentation.website_models import WebsiteCreate, WebsitePublic
 
 router = APIRouter()
 
@@ -83,15 +85,48 @@ async def update_space(
 
         return [model.id for model in models]
 
+    # Get original request dict to check if security_classification_id was actually provided
+    # (partial_model may have turned NOT_PROVIDED into None)
+    original_request = update_space_req.model_dump(exclude_unset=True)
+
+    if "security_classification" not in original_request:
+        security_classification = NOT_PROVIDED
+    else:
+        security_classification = update_space_req.security_classification
+
     space = await service.update_space(
         id=id,
         name=update_space_req.name,
         description=update_space_req.description,
         embedding_model_ids=_get_model_ids_or_none(update_space_req.embedding_models),
         completion_model_ids=_get_model_ids_or_none(update_space_req.completion_models),
+        transcription_model_ids=_get_model_ids_or_none(update_space_req.transcription_models),
+        security_classification=security_classification,
     )
 
     return assembler.from_space_to_model(space)
+
+
+@router.get(
+    "/{id}/security_classification/{security_classification_id}/impact-analysis/",
+    response_model=UpdateSpaceDryRunResponse,
+    status_code=200,
+    description="Get a preview of the impact of changing the security classification of a space.",
+)
+async def get_security_classification_impact_analysis(
+    id: UUID,
+    security_classification_id: UUID,
+    container: Container = Depends(get_container(with_user=True)),
+):
+    service = container.space_service()
+    assembler = container.space_assembler()
+
+    result = await service.security_classification_impact_analysis(
+        id=id,
+        security_classification_id=security_classification_id,
+    )
+
+    return assembler.from_security_classification_impact_analysis_to_model(result)
 
 
 @router.delete(
@@ -155,11 +190,32 @@ async def create_space_assistant(
     service = container.assistant_service()
     assembler = container.assistant_assembler()
 
-    assistant, permissions = await service.create_space_assistant(
+    assistant, permissions = await service.create_assistant(
         name=assistant_in.name, space_id=id, template_data=assistant_in.from_template
     )
 
     return assembler.from_assistant_to_model(assistant, permissions=permissions)
+
+
+@router.post(
+    "/{id}/applications/group-chats/",
+    response_model=GroupChatPublic,
+    description="Creates a group chat.",
+    response_description="Successful Response.",
+    status_code=201,
+    responses=responses.get_responses([400, 403, 404]),
+)
+async def create_group_chat(
+    id: UUID,
+    group_chat_in: GroupChatCreate,
+    container: Container = Depends(get_container(with_user=True)),
+):
+    service = container.group_chat_service()
+    assembler = container.group_chat_assembler()
+
+    group_chat = await service.create_group_chat(space_id=id, name=group_chat_in.name)
+
+    return assembler.from_domain_to_model(group_chat=group_chat)
 
 
 @router.post(
@@ -201,9 +257,7 @@ async def create_space_services(
     service = container.service_service()
     assembler = container.space_assembler()
 
-    service, permissions = await service.create_space_service(
-        name=service_in.name, space_id=id
-    )
+    service, permissions = await service.create_space_service(name=service_in.name, space_id=id)
 
     return assembler.from_service_to_model(service=service, permissions=permissions)
 
@@ -226,7 +280,7 @@ async def get_space_knowledge(
 
 @router.post(
     "/{id}/knowledge/groups/",
-    response_model=CreateSpaceGroupsResponse,
+    response_model=CollectionPublic,
     status_code=201,
     responses=responses.get_responses([400, 403, 404]),
 )
@@ -235,45 +289,78 @@ async def create_space_groups(
     group: CreateSpaceGroupsRequest,
     container: Container = Depends(get_container(with_user=True)),
 ):
-    service = container.group_service()
-    assembler = container.space_assembler()
+    service = container.collection_crud_service()
 
     embedding_model_id = group.embedding_model.id if group.embedding_model else None
 
-    group = await service.create_space_group(
+    group = await service.create_collection(
         name=group.name, space_id=id, embedding_model_id=embedding_model_id
     )
 
-    return assembler.from_group_to_model(group)
+    return CollectionPublic.from_domain(group)
 
 
 @router.post(
     "/{id}/knowledge/websites/",
-    response_model=CreateSpaceWebsitesResponse,
+    response_model=WebsitePublic,
     status_code=201,
     responses=responses.get_responses([400, 403, 404]),
 )
 async def create_space_websites(
     id: UUID,
-    website: CreateSpaceWebsitesRequest,
+    website: WebsiteCreate,
     container: Container = Depends(get_container(with_user=True)),
 ):
-    service = container.website_service()
-    assembler = container.website_assembler()
+    service = container.website_crud_service()
 
-    embedding_model_id = website.embedding_model.id if website.embedding_model else None
-
-    website = await service.create_space_website(
+    website = await service.create_website(
         space_id=id,
         name=website.name,
         url=website.url,
         download_files=website.download_files,
         crawl_type=website.crawl_type,
         update_interval=website.update_interval,
-        embedding_model_id=embedding_model_id,
+        embedding_model_id=(website.embedding_model.id if website.embedding_model else None),
     )
 
-    return assembler.from_website_to_model(website)
+    return WebsitePublic.from_domain(website)
+
+
+@router.post(
+    "/{id}/knowledge/integrations/{user_integration_id}/",
+    status_code=200,
+)
+async def create_space_integration_knowledge(
+    id: UUID,
+    user_integration_id: UUID,
+    data: CreateSpaceIntegrationKnowledge,
+    container: Container = Depends(get_container(with_user=True)),
+):
+    service = container.integration_knowledge_service()
+    assembler = container.integration_knowledge_assembler()
+
+    knowledge = await service.create_space_integration_knowledge(
+        user_integration_id=user_integration_id,
+        name=data.name,
+        space_id=id,
+        embedding_model_id=data.embedding_model.id,
+        url=data.url,
+        key=data.key,
+    )
+    return assembler.to_space_knowledge_model(item=knowledge)
+
+
+@router.delete(
+    "/{id}/knowledge/{integration_knowledge_id}/",
+    status_code=204,
+)
+async def delete_space_integration_knowledge(
+    id: UUID,
+    integration_knowledge_id: UUID,
+    container: Container = Depends(get_container(with_user=True)),
+):
+    service = container.integration_knowledge_service()
+    await service.remove_knowledge(space_id=id, integration_knowledge_id=integration_knowledge_id)
 
 
 @router.post(
@@ -306,9 +393,7 @@ async def change_role_of_member(
 ):
     service = container.space_service()
 
-    return await service.change_role_of_member(
-        id, user_id, update_space_member_req.role
-    )
+    return await service.change_role_of_member(id, user_id, update_space_member_req.role)
 
 
 @router.delete(

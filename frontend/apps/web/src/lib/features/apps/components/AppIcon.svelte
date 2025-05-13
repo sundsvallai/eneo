@@ -7,7 +7,7 @@
 
 <div
   {...dynamicColour({ basedOn: app.id })}
-  class="{size} app-icon pointer-events-none rounded-[2rem] border border-dynamic-default text-dynamic-stronger"
+  class="{size} app-icon border-dynamic-default text-dynamic-stronger pointer-events-none rounded-[2rem] border"
 >
   <div class="flex items-center justify-center bg-[var(--dynamic-transparent)] font-mono font-bold">
     {[...app.name][0]}
@@ -15,6 +15,7 @@
 </div>
 
 <style lang="postcss">
+  @reference "@intric/ui/styles";
   div {
     --dynamic-transparent: oklch(from var(--dynamic-default) l c h / 8%);
   }

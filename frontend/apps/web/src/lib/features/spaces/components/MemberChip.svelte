@@ -23,7 +23,7 @@
     <Tooltip text={member.email} placement="top">
       <div
         {...dynamicColour({ basedOn: member.email })}
-        class="chip bg-dynamic-default capitalize text-on-fill"
+        class="chip bg-dynamic-default text-on-fill capitalize"
       >
         {member.email.slice(0, 1)}
       </div>
@@ -34,10 +34,11 @@
 </div>
 
 <style lang="postcss">
+  @reference "@intric/ui/styles";
   .chip {
-    @apply -ml-2 flex h-9 w-9 items-center justify-center rounded-full border-2 border-on-fill shadow hover:z-30 hover:shadow-lg;
+    @apply border-on-fill -ml-2 flex h-9 w-9 items-center justify-center rounded-full border-2 shadow hover:z-30 hover:shadow-lg;
   }
   .fallback {
-    @apply bg-brand-intric text-center text-sm text-on-fill;
+    @apply bg-brand-intric text-on-fill text-center text-sm;
   }
 </style>

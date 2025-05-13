@@ -1,18 +1,28 @@
 from intric.info_blobs.info_blob import InfoBlobMetadata, InfoBlobPublicNoText
 from intric.logging import logging_protocol
-from intric.main.models import ModelId
-from intric.questions.question import Message, MessageLogging, Question, UseTools
+from intric.questions.question import (
+    Message,
+    MessageLogging,
+    Question,
+    ToolAssistant,
+    UseTools,
+    WebSearchResultPublic,
+)
 
 
 def to_question_public(question: Question):
-    tools = (
-        UseTools(assistants=[ModelId(id=question.tool_assistant_id)])
-        if question.tool_assistant_id
-        else UseTools(assistants=[])
-    )
+    assistants = []
+
+    # Add assistant if it exists
+    if question.assistant_id and question.assistant_name:
+        assistants.append(
+            ToolAssistant(id=question.assistant_id, handle=question.assistant_name)
+        )
+
+    tools = UseTools(assistants=assistants)
 
     return Message(
-        **question.model_dump(exclude={"references", "tool_assistant_id"}),
+        **question.model_dump(exclude={"references", "assistant_id", "assistant_name"}),
         references=[
             InfoBlobPublicNoText(
                 **blob.model_dump(),
@@ -21,6 +31,14 @@ def to_question_public(question: Question):
             for blob in question.info_blobs
         ],
         tools=tools,
+        web_search_references=[
+            WebSearchResultPublic(
+                id=web_search_result.id,
+                title=web_search_result.title,
+                url=web_search_result.url,
+            )
+            for web_search_result in question.web_search_results
+        ],
     )
 
 

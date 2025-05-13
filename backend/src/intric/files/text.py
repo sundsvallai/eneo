@@ -38,7 +38,22 @@ class TextSanitizer:
 class TextExtractor:
     @staticmethod
     def extract_from_plain_text(filepath: Path) -> str:
-        return filepath.read_text("utf-8")
+        encodings_to_try = ["utf-8", "latin-1"]
+
+        errors = []
+        for enc in encodings_to_try:
+            try:
+                return filepath.read_text(enc)
+            except UnicodeDecodeError as e:
+                errors.append((enc, str(e)))
+                continue
+
+        # If we get here, all encodings failed
+        error_details = "; ".join([f"{enc}: {err}" for enc, err in errors])
+        raise UnicodeError(
+            f"Failed to decode file {filepath} with encodings "
+            f"{encodings_to_try}. Errors: {error_details}"
+        )
 
     @staticmethod
     def extract_from_pdf(filepath: Path) -> str:

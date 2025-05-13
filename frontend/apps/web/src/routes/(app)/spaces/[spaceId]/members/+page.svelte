@@ -12,8 +12,6 @@
   import MemberRole from "./MemberRole.svelte";
   import { Page, Settings } from "$lib/components/layout";
 
-  export let data;
-
   const { user } = getAppContext();
 
   const {
@@ -39,7 +37,7 @@
   <Page.Header>
     <Page.Title title="Members"></Page.Title>
     {#if $currentSpace.hasPermission("add", "member")}
-      <AddMember allUsers={data.users} currentMembers={$currentSpace.members}></AddMember>
+      <AddMember></AddMember>
     {/if}
   </Page.Header>
   <Page.Main>
@@ -50,9 +48,9 @@
           description="People that can create and edit new assistants and apps, and manage this space's knowledge."
         >
           <div class="flex flex-grow flex-col">
-            {#each editors as member}
+            {#each editors as member (member.id)}
               <div
-                class="flex items-center justify-between gap-4 border-b border-default py-4 pl-4 pr-4 hover:bg-hover-dimmer"
+                class="border-default hover:bg-hover-dimmer flex items-center justify-between gap-4 border-b py-4 pr-4 pl-4"
               >
                 <MemberChip {member}></MemberChip>
                 {#if user.id === member.id}
@@ -64,7 +62,7 @@
                 {#if $currentSpace.hasPermission("edit", "member") && user.id !== member.id}
                   <MemberRole {member}></MemberRole>
                 {:else}
-                  <span class="px-2 capitalize text-secondary">{member.role}</span>
+                  <span class="text-secondary px-2 capitalize">{member.role}</span>
                 {/if}
               </div>
             {/each}
@@ -78,9 +76,9 @@
           >
             <div class="flex flex-grow flex-col">
               {#if viewers.length > 0}
-                {#each viewers as member}
+                {#each viewers as member (member.id)}
                   <div
-                    class="flex items-center justify-between gap-4 border-b border-default py-4 pl-4 pr-4 hover:bg-hover-dimmer"
+                    class="border-default hover:bg-hover-dimmer flex items-center justify-between gap-4 border-b py-4 pr-4 pl-4"
                   >
                     <MemberChip {member}></MemberChip>
                     {#if user.id === member.id}
@@ -92,13 +90,13 @@
                     {#if $currentSpace.hasPermission("edit", "member") && user.id !== member.id}
                       <MemberRole {member}></MemberRole>
                     {:else}
-                      <span class="px-2 capitalize text-secondary">{member.role}</span>
+                      <span class="text-secondary px-2 capitalize">{member.role}</span>
                     {/if}
                   </div>
                 {/each}
               {:else}
                 <div
-                  class="flex items-center justify-between gap-4 border-b border-default py-4 pl-4 pr-4 text-muted hover:bg-hover-dimmer"
+                  class="border-default text-muted hover:bg-hover-dimmer flex items-center justify-between gap-4 border-b py-4 pr-4 pl-4"
                 >
                   There are currently no viewers in this space
                 </div>

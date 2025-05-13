@@ -38,11 +38,11 @@
   <button
     {...$root}
     use:root
-    class="relative h-6 cursor-pointer rounded-full bg-tertiary transition-colors disabled:cursor-not-allowed data-[state=checked]:bg-accent-default"
+    class="bg-tertiary data-[state=checked]:bg-accent-default relative h-6 cursor-pointer rounded-full transition-colors disabled:cursor-not-allowed"
     {id}
     aria-labelledby={label_id}
   >
-    <span class="thumb block rounded-full bg-[var(--text-on-fill)] transition" />
+    <span class="thumb block rounded-full bg-[var(--text-on-fill)] transition"></span>
   </button>
   <input {...$input} use:input id={check_id} />
 </fieldset>

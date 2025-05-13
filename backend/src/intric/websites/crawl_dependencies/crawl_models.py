@@ -1,5 +1,4 @@
 from datetime import datetime
-from enum import Enum
 from typing import Optional
 from uuid import UUID
 
@@ -7,11 +6,7 @@ from pydantic import AliasChoices, AliasPath, BaseModel, Field
 
 from intric.jobs.task_models import TaskParams
 from intric.main.models import InDB, Status
-
-
-class CrawlType(str, Enum):
-    CRAWL = "crawl"
-    SITEMAP = "sitemap"
+from intric.websites.domain.crawl_run import CrawlType
 
 
 class CrawlTask(TaskParams):
@@ -45,9 +40,7 @@ class CrawlRunSparse(CrawlRunBase, InDB):
         default=Status.QUEUED,
     )
     result_location: Optional[str] = Field(
-        validation_alias=AliasChoices(
-            AliasPath("job", "result_location"), "result_location"
-        ),
+        validation_alias=AliasChoices(AliasPath("job", "result_location"), "result_location"),
         default=None,
     )
     finished_at: Optional[datetime] = Field(

@@ -1,6 +1,6 @@
-import type { CompletionModel, EmbeddingModel } from "@intric/intric-js";
+import type { CompletionModel, EmbeddingModel, TranscriptionModel } from "@intric/intric-js";
 
-type Model = (CompletionModel | EmbeddingModel) & { nickname?: string | null };
+type Model = (CompletionModel | EmbeddingModel | TranscriptionModel) & { nickname?: string | null };
 
 function sortModel(a: Model, b: Model) {
   if (a.org === b.org) {

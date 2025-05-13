@@ -32,7 +32,7 @@
   <Label><slot /></Label>
   <Trigger placeholder="Select..."></Trigger>
   <Options>
-    {#each options as option}
+    {#each options as option (option.value)}
       <Item value={option.value} label={option.label}></Item>
     {/each}
     {#if !options.length}

@@ -87,10 +87,10 @@
 </script>
 
 <div
-  class="relative z-10 row-span-1 overflow-y-auto rounded-md border border-stronger bg-primary shadow-md"
+  class="border-stronger bg-primary relative z-10 row-span-1 overflow-y-auto rounded-md border shadow-md"
 >
   <Table.Root {viewModel} resourceName="prompt" displayAs="list" fitted actionPadding="tight">
-    {#each allUniqueDates as date}
+    {#each allUniqueDates as date (date)}
       <Table.Group title={date} filterFn={createDateFilter(date)}></Table.Group>
     {/each}
   </Table.Root>

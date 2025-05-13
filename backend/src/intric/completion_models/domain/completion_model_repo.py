@@ -1,18 +1,21 @@
 from typing import TYPE_CHECKING, Optional
 
 import sqlalchemy as sa
+from sqlalchemy.orm import selectinload
 
-from intric.completion_models.domain import CompletionModelFactory
+from intric.completion_models.domain import CompletionModel
 from intric.database.tables.ai_models_table import (
     CompletionModels,
     CompletionModelSettings,
+)
+from intric.database.tables.security_classifications_table import (
+    SecurityClassification as SecurityClassificationDBModel,
 )
 from intric.main.exceptions import NotFoundException
 
 if TYPE_CHECKING:
     from uuid import UUID
 
-    from intric.completion_models.domain import CompletionModel
     from intric.database.database import AsyncSession
     from intric.users.user import UserInDB
 
@@ -22,7 +25,7 @@ class CompletionModelRepository:
         self.session = session
         self.user = user
 
-    async def all(self):
+    async def all(self, with_deprecated: bool = False):
         stmt = (
             sa.select(CompletionModels, CompletionModelSettings)
             .outerjoin(
@@ -32,7 +35,12 @@ class CompletionModelRepository:
                     CompletionModelSettings.tenant_id == self.user.tenant_id,
                 ),
             )
-            .where(CompletionModels.is_deprecated == False)  # noqa
+            .options(
+                selectinload(CompletionModelSettings.security_classification),
+                selectinload(CompletionModelSettings.security_classification).options(
+                    selectinload(SecurityClassificationDBModel.tenant)
+                ),
+            )
             .order_by(
                 CompletionModels.org,
                 CompletionModels.created_at,
@@ -40,12 +48,15 @@ class CompletionModelRepository:
             )
         )
 
+        if not with_deprecated:
+            stmt = stmt.where(CompletionModels.is_deprecated == False)  # noqa
+
         result = await self.session.execute(stmt)
         completion_models = result.all()
 
         return [
-            CompletionModelFactory.create_from_db(
-                completion_model=completion_model,
+            CompletionModel.create_from_db(
+                completion_model_db=completion_model,
                 completion_model_settings=completion_model_settings,
                 user=self.user,
             )
@@ -62,6 +73,12 @@ class CompletionModelRepository:
                     CompletionModelSettings.tenant_id == self.user.tenant_id,
                 ),
             )
+            .options(
+                selectinload(CompletionModelSettings.security_classification),
+                selectinload(CompletionModelSettings.security_classification).options(
+                    selectinload(SecurityClassificationDBModel.tenant)
+                ),
+            )
             .where(CompletionModels.id == model_id)
         )
 
@@ -73,8 +90,8 @@ class CompletionModelRepository:
 
         completion_model, completion_model_settings = one_or_none
 
-        return CompletionModelFactory.create_from_db(
-            completion_model=completion_model,
+        return CompletionModel.create_from_db(
+            completion_model_db=completion_model,
             completion_model_settings=completion_model_settings,
             user=self.user,
         )
@@ -101,6 +118,11 @@ class CompletionModelRepository:
                 tenant_id=self.user.tenant_id,
                 is_org_enabled=completion_model.is_org_enabled,
                 is_org_default=completion_model.is_org_default,
+                security_classification_id=(
+                    completion_model.security_classification.id
+                    if completion_model.security_classification
+                    else None
+                ),
             )
             await self.session.execute(stmt)
 
@@ -110,6 +132,11 @@ class CompletionModelRepository:
                 .values(
                     is_org_enabled=completion_model.is_org_enabled,
                     is_org_default=completion_model.is_org_default,
+                    security_classification_id=(
+                        completion_model.security_classification.id
+                        if completion_model.security_classification
+                        else None
+                    ),
                 )
                 .where(
                     CompletionModelSettings.completion_model_id == completion_model.id,

@@ -1,8 +1,8 @@
 import pydantic
 
-from intric.ai_models.completion_models.completion_service import CompletionService
-from intric.ai_models.completion_models.context_builder import count_tokens
 from intric.assistants.references import ReferencesService
+from intric.completion_models.infrastructure.completion_service import CompletionService
+from intric.completion_models.infrastructure.context_builder import count_tokens
 from intric.files.file_service import FileService
 from intric.main.exceptions import PydanticParseError
 from intric.main.logging import get_logger
@@ -44,13 +44,14 @@ class ServiceRunner:
     ):
         # Get the relevant texts
         datastore_result = await self.references_service.get_references(
-            input, groups=self.service.groups
+            input, collections=self.service.groups
         )
 
         files = await self.file_service.get_files_by_ids([file.id for file in file_ids])
 
         # Query the AI models
         ai_response = await self.completion_service.get_response(
+            model=self.service.completion_model,
             text_input=input,
             files=files,
             prompt=self.prompt,
@@ -58,10 +59,10 @@ class ServiceRunner:
             model_kwargs=self.service.completion_model_kwargs,
         )
 
-        logger.debug(f"Service response: '{ai_response.completion}'")
+        logger.debug(f"Service response: '{ai_response.completion.text}'")
 
         try:
-            output = self.output_parser.parse(ai_response.completion)
+            output = self.output_parser.parse(ai_response.completion.text)
         except pydantic.ValidationError as e:
             raise PydanticParseError("Error parsing output.") from e
 

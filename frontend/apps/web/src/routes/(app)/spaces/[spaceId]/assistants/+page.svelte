@@ -3,10 +3,10 @@
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
   import { onMount } from "svelte";
   import AssistantsTable from "./AssistantsTable.svelte";
-  import TemplateCreateAssistant from "$lib/features/templates/components/assistants/TemplateCreateAssistant.svelte";
   import TemplateCreateAssistantHint from "$lib/features/templates/components/assistants/TemplateCreateAssistantHint.svelte";
   import { initTemplateController } from "$lib/features/templates/TemplateController";
   import { createAssistantTemplateAdapter } from "$lib/features/templates/TemplateAdapter";
+  import CreateNew from "./CreateNew.svelte";
 
   export let data;
 
@@ -35,8 +35,12 @@
 <Page.Root>
   <Page.Header>
     <Page.Title title="Assistants"></Page.Title>
+    <!--
+      We made the decision to not look at assistants and group chats as individual permissions for now,
+      meaning if we ever intend to change that, we would need that distinction here
+    -->
     {#if $currentSpace.hasPermission("create", "assistant")}
-      <TemplateCreateAssistant></TemplateCreateAssistant>
+      <CreateNew></CreateNew>
     {/if}
   </Page.Header>
 
@@ -44,7 +48,7 @@
     {#if $currentSpace.applications.assistants.length < 1 && data.featureFlags.showTemplates && $currentSpace.hasPermission("create", "assistant")}
       <TemplateCreateAssistantHint></TemplateCreateAssistantHint>
     {:else}
-      <AssistantsTable assistants={$currentSpace.applications.assistants}></AssistantsTable>
+      <AssistantsTable items={$currentSpace.applications.chat}></AssistantsTable>
     {/if}
   </Page.Main>
 </Page.Root>

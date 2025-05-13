@@ -208,6 +208,7 @@ function createJobManager(data: { intric: Intric }) {
     },
     queueUploads,
     clearFinishedUploads,
-    updateJobs
+    updateJobs,
+    startUpdatePolling
   };
 }

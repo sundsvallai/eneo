@@ -15,6 +15,8 @@ class Task(str, Enum):
     EMBED_GROUP = "embed_group"
     CRAWL_ALL_WEBSITES = "crawl_all_websites"
     RUN_APP = "run_app"
+    PULL_CONFLUENCE_CONTENT = "pull_confluence_content"
+    PULL_SHAREPOINT_CONTENT = "pull_sharepoint_content"
 
 
 class JobBase(BaseModel):

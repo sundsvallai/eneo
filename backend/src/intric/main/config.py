@@ -3,10 +3,9 @@ import logging
 import os
 from typing import Optional
 
+from intric.definitions import ROOT_DIR
 from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-from intric.definitions import ROOT_DIR
 
 MANIFEST_LOCATION = f"{ROOT_DIR}/.release-please-manifest.json"
 
@@ -33,12 +32,15 @@ class Settings(BaseSettings):
     # Api keys and model urls
     infinity_url: Optional[str] = None
     vllm_model_url: Optional[str] = None
-    whisper_model_url: Optional[str] = None
     openai_api_key: Optional[str] = None
     anthropic_api_key: Optional[str] = None
-
-    # Model config
-    whisper_model_name: str = "whisper-1"
+    ovhcloud_api_key: Optional[str] = None
+    mistral_api_key: Optional[str] = None
+    flux_api_key: Optional[str] = None
+    tavily_api_key: Optional[str] = None
+    vllm_api_key: Optional[str] = None
+    intric_marketplace_api_key: Optional[str] = None
+    intric_marketplace_url: Optional[str] = None
 
     # Infrastructure dependencies
     postgres_user: str
@@ -73,6 +75,7 @@ class Settings(BaseSettings):
     using_intric_proprietary: bool = False
     hosting_intric_proprietary: bool = False
     using_iam: bool = False
+    using_image_generation: bool = False
 
     # Security
     api_prefix: str
@@ -84,6 +87,7 @@ class Settings(BaseSettings):
     jwt_algorithm: str
     jwt_secret: str
     jwt_token_prefix: str
+    url_signing_key: str
 
     # Dev
     testing: bool = False
@@ -95,6 +99,17 @@ class Settings(BaseSettings):
     obey_robots: bool = True
     autothrottle_enabled: bool = True
     using_crawl: bool = True
+
+    # integration callback
+    oauth_callback_url: Optional[str] = None
+
+    # Confluence
+    confluence_client_id: Optional[str] = None
+    confluence_client_secret: Optional[str] = None
+
+    # Sharepoint
+    sharepoint_client_id: Optional[str] = None
+    sharepoint_client_secret: Optional[str] = None
 
     @computed_field
     @property

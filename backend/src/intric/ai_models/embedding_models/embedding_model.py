@@ -45,7 +45,7 @@ class EmbeddingModelUpdateFlags(BaseModel):
     is_org_enabled: Optional[bool] = False
 
 
-class EmbeddingModel(EmbeddingModelBase, InDB):
+class EmbeddingModelLegacy(EmbeddingModelBase, InDB):
     is_org_enabled: bool = False
 
 
@@ -53,7 +53,7 @@ class EmbeddingModelPublicBase(EmbeddingModelBase, InDB):
     pass
 
 
-class EmbeddingModelPublic(EmbeddingModel):
+class EmbeddingModelPublicLegacy(EmbeddingModelLegacy):
     can_access: bool = False
     is_locked: bool = True
 

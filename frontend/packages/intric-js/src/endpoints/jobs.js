@@ -8,15 +8,12 @@ export function initJobs(client) {
   return {
     /**
      * List all jobs.
-     * @param {{includeCompleted: boolean}} [params] Include completed jobs in response?
      * @returns {Promise<Job[]>}
      * @throws {IntricError}
      * */
-    list: async (params) => {
-      const include_completed = params?.includeCompleted ?? false;
+    list: async () => {
       const res = await client.fetch("/api/v1/jobs/", {
-        method: "get",
-        params: { query: { include_completed } }
+        method: "get"
       });
       return res.items;
     },

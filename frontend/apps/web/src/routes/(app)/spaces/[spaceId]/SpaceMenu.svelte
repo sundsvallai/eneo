@@ -21,17 +21,18 @@
   } = getSpacesManager();
 
   $: section = $page.url.pathname.split("/")[3];
+  $: chatPartnerIsDefined = $page.url.searchParams.get("type") !== null;
 </script>
 
 <Navigation.Menu>
   {#if $currentSpace.hasPermission("read", "default_assistant") && $currentSpace.personal}
     <Navigation.Link
       href="/spaces/{$currentSpace.routeId}/chat?tab=chat"
-      isActive={section === "chat"}
+      isActive={section === "chat" && !chatPartnerIsDefined}
       icon={IconSpeechBubble}
       label="Chat"
     />
-    <div class="my-2 border-b-[0.5px] border-default"></div>
+    <div class="border-default my-2 border-b-[0.5px]"></div>
   {/if}
 
   <Navigation.Link
@@ -44,7 +45,7 @@
   {#if $currentSpace.hasPermission("read", "assistant")}
     <Navigation.Link
       href="/spaces/{$currentSpace.routeId}/assistants"
-      isActive={section === "assistants"}
+      isActive={section === "assistants" || (section === "chat" && chatPartnerIsDefined)}
       icon={IconSpeechBubble}
       label="Assistants"
     />
@@ -66,7 +67,7 @@
     />
   {/if}
   {#if $currentSpace.hasPermission("read", "service")}<div
-      class="my-2 border-b-[0.5px] border-default"
+      class="border-default my-2 border-b-[0.5px]"
     ></div>
     <Navigation.Link
       href="/spaces/{$currentSpace.routeId}/services"
@@ -76,7 +77,7 @@
     />
   {/if}
   {#if $currentSpace.hasPermission("read", "member")}
-    <div class="my-2 border-b-[0.5px] border-default"></div>
+    <div class="border-default my-2 border-b-[0.5px]"></div>
     <Navigation.Link
       href="/spaces/{$currentSpace.routeId}/members"
       isActive={section === "members"}

@@ -59,13 +59,13 @@
   <Select.Root
     {disabled}
     customStore={modelSelectStore}
-    class="border-b border-dimmer px-4 py-4 hover:bg-hover-dimmer"
+    class="border-dimmer hover:bg-hover-dimmer border-b px-4 py-4"
   >
     <Select.Label>Embedding model</Select.Label>
     <Select.Trigger placeholder="Select..." error={unsupportedModelSelected}></Select.Trigger>
     <Select.Options>
       <Select.OptionGroup label="Stable Embedding models">
-        {#each stableModels as model}
+        {#each stableModels as model (model.id)}
           {@const modelName = getModelDisplayName(model)}
           <Select.Item value={model} label={modelName}>
             <div class="flex w-full items-center justify-between py-1">
@@ -82,7 +82,7 @@
       </Select.OptionGroup>
       {#if experimentalModels.length > 0}
         <Select.OptionGroup label="Experimental Embedding models">
-          {#each experimentalModels as model}
+          {#each experimentalModels as model (model.id)}
             {@const modelName = getModelDisplayName(model)}
             <Select.Item value={model} label={modelName}>
               <div class="flex w-full items-center justify-between py-1">

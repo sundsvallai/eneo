@@ -19,7 +19,11 @@ def test_create_new_app(factory: AppFactory):
     completion_model = MagicMock()
     user = MagicMock()
     app = factory.create_app(
-        user=user, space=space, name=name, completion_model=completion_model
+        user=user,
+        space=space,
+        name=name,
+        completion_model=completion_model,
+        transcription_model=MagicMock(),
     )
 
     assert app.id is None

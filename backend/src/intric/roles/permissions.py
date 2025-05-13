@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
 class Permission(str, Enum):
     ASSISTANTS = "assistants"
+    GROUP_CHATS = "group_chats"
     APPS = "apps"
     SERVICES = "services"
     COLLECTIONS = "collections"
@@ -21,6 +22,7 @@ class Permission(str, Enum):
     EDITOR = "editor"
     ADMIN = "admin"
     WEBSITES = "websites"
+    INTEGRATION_KNOWLEDGE_LIST = "integration_knowledge_list"
 
 
 def validate_permissions(permission: Permission):

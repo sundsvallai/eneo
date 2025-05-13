@@ -13,11 +13,16 @@
   import type { Space, SpaceRole } from "@intric/intric-js";
   import { createSelect } from "@melt-ui/svelte";
   import { IconLoadingSpinner } from "@intric/icons/loading-spinner";
+  import { createAsyncState } from "$lib/core/helpers/createAsyncState.svelte";
 
   type Member = Space["members"]["items"][number];
   type RoleOption = { label: string; value: SpaceRole["value"] | "remove" };
 
-  export let member: Member;
+  type Props = {
+    member: Member;
+  };
+
+  let { member }: Props = $props();
   const intric = getIntric();
 
   const {
@@ -43,65 +48,60 @@
     defaultSelected: { value: member.role }
   });
 
-  $: $selected = { value: member.role };
+  // After changing the role we update with the passed prop as source of truth
+  $effect(() => {
+    $selected = { value: member.role };
+  });
 
-  let isRemoving = false;
-  async function removeMember() {
-    isRemoving = true;
+  const removeMember = createAsyncState(async () => {
     try {
       await intric.spaces.members.remove({ spaceId: $currentSpace.id, user: member });
-      // Will cause an update in the parent page
-      await refreshCurrentSpace();
+      $showRemoveDialog = false;
+      // Will cause an update in the parent page and remove this component instance form the tree
+      refreshCurrentSpace();
     } catch (e) {
       alert("Couldn't remove user.");
       console.error(e);
     }
-    isRemoving = false;
-    $showRemoveDialog = false;
-  }
+  });
 
-  async function changeRole(newRole: RoleOption) {
-    if (newRole.value === "remove") {
-      $showRemoveDialog = true;
-      return;
+  const changeRole = createAsyncState(async (newRole: SpaceRole["value"]) => {
+    try {
+      await intric.spaces.members.update({
+        spaceId: $currentSpace.id,
+        user: { id: member.id, role: newRole }
+      });
+      // Await refreshing as that will update the actual label
+      await refreshCurrentSpace();
+    } catch (e) {
+      alert("Couldn't change role.");
+      console.error(e);
+      // Reset selected
+      $selected = { value: member.role };
     }
-    if (member.role !== newRole.value) {
-      try {
-        isLoading = true;
-        await intric.spaces.members.update({
-          spaceId: $currentSpace.id,
-          user: { id: member.id, role: newRole.value }
-        });
-        refreshCurrentSpace();
-      } catch (e) {
-        isLoading = false;
-        alert("Couldn't change role.");
-        console.error(e);
-        $selected = { value: member.role };
-      }
-    }
-  }
+  });
 
-  let showRemoveDialog: Dialog.OpenState;
-
-  let isLoading = false;
-  $: resetLoading(member);
-  function resetLoading(member: Member) {
-    if (member) {
-      isLoading = false;
+  async function handleMenuOption(option: RoleOption["value"]) {
+    switch (option) {
+      case "remove":
+        $showRemoveDialog = true;
+        break;
+      default:
+        changeRole(option);
     }
   }
+
+  let showRemoveDialog = $state<Dialog.OpenState>();
 </script>
 
 <div class="relative flex flex-col gap-1">
-  <!-- svelte-ignore a11y-label-has-associated-control -->
   <label class="sr-only pl-3 font-medium" {...$label} use:label>
     Select a role for this member
   </label>
 
   <Button is={[$trigger]}>
     <div class="truncate capitalize">
-      {#if isLoading}
+      {#if changeRole.isLoading}
         <IconLoadingSpinner class="animate-spin"></IconLoadingSpinner>
       {:else}
         {member.role}
@@ -111,13 +111,13 @@
   </Button>
 
   <div
-    class="z-10 flex flex-col gap-1 overflow-y-auto rounded-lg border border-stronger bg-primary p-1 shadow-md focus:!ring-0"
+    class="border-stronger bg-primary z-10 flex flex-col gap-1 overflow-y-auto rounded-lg border p-1 shadow-md focus:!ring-0"
     {...$menu}
     use:menu
   >
-    {#each options as item}
+    {#each options as item (item.value)}
       <div
-        class="flex items-center gap-1 rounded-md text-primary hover:cursor-pointer hover:bg-hover-default"
+        class="text-primary hover:bg-hover-default data-[highlighted]:bg-secondary flex items-center gap-1 rounded-md hover:cursor-pointer data-[disabled]:opacity-30 data-[disabled]:hover:bg-transparent"
         {...$option({ value: item.value })}
         use:option
       >
@@ -125,7 +125,7 @@
           class="w-full !justify-start capitalize"
           variant={item.value === "remove" ? "destructive" : "simple"}
           on:click={() => {
-            changeRole(item);
+            handleMenuOption(item.value);
           }}
         >
           <span>
@@ -149,18 +149,8 @@
     <Dialog.Controls let:close>
       <Button is={close}>Cancel</Button>
       <Button variant="destructive" on:click={removeMember}
-        >{isRemoving ? "Removing..." : "Remove"}</Button
+        >{removeMember.isLoading ? "Removing..." : "Remove"}</Button
       >
     </Dialog.Controls>
   </Dialog.Content>
 </Dialog.Root>
-
-<style lang="postcss">
-  div[data-highlighted] {
-    @apply bg-secondary;
-  }
-
-  div[data-disabled] {
-    @apply opacity-30 hover:bg-transparent;
-  }
-</style>

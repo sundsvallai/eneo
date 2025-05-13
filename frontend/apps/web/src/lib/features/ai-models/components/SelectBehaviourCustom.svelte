@@ -11,16 +11,16 @@
 </script>
 
 <div
-  class="relative -mt-1 w-full border-y border-default bg-hover-dimmer px-4 py-4 hover:bg-hover-default"
+  class="border-default bg-hover-dimmer hover:bg-hover-default relative -mt-1 w-full border-y px-4 py-4"
 >
   <h3 class="pb-1 pl-3 font-medium">Model configuration</h3>
-  <div class="rounded-lg border border-default bg-primary shadow">
+  <div class="border-default bg-primary rounded-lg border shadow">
     <div
-      class="flex items-center gap-6 rounded-lg py-2 pl-3 pr-2 hover:bg-hover-dimmer"
+      class="hover:bg-hover-dimmer flex items-center gap-6 rounded-lg py-2 pr-2 pl-3"
       aria-labelledby="temperature_label"
     >
       <Tooltip
-        text={"Randomness: A value between 0 and 2 (Default: 1)\nHigher values will create more creative responses.\nLower values will be more deterministic."}
+        text="Randomness: A value between 0 and 2 (Default: 1)\nHigher values will create more creative responses.\nLower values will be more deterministic."
       >
         <p class="w-24" aria-label="Temperature setting" id="temperature_label">Temperature</p>
       </Tooltip>

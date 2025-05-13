@@ -29,13 +29,13 @@
 </script>
 
 <div {...$root} use:root class="relative flex flex-grow items-center {cls}">
-  <span class="h-[4px] min-h-[4px] w-full rounded-full bg-tertiary">
-    <span {...$range} use:range class="h-[4px] min-h-[4px] rounded-full bg-accent-default" />
+  <span class="bg-tertiary h-[4px] min-h-[4px] w-full rounded-full">
+    <span {...$range} use:range class="bg-accent-default h-[4px] min-h-[4px] rounded-full"></span>
   </span>
 
   <span
     {...$thumbs[0]}
     use:thumbs
-    class="h-5 w-5 rounded-full border border-strongest bg-primary shadow-md focus:ring-4 focus:ring-default"
-  />
+    class="border-strongest bg-primary focus:ring-default h-5 w-5 rounded-full border shadow-md focus:ring-4"
+  ></span>
 </div>

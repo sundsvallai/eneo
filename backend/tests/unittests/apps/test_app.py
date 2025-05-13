@@ -27,6 +27,7 @@ def app():
         input_fields=[],
         attachments=[],
         published=False,
+        transcription_model=None,
     )
 
 
@@ -77,6 +78,7 @@ def test_input_type_validation(
 ):
     input_field = MagicMock(type=type)
     app.input_fields = [input_field]
+    app.transcription_model = MagicMock()
 
     for mimetype in mimetypes:
         file = MagicMock(mimetype=mimetype, size=0)
@@ -85,6 +87,7 @@ def test_input_type_validation(
 
 def test_input_type_with_codec(app: App):
     app.input_fields = [MagicMock(type=InputFieldType.AUDIO_RECORDER)]
+    app.transcription_model = MagicMock()
 
     file = MagicMock(mimetype="audio/webm;codec=opus", size=0)
     assert app.is_valid_input([file])
@@ -114,6 +117,7 @@ def test_input_size_validation(
     is_valid_input: bool,
 ):
     app.input_fields = [MagicMock(type=type)]
+    app.transcription_model = MagicMock()
 
     for mimetype in mimetypes:
         file = MagicMock(mimetype=mimetype, size=size)
@@ -133,6 +137,7 @@ def test_number_of_files_validation(
     app: App, type: InputFieldType, num_files: int, mimetype: str
 ):
     app.input_fields = [MagicMock(type=type)]
+    app.transcription_model = MagicMock()
 
     list_of_files = [
         [MagicMock(mimetype=mimetype, size=0) for _ in range(_num_files)]
@@ -213,6 +218,7 @@ def test_total_size_of_files_validation(
 
     files = [MagicMock(size=size, mimetype=mimetype) for _ in range(num_files)]
     app.input_fields = [MagicMock(type=type)]
+    app.transcription_model = MagicMock()
     assert app.is_valid_input(files) is is_valid_input
 
 
@@ -232,4 +238,5 @@ def test_input_text_validation(
     app: App, type: InputFieldType, text: str, is_valid_input: bool
 ):
     app.input_fields = [MagicMock(type=type)]
+
     assert app.is_valid_input([], text) is is_valid_input

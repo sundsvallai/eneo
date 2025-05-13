@@ -14,13 +14,13 @@ def service():
         space_repo=AsyncMock(),
         factory=MagicMock(),
         completion_model_crud_service=AsyncMock(),
+        transcription_model_crud_service=AsyncMock(),
         file_service=AsyncMock(),
         prompt_service=AsyncMock(),
-        completion_service_factory=MagicMock(),
         transcriber=AsyncMock(),
         app_template_service=AsyncMock(),
-        group_service=AsyncMock(),
         actor_manager=MagicMock(),
+        completion_service=AsyncMock(),
     )
 
 

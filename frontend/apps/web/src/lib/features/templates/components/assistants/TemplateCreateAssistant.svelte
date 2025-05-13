@@ -38,24 +38,24 @@
     {/if}
   </Dialog.Trigger>
 
-  <Dialog.Content width="medium" form>
+  <Dialog.Content width="dynamic" form>
     {#if $currentSpace.completion_models.length < 1}
       <p
-        class="m-4 rounded-md border border-amber-500 bg-amber-50 px-2 py-1 text-sm text-amber-800"
+        class="label-warning border-label-default bg-label-dimmer text-label-stronger m-4 rounded-md border px-2 py-1 text-sm"
       >
         <span class="font-bold">Warning:</span>
         This space does currently not have any completion models enabled. Enable at least one completion
         model to be able to create an assistant.
       </p>
-      <div class="border-b border-stone-100"></div>
+      <div class="border-dimmer border-b"></div>
     {/if}
 
-    <Dialog.Section class="relative -mb-0.5 mt-2">
+    <Dialog.Section class="relative mt-2 -mb-0.5">
       {#if $currentStep === "wizard"}
         <TemplateWizard></TemplateWizard>
       {:else}
         <TemplateSelector></TemplateSelector>
-        <div class="absolute right-0 top-0 h-52 w-72 overflow-hidden">
+        <div class="absolute top-0 right-0 h-52 w-72 overflow-hidden">
           <CreateAssistantBackdrop></CreateAssistantBackdrop>
         </div>
       {/if}
@@ -90,7 +90,7 @@
               $showCreateDialog = false;
               resetForm();
               if (openAssistantAfterCreation) {
-                goto(`/spaces/${$currentSpace.routeId}/assistants/${id}/edit`);
+                goto(`/spaces/${$currentSpace.routeId}/assistants/${id}/edit?next=default`);
               }
             }
           });

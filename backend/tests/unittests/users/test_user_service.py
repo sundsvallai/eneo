@@ -18,7 +18,6 @@ def service_with_mocks():
         auth_service=AsyncMock(),
         settings_repo=AsyncMock(),
         tenant_repo=AsyncMock(),
-        assistant_repo=AsyncMock(),
         info_blob_repo=AsyncMock(),
     )
 
@@ -35,18 +34,14 @@ async def test_login_user_fails_if_hashed_passwords_do_not_match(service: UserSe
     service.auth_service.verify_password.return_value = False
 
     with pytest.raises(AuthenticationException, match="Wrong password"):
-        await service.login(
-            email="realuser@indatabase.com", password="iamhackeristhisthepassword?"
-        )
+        await service.login(email="realuser@indatabase.com", password="iamhackeristhisthepassword?")
 
 
 async def test_login_successful_returns_access_token(service: UserService):
     service.auth_service.verify_password = MagicMock()
     service.auth_service.verify_password.return_value = True
     service.auth_service.create_access_token_for_user = MagicMock()
-    service.auth_service.create_access_token_for_user.return_value = (
-        "bingobongo you have access"
-    )
+    service.auth_service.create_access_token_for_user.return_value = "bingobongo you have access"
 
     access_token = await service.login(email="realuser@indatabase.com", password="1234")
 
@@ -105,9 +100,7 @@ async def test_register_user_creates_a_user_and_settings(service: UserService):
         state="active",
     )
     expected_user_in_db = UserInDB(
-        **expected_user_upsert.model_dump(exclude_none=True),
-        id=uuid4(),
-        tenant=TEST_TENANT
+        **expected_user_upsert.model_dump(exclude_none=True), id=uuid4(), tenant=TEST_TENANT
     )
 
     expected_settings = SettingsUpsert(
@@ -124,9 +117,7 @@ async def test_register_user_creates_a_user_and_settings(service: UserService):
         key="api_key", truncated_key="ey", hashed_key="4p1 k3y"
     )
     service.auth_service.create_access_token_for_user = MagicMock()
-    service.auth_service.create_access_token_for_user.return_value = (
-        "bingobongo you have access"
-    )
+    service.auth_service.create_access_token_for_user.return_value = "bingobongo you have access"
     service.repo.add.return_value = expected_user_in_db
 
     new_user = UserAddSuperAdmin(
@@ -150,9 +141,7 @@ async def test_update_used_tokens(service: UserService):
     service.repo.get_user_by_id.return_value = user
 
     tokens_to_add = 47
-    expected_upsert = UserUpdate(
-        id=user.id, used_tokens=user.used_tokens + tokens_to_add
-    )
+    expected_upsert = UserUpdate(id=user.id, used_tokens=user.used_tokens + tokens_to_add)
 
     await service.update_used_tokens(TEST_USER.id, 47)
 

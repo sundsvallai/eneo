@@ -40,7 +40,7 @@
 </svelte:head>
 
 <div
-  class="outer max-h-full w-full flex-col overflow-y-auto bg-primary"
+  class="outer bg-primary max-h-full w-full flex-col overflow-y-auto"
   bind:this={div}
   on:scroll={() => {
     sessionStorage.setItem(scrollKey, div.scrollTop.toString());
@@ -49,7 +49,7 @@
   <div
     class="bg-frosted-glass-primary sticky top-0 z-10 flex items-center justify-between p-4 py-2.5"
   >
-    <IntricWordMark class="my-2 h-5 w-20 text-brand-intric"></IntricWordMark>
+    <IntricWordMark class="text-brand-intric my-2 h-5 w-20"></IntricWordMark>
     <Dropdown.Root>
       <Dropdown.Trigger let:trigger asFragment>
         <Button is={trigger} padding="icon">
@@ -60,7 +60,7 @@
         <div class="p-2">
           Logged in as:<br /><span class="font-mono text-sm">{user.email}</span>
         </div>
-        <div class="my-1 border-b border-default"></div>
+        <div class="border-default my-1 border-b"></div>
         <Button is={item} variant="destructive" href="/logout" padding="icon-leading">
           <IconLogout />
           Logout</Button
@@ -70,10 +70,10 @@
   </div>
 
   <div {...$root}>
-    {#each spaces as space}
+    {#each spaces as space (space.id)}
       <div class="mx-auto max-w-[1400px]" {...$item(space.id)} use:item>
         <button
-          class="col-span-2 flex w-full items-center justify-between px-[1.4rem] py-4 font-mono text-sm uppercase hover:bg-hover-dimmer md:col-span-3 lg:col-span-4"
+          class="hover:bg-hover-dimmer col-span-2 flex w-full items-center justify-between px-[1.4rem] py-4 font-mono text-sm uppercase md:col-span-3 lg:col-span-4"
           {...$trigger(space.id)}
           use:trigger
         >
@@ -92,12 +92,12 @@
             use:content
             transition:slide
           >
-            {#each space.applications.assistants.items as assistant}
+            {#each space.applications.assistants.items as assistant (assistant.id)}
               <DashboardTile {assistant}></DashboardTile>
             {/each}
           </div>
         {/if}
-        <div class="border-b border-default"></div>
+        <div class="border-default border-b"></div>
       </div>
     {/each}
   </div>

@@ -14,7 +14,7 @@ from intric.authentication.auth_models import ApiKey
 from intric.database.database import AsyncSession, get_session_with_transaction
 from intric.main.config import SETTINGS
 from intric.main.container.container import Container
-from intric.main.models import CursorPaginatedResponse, PaginatedResponse
+from intric.main.models import NOT_PROVIDED, CursorPaginatedResponse, PaginatedResponse
 from intric.prompts.api.prompt_models import PromptSparse
 from intric.server import protocol
 from intric.server.dependencies.container import get_container
@@ -44,19 +44,11 @@ async def create_assistant(
     assistant: AssistantCreatePublic,
     container: Container = Depends(get_container(with_user=True)),
 ):
-
-    service = container.assistant_service()
+    assistant_service = container.assistant_service()
     assembler = container.assistant_assembler()
 
-    assistant, permissions = await service.create_assistant(
-        name=assistant.name,
-        prompt=assistant.prompt,
-        space_id=assistant.space_id,
-        completion_model_kwargs=assistant.completion_model_kwargs,
-        logging_enabled=assistant.logging_enabled,
-        groups=[group.id for group in assistant.groups],
-        websites=[website.id for website in assistant.websites],
-        completion_model_id=assistant.completion_model.id,
+    assistant, permissions = await assistant_service.create_assistant(
+        name=assistant.name, space_id=assistant.space_id
     )
 
     return assembler.from_assistant_to_model(assistant, permissions=permissions)
@@ -74,9 +66,7 @@ async def get_assistants(
 
     assistants = await service.get_assistants(name, for_tenant)
 
-    assistants = [
-        assembler.from_assistant_to_model(assistant) for assistant in assistants
-    ]
+    assistants = [assembler.from_assistant_to_model(assistant) for assistant in assistants]
 
     return protocol.to_paginated_response(assistants)
 
@@ -95,9 +85,7 @@ async def get_assistant(
 
     assistant, permissions = await service.get_assistant(assistant_id=id)
 
-    return assembler.from_assistant_to_model(
-        assistant=assistant, permissions=permissions
-    )
+    return assembler.from_assistant_to_model(assistant=assistant, permissions=permissions)
 
 
 @router.post(
@@ -126,6 +114,10 @@ async def update_assistant(
     if assistant.websites is not None:
         websites = [website.id for website in assistant.websites]
 
+    integration_knowledge_ids = None
+    if assistant.integration_knowledge_list is not None:
+        integration_knowledge_ids = [i.id for i in assistant.integration_knowledge_list]
+
     completion_model_id = None
     if assistant.completion_model is not None:
         completion_model_id = assistant.completion_model.id
@@ -133,6 +125,19 @@ async def update_assistant(
     completion_model_kwargs = None
     if assistant.completion_model_kwargs is not None:
         completion_model_kwargs = assistant.completion_model_kwargs
+
+    # get original request dict to check if description was actually provided
+    # (@partial_model overrides NOT_PROVIDED with None)
+    request_dict = assistant.model_dump(exclude_unset=True)
+    description = assistant.description
+    metadata_json = assistant.metadata_json
+
+    # if description wasn't in the original request, use NOT_PROVIDED
+    if "description" not in request_dict:
+        description = NOT_PROVIDED
+
+    if "metadata_json" not in request_dict:
+        metadata_json = NOT_PROVIDED
 
     assistant, permissions = await service.update_assistant(
         assistant_id=id,
@@ -144,6 +149,11 @@ async def update_assistant(
         attachment_ids=attachment_ids,
         groups=groups,
         websites=websites,
+        integration_knowledge_ids=integration_knowledge_ids,
+        description=description,
+        insight_enabled=assistant.insight_enabled,
+        data_retention_days=assistant.data_retention_days,
+        metadata_json=metadata_json,
     )
 
     return assembler.from_assistant_to_model(assistant, permissions=permissions)
@@ -171,16 +181,16 @@ async def ask_assistant(
     id: UUID,
     ask: AskAssistant,
     version: int = Query(default=1, ge=1, le=2),
-    container: Container = Depends(
-        get_container(with_user_from_assistant_api_key=True)
-    ),
+    container: Container = Depends(get_container(with_user_from_assistant_api_key=True)),
     db_session: AsyncSession = Depends(get_session_with_transaction),
 ):
     """Streams the response as Server-Sent Events if stream == true"""
     service = container.assistant_service()
 
     file_ids = [file.id for file in ask.files]
-    tool_assistant_id = ask.tools.assistants[0].id if ask.tools is not None else None
+    tool_assistant_id = None
+    if ask.tools is not None and ask.tools.assistants:
+        tool_assistant_id = ask.tools.assistants[0].id
     response = await service.ask(
         question=ask.question,
         assistant_id=id,
@@ -269,16 +279,16 @@ async def ask_followup(
     session_id: UUID,
     ask: AskAssistant,
     version: int = Query(default=1, ge=1, le=2),
-    container: Container = Depends(
-        get_container(with_user_from_assistant_api_key=True)
-    ),
+    container: Container = Depends(get_container(with_user_from_assistant_api_key=True)),
     db_session: AsyncSession = Depends(get_session_with_transaction),
 ):
     """Streams the response as Server-Sent Events if stream == true"""
     service = container.assistant_service()
 
     file_ids = [file.id for file in ask.files]
-    tool_assistant_id = ask.tools.assistants[0].id if ask.tools is not None else None
+    tool_assistant_id = None
+    if ask.tools is not None and ask.tools.assistants:
+        tool_assistant_id = ask.tools.assistants[0].id
     response = await service.ask(
         question=ask.question,
         assistant_id=id,
@@ -303,9 +313,7 @@ async def leave_feedback(
     id: UUID,
     session_id: UUID,
     feedback: SessionFeedback,
-    container: Container = Depends(
-        get_container(with_user_from_assistant_api_key=True)
-    ),
+    container: Container = Depends(get_container(with_user_from_assistant_api_key=True)),
 ):
     session_service = container.session_service()
     session = await session_service.leave_feedback(
@@ -334,7 +342,7 @@ async def transfer_assistant_to_space(
     transfer_req: TransferApplicationRequest,
     container: Container = Depends(get_container(with_user=True)),
 ):
-    service = container.assistant_service()
+    service = container.resource_mover_service()
     await service.move_assistant_to_space(
         assistant_id=id,
         space_id=transfer_req.target_space_id,
@@ -347,9 +355,7 @@ async def transfer_assistant_to_space(
     response_model=PaginatedResponse[PromptSparse],
     include_in_schema=SETTINGS.dev,
 )
-async def get_prompts(
-    id: UUID, container: Container = Depends(get_container(with_user=True))
-):
+async def get_prompts(id: UUID, container: Container = Depends(get_container(with_user=True))):
     service = container.assistant_service()
     assembler = container.prompt_assembler()
 
@@ -359,7 +365,19 @@ async def get_prompts(
     return protocol.to_paginated_response(prompts)
 
 
-if SETTINGS.using_intric_proprietary:
-    from intric_prop.assistants.api.assistant_router_prop import include_prop_endpoints
+@router.post(
+    "/{id}/publish/",
+    response_model=AssistantPublic,
+    responses=responses.get_responses([403, 404]),
+)
+async def publish_assistant(
+    id: UUID,
+    published: bool,
+    container: Container = Depends(get_container(with_user=True)),
+):
+    service = container.assistant_service()
+    assembler = container.assistant_assembler()
 
-    include_prop_endpoints(router=router)
+    assistant, permissions = await service.publish_assistant(assistant_id=id, publish=published)
+
+    return assembler.from_assistant_to_model(assistant=assistant, permissions=permissions)

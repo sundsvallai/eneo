@@ -2,6 +2,7 @@ from uuid import UUID
 
 from arq import create_pool
 from arq.connections import ArqRedis, RedisSettings
+from arq.jobs import Job
 
 from intric.jobs.job_models import Task
 from intric.jobs.task_models import TaskParams
@@ -39,6 +40,11 @@ class JobManager:
 
     async def enqueue_jobless(self, task: Task):
         await self._redis.enqueue_job(task)
+
+    async def get_job_status(self, job_id: UUID):
+        job = Job(job_id=str(job_id), redis=self._redis)
+
+        return await job.status()
 
 
 job_manager = JobManager()

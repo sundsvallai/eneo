@@ -32,7 +32,7 @@
   {...dynamicColour({ basedOn: $currentSpace.personal ? user.id : $currentSpace.id })}
   class="absolute inset-0 flex flex-grow justify-stretch"
 >
-  <div class="flex flex-col border-r-[0.5px] border-default md:min-w-[17rem] md:max-w-[17rem]">
+  <div class="border-default flex flex-col border-r-[0.5px] md:max-w-[17rem] md:min-w-[17rem]">
     <SpaceSelector></SpaceSelector>
     <SpaceMenu></SpaceMenu>
   </div>

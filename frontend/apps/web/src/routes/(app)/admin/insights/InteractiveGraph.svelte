@@ -24,7 +24,7 @@
 </script>
 
 <div class="flex w-[calc(100%_-_240px)] flex-col gap-4">
-  <div class="flex gap-2 border-b border-default p-2">
+  <div class="border-default flex gap-2 border-b p-2">
     <Button
       displayActiveState
       data-state={filter === "sessions" ? "active" : "incative"}
@@ -68,7 +68,7 @@
       }}>By Hour</Button
     >
   </div>
-  <div class="h-full w-full px-6 pb-4 pt-2">
+  <div class="h-full w-full px-6 pt-2 pb-4">
     <Chart.Root {config}></Chart.Root>
   </div>
 </div>

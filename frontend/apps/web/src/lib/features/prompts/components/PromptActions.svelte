@@ -39,7 +39,7 @@
 
 <div class="flex w-full items-center justify-end gap-2">
   {#if description}
-    <Tooltip text={description} class="pointer-events-auto z-[1000] text-accent-stronger">
+    <Tooltip text={description} class="text-accent-stronger pointer-events-auto z-[1000]">
       <IconInfo></IconInfo>
     </Tooltip>
   {/if}
@@ -86,7 +86,8 @@
 </div>
 
 <style lang="postcss">
+  @reference "@intric/ui/styles";
   button[data-prompt-previewed="true"] {
-    @apply pointer-events-none z-[-1] bg-accent-dimmer mix-blend-multiply;
+    @apply bg-accent-dimmer pointer-events-none z-[-1] mix-blend-multiply;
   }
 </style>

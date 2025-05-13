@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
 from sqlalchemy import ForeignKey
@@ -14,6 +14,9 @@ from intric.database.tables.logging_table import logging_table
 from intric.database.tables.service_table import Services
 from intric.database.tables.sessions_table import Sessions
 from intric.database.tables.tenant_table import Tenants
+
+if TYPE_CHECKING:
+    from intric.database.tables.web_search_results_table import WebSearchResult
 
 
 class Questions(BasePublic):
@@ -38,7 +41,7 @@ class Questions(BasePublic):
     tenant_id: Mapped[UUID] = mapped_column(
         ForeignKey(Tenants.id, ondelete="CASCADE"), index=True
     )
-    tool_assistant_id: Mapped[Optional[UUID]] = mapped_column(
+    assistant_id: Mapped[Optional[UUID]] = mapped_column(
         ForeignKey(Assistants.id, ondelete="SET NULL")
     )
 
@@ -48,20 +51,18 @@ class Questions(BasePublic):
         viewonly=True,
     )
     logging_details = relationship(logging_table)
-    assistant: Mapped[Assistants] = relationship(
-        secondary="sessions",
-        primaryjoin="Questions.session_id == Sessions.id",
-        secondaryjoin="Sessions.assistant_id == Assistants.id",
-        viewonly=True,
-    )
+    assistant: Mapped[Assistants] = relationship()
     session: Mapped[Sessions] = relationship(viewonly=True)
     completion_model: Mapped[CompletionModels] = relationship()
 
     info_blobs: AssociationProxy[list[InfoBlobs]] = association_proxy(
         "info_blob_references", "info_blob"
     )
-    files: Mapped[list[Files]] = relationship(
-        secondary="questions_files", order_by=Files.created_at
+    questions_files: Mapped[list["QuestionsFiles"]] = relationship(
+        order_by="QuestionsFiles.file_id"
+    )
+    web_search_results: Mapped[list["WebSearchResult"]] = relationship(
+        order_by="WebSearchResult.score.desc()"
     )
 
 
@@ -85,3 +86,6 @@ class QuestionsFiles(BaseCrossReference):
     file_id: Mapped[UUID] = mapped_column(
         ForeignKey(Files.id, ondelete="CASCADE"), primary_key=True
     )
+    type: Mapped[str] = mapped_column()
+
+    file: Mapped[Files] = relationship()

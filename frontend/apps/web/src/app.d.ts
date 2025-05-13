@@ -1,6 +1,7 @@
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
 import { getFeatureFlags } from "$lib/core/flags.server";
+import type { getEnvironmentConfig } from "./lib/core/environment.server";
 
 declare global {
   namespace App {
@@ -11,6 +12,7 @@ declare global {
     }
     interface Locals {
       featureFlags: ReturnType<typeof getFeatureFlags>;
+      environment: ReturnType<typeof getEnvironmentConfig>;
       id_token: string | null;
       access_token: string | null;
     }
@@ -18,7 +20,7 @@ declare global {
     interface PageState {
       currentSpace?: Space;
       /** Selected session in an assistant, useful for keeping history with pushState */
-      session?: { id: string };
+      conversation?: { id: string };
       tab?: string;
     }
     // interface Platform {}

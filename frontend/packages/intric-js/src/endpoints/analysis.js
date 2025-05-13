@@ -1,6 +1,6 @@
 /** @typedef {import('../types/resources').AnalyticsData} AnalyticsData */
 /** @typedef {import('../types/resources').Assistant} Assistant */
-/** @typedef {import('../client/client').IntricError} IntricError */
+import { IntricError } from "../client/client";
 
 /**
  * @param {import('../client/client').Client} client Provide a client with which to call the endpoints
@@ -36,7 +36,6 @@ export function initAnalytics(client) {
      * @param {Object} params
      * @param {{id: string} | Assistant} params.assistant
      * @param {{ start?: string, end?: string, includeFollowups?: boolean } | undefined} params.options Optionally provide start and end date in iso format (YYYY-MM-DD). Include followups defaults to false.
-     * @returns {Promise<import('../types/resources').AssistantResponse[]>}
      * @throws {IntricError}
      * */
     listQuestions: async ({ assistant, options }) => {
@@ -106,6 +105,169 @@ export function initAnalytics(client) {
       );
 
       return { answer };
+    },
+
+    insights: {
+      /**
+       * Get insights for a specifc assistant or group chat
+       * @param {Object} args
+       * @param {import('./conversations').ChatPartner} args.chatPartner
+       * @param {string} [args.startDate] Define start and end date for data; Expects UTC time string.
+       * @param {string} [args.endDate] Define start and end date for data; Expects UTC time string.
+       * @throws {IntricError}
+       *
+       */
+      statistics: async ({ chatPartner, startDate, endDate }) => {
+        /**  @type {{assistant_id?: string, group_chat_id?: string}} */
+        const target = { assistant_id: undefined, group_chat_id: undefined };
+
+        if (chatPartner.type === "assistant" || chatPartner.type === "default-assistant") {
+          target.assistant_id = chatPartner.id;
+        } else if (chatPartner.type === "group-chat") {
+          target.group_chat_id = chatPartner.id;
+        } else {
+          throw new IntricError(
+            "Asking a question requires one of 'assistant' or 'groupChat' to be specified",
+            "CONNECTION",
+            0,
+            0
+          );
+        }
+
+        const res = await client.fetch("/api/v1/analysis/conversation-insights/", {
+          method: "get",
+          params: {
+            query: { ...target, start_time: startDate, end_time: endDate }
+          }
+        });
+
+        return res;
+      },
+
+      conversations: {
+        /**
+         * Get a list of conversations that have happend in the specified timeframe
+         * @param {Object} args
+         * @param {import('./conversations').ChatPartner} args.chatPartner
+         * @param {string} [args.startDate] Define start and end date for data; Expects UTC time string.
+         * @param {string} [args.endDate] Define start and end date for data; Expects UTC time string.
+         * @param {string} [args.nextCursor] Where to start getting conversations
+         * @param {number} [args.limit] How many conversations to load
+         * @throws {IntricError}
+         *
+         */
+        list: async ({ chatPartner, startDate, endDate, nextCursor, limit }) => {
+          /**  @type {{assistant_id?: string, group_chat_id?: string}} */
+          const target = { assistant_id: undefined, group_chat_id: undefined };
+
+          if (chatPartner.type === "assistant" || chatPartner.type === "default-assistant") {
+            target.assistant_id = chatPartner.id;
+          } else if (chatPartner.type === "group-chat") {
+            target.group_chat_id = chatPartner.id;
+          } else {
+            throw new IntricError(
+              "Asking a question requires one of 'assistant' or 'groupChat' to be specified",
+              "CONNECTION",
+              0,
+              0
+            );
+          }
+
+          const res = await client.fetch("/api/v1/analysis/conversation-insights/sessions/", {
+            method: "get",
+            params: {
+              query: {
+                ...target,
+                start_date: startDate,
+                end_date: endDate,
+                cursor: nextCursor,
+                limit
+              }
+            }
+          });
+
+          return res;
+        },
+
+        /**
+         *  Get a specific conversation by id
+         * @param {{id: string}} conversation
+         */
+        get: async ({ id }) => {
+          const res = await client.fetch(
+            "/api/v1/analysis/conversation-insights/sessions/{session_id}/",
+            {
+              method: "get",
+              params: {
+                path: {
+                  session_id: id
+                }
+              }
+            }
+          );
+
+          return res;
+        }
+      },
+
+      /** Ask something
+       * @param {Object} args
+       * @param {import('./conversations').ChatPartner} args.chatPartner
+       * @param {string} args.question
+       * @param {(answer: string) => void} [args.onAnswer]
+       * @param {string} [args.startDate] Define start and end date for data; Expects UTC time string.
+       * @param {string} [args.endDate] Define start and end date for data; Expects UTC time string.
+       */
+      ask: async ({ chatPartner, startDate, endDate, question, onAnswer }) => {
+        /**  @type {{assistant_id?: string, group_chat_id?: string}} */
+        const target = { assistant_id: undefined, group_chat_id: undefined };
+
+        if (chatPartner.type === "assistant" || chatPartner.type === "default-assistant") {
+          target.assistant_id = chatPartner.id;
+        } else if (chatPartner.type === "group-chat") {
+          target.group_chat_id = chatPartner.id;
+        } else {
+          throw new IntricError(
+            "Asking a question requires one of 'assistant' or 'groupChat' to be specified",
+            "CONNECTION",
+            0,
+            0
+          );
+        }
+
+        let answer = "";
+
+        await client.stream(
+          "/api/v1/analysis/conversation-insights/",
+          {
+            params: {
+              query: {
+                ...target,
+                from_date: startDate,
+                to_date: endDate,
+                include_followups: true
+              }
+            },
+            requestBody: { "application/json": { question, stream: true } }
+          },
+          {
+            onMessage: (ev) => {
+              if (ev.data == "") return;
+              try {
+                const data = JSON.parse(ev.data);
+                if (data.answer) {
+                  answer += data.answer;
+                  onAnswer?.(data.answer);
+                }
+              } catch (e) {
+                return;
+              }
+            }
+          }
+        );
+
+        return { answer };
+      }
     }
   };
 }

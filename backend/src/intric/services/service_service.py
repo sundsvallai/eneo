@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from intric.groups.group_service import GroupService
+from intric.groups_legacy.group_service import GroupService
 from intric.main.exceptions import BadRequestException, UnauthorizedException
 from intric.questions.questions_repo import QuestionRepository
 from intric.roles.permissions import Permission, validate_permissions
@@ -56,9 +56,7 @@ class ServiceService:
                 service.completion_model_id
             )
 
-    async def _validate_same_embedding_model(
-        self, service: ServiceCreate | ServiceUpdate
-    ):
+    async def _validate_same_embedding_model(self, service: ServiceCreate | ServiceUpdate):
         if not service.groups:
             return
 
@@ -68,9 +66,7 @@ class ServiceService:
                 [group.id for group in service.groups]
             )
 
-            embedding_model_ids.update(
-                [group.embedding_model_id for group in groups_in_db]
-            )
+            embedding_model_ids.update([group.embedding_model_id for group in groups_in_db])
 
         if len(embedding_model_ids) > 1:
             raise BadRequestException("All groups must have the same embedding model")
@@ -106,14 +102,7 @@ class ServiceService:
                 "User does not have permission to create services in this space"
             )
 
-        if space.is_personal():
-            completion_model = (
-                await self.completion_model_crud_service.get_default_completion_model()
-            )
-        else:
-            completion_model = (
-                space.get_default_model() or space.get_latest_completion_model()
-            )
+        completion_model = space.get_default_completion_model()
 
         if completion_model is None:
             raise BadRequestException(
@@ -135,9 +124,7 @@ class ServiceService:
 
         return service_in_db, permissions
 
-    async def update_service(
-        self, service_update_pub: ServiceUpdatePublic, service_id: UUID
-    ):
+    async def update_service(self, service_update_pub: ServiceUpdatePublic, service_id: UUID):
         space = await self.space_repo.get_space_by_service(service_id=service_id)
         service_in_db = space.get_service(service_id=service_id)
 
@@ -200,9 +187,7 @@ class ServiceService:
         runs = await self.question_repo.get_by_service(service.id)
         return service, runs
 
-    async def move_service_to_space(
-        self, service_id: UUID, space_id: UUID, move_resources: bool
-    ):
+    async def move_service_to_space(self, service_id: UUID, space_id: UUID, move_resources: bool):
         source_space = await self.space_repo.get_space_by_service(service_id=service_id)
         service = source_space.get_service(service_id)
 
@@ -211,9 +196,7 @@ class ServiceService:
         target_space_actor = self.actor_manager.get_space_actor_from_space(target_space)
 
         if not source_space_actor.can_delete_services():
-            raise UnauthorizedException(
-                "User does not have permission to move service from space"
-            )
+            raise UnauthorizedException("User does not have permission to move service from space")
 
         if not target_space_actor.can_create_services():
             raise UnauthorizedException(
@@ -222,8 +205,7 @@ class ServiceService:
 
         if not target_space.is_completion_model_in_space(service.completion_model.id):
             raise BadRequestException(
-                "Space does not have completion model "
-                f"{service.completion_model.name} enabled"
+                f"Space does not have completion model {service.completion_model.name} enabled"
             )
 
         await self.repo.add_service_to_space(service_id=service_id, space_id=space_id)

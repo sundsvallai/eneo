@@ -6,32 +6,23 @@
 
 <script lang="ts">
   import { IconSearch } from "@intric/icons/search";
-  import { IconSelectedItem } from "@intric/icons/selected-item";
-  import { Button, Dialog, Select } from "@intric/ui";
+  import { Button, Dialog, Select, Tooltip } from "@intric/ui";
   import { getIntric } from "$lib/core/Intric";
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
-  import type { SpaceRole, UserSparse } from "@intric/intric-js";
+  import type { UserSparse } from "@intric/intric-js";
   import { createCombobox } from "@melt-ui/svelte";
   import MemberChip from "$lib/features/spaces/components/MemberChip.svelte";
+  import { UserList } from "./AddMember.svelte.ts";
+  import { createAsyncState } from "$lib/core/helpers/createAsyncState.svelte.ts";
 
-  const intric = getIntric();
   const {
     refreshCurrentSpace,
     state: { currentSpace }
   } = getSpacesManager();
 
-  export let allUsers: UserSparse[];
-  export let currentMembers: UserSparse[];
-
-  $: memberIds = currentMembers.map((member) => member.id);
-  $: remainingUsers = allUsers.filter((user) => !memberIds.includes(user.id));
-
-  let selectedRole: SpaceRole = $currentSpace.available_roles[0];
-
   const {
     elements: { menu, input, option },
-    states: { open, inputValue, touchedInput, selected },
-    helpers: { isSelected }
+    states: { open, inputValue, selected }
   } = createCombobox<UserSparse>({
     portal: null,
     positioning: {
@@ -41,18 +32,23 @@
     }
   });
 
-  $: filteredUsers = $touchedInput
-    ? remainingUsers.filter(({ email }) => email.toLowerCase().includes($inputValue.toLowerCase()))
-    : remainingUsers;
+  let userList = new UserList();
+  let selectedRole = $state.raw($currentSpace.available_roles[0]);
+  const memberIds = $derived($currentSpace.members.map((member) => member.id));
+  const intric = getIntric();
+  let inputElement: HTMLInputElement;
+  let showDialog = $state<Dialog.OpenState>();
 
-  $: if (!$open) {
-    $inputValue = $selected?.label ?? "";
-  }
+  inputValue.subscribe((filter) => userList.setFilter(filter));
+  open.subscribe((isOpen) => {
+    if (!isOpen) {
+      $inputValue = $selected?.value.email ?? "";
+    }
+  });
 
-  async function addMember() {
+  const addMember = createAsyncState(async () => {
     const id = $selected?.value.id;
     if (!id) return;
-    isProcessing = true;
     try {
       await intric.spaces.members.add({
         spaceId: $currentSpace.id,
@@ -65,12 +61,7 @@
       alert("Could not add new member.");
       console.error(e);
     }
-    isProcessing = false;
-  }
-
-  let inputElement: HTMLInputElement;
-  let isProcessing = false;
-  let showDialog: Dialog.OpenState;
+  });
 </script>
 
 <Dialog.Root bind:isOpen={showDialog}>
@@ -82,8 +73,8 @@
     <Dialog.Title>Add new member</Dialog.Title>
 
     <Dialog.Section scrollable={false}>
-      <div class="flex items-center rounded-md hover:bg-hover-dimmer">
-        <div class="flex flex-grow flex-col gap-1 rounded-md pb-4 pl-4 pr-2 pt-2">
+      <div class="hover:bg-hover-dimmer flex items-center rounded-md">
+        <div class="flex flex-grow flex-col gap-1 rounded-md pt-2 pr-2 pb-4 pl-4">
           <div>
             <span class="pl-3 font-medium">User</span>
           </div>
@@ -95,47 +86,72 @@
               {...$input}
               required
               use:input
-              class="relative h-10 w-full items-center justify-between overflow-hidden rounded-lg
-            border border-stronger bg-primary px-3 py-2 shadow ring-default placeholder:text-secondary focus-within:ring-2 hover:ring-2 focus-visible:ring-2 disabled:bg-secondary disabled:text-muted disabled:shadow-none disabled:hover:ring-0"
+              class="border-stronger bg-primary ring-default placeholder:text-secondary disabled:bg-secondary disabled:text-muted relative
+            h-10 w-full items-center justify-between overflow-hidden rounded-lg border px-3 py-2 shadow focus-within:ring-2 hover:ring-2 focus-visible:ring-2 disabled:shadow-none disabled:hover:ring-0"
             />
             <button
-              on:click={() => {
+              onclick={() => {
                 inputElement.focus();
                 $open = true;
               }}
             >
-              <IconSearch class="absolute right-4 top-2" />
+              <IconSearch class="absolute top-2 right-4" />
             </button>
           </div>
           <ul
-            class="shadow-bg-secondary relative z-10 flex flex-col gap-1 overflow-y-auto rounded-lg border border-stronger bg-primary p-1 shadow-md focus:!ring-0"
+            class="shadow-bg-secondary border-stronger bg-primary relative z-10 flex flex-col gap-1 overflow-y-auto rounded-lg border p-1 shadow-md focus:!ring-0"
             {...$menu}
             use:menu
           >
-            <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-            <div class="flex flex-col gap-0 bg-primary text-primary" tabindex="0">
-              {#each filteredUsers as user, index (index)}
-                <li
-                  {...$option({
-                    value: user,
-                    label: user.email
-                  })}
-                  use:option
-                  class="flex items-center gap-1 rounded-md px-2 py-1 hover:cursor-pointer hover:bg-hover-default"
-                >
-                  <IconSelectedItem
-                    class="{$isSelected(user) ? 'block' : 'hidden'} text-accent-default"
-                  />
-                  <div class="px-2">
-                    <MemberChip member={user}></MemberChip>
-                  </div>
+            <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+            <div class="bg-primary text-primary flex flex-col gap-0" tabindex="0">
+              {#if userList.filteredUsers.length > 0}
+                {#each userList.filteredUsers as userProxy (userProxy.id)}
+                  {@const user = $state.snapshot(userProxy)}
+                  {@const isMember = memberIds.includes(user.id)}
+                  <li
+                    {...$option({
+                      value: user,
+                      label: user.email,
+                      disabled: isMember
+                    })}
+                    use:option
+                    class="hover:bg-hover-default data-[highlighted]:bg-secondary flex items-center gap-1 rounded-md px-2 py-1 hover:cursor-pointer data-[disabled]:pointer-events-none data-[disabled]:!cursor-not-allowed data-[disabled]:opacity-30 data-[disabled]:hover:bg-transparent"
+                    class:opacity-70={isMember}
+                  >
+                    <Tooltip
+                      text={isMember
+                        ? `This user is already a member of ${$currentSpace.name}`
+                        : undefined}
+                      class="pointer-events-auto flex w-full"
+                    >
+                      <div class="px-2">
+                        <MemberChip member={user}></MemberChip>
+                      </div>
 
-                  <span class="flex w-full items-center justify-between truncate py-1 text-primary">
-                    {user.email}
-                  </span>
-                </li>
-              {/each}
+                      <span class=" text-primary truncate py-1">
+                        {user.email}
+                      </span>
+                    </Tooltip>
+                  </li>
+                {/each}
+              {:else}
+                <span class="text-secondary px-2 py-1">No matching users found.</span>
+              {/if}
             </div>
+            {#if userList.hasMoreUsers}
+              <Button
+                onclick={() => userList.loadMore()}
+                variant="outlined"
+                disabled={userList.isLoadingUsers}
+              >
+                {#if userList.isLoadingUsers}
+                  Loading...
+                {:else}
+                  Load more ({userList.filteredUsers.length}/{userList.totalCount})
+                {/if}
+              </Button>
+            {/if}
           </ul>
         </div>
         <Select.Simple
@@ -153,14 +169,8 @@
       <Button is={close}>Cancel</Button>
 
       <Button variant="primary" on:click={addMember} type="submit"
-        >{isProcessing ? "Adding..." : "Add member"}</Button
+        >{addMember.isLoading ? "Adding..." : "Add member"}</Button
       >
     </Dialog.Controls>
   </Dialog.Content>
 </Dialog.Root>
-
-<style lang="postcss">
-  li[data-disabled] {
-    @apply pointer-events-none !cursor-not-allowed opacity-30 hover:bg-transparent;
-  }
-</style>

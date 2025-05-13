@@ -1,0 +1,21 @@
+@import "./palette.css";
+
+:root[data-theme="dark"] {
+  @import "./dark.css";
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] {
+    @import "./dark.css";
+  }
+}
+
+:root[data-theme="light"] {
+  @import "./light.css";
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme="system"] {
+    @import "./light.css";
+  }
+}

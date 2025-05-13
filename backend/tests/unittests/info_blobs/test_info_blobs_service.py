@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from intric.groups.group_service import GroupService
+from intric.groups_legacy.group_service import GroupService
 from intric.info_blobs.info_blob_repo import InfoBlobRepository
 from intric.info_blobs.info_blob_service import InfoBlobService
 from intric.main.exceptions import NameCollisionException, NotFoundException
@@ -27,7 +27,7 @@ def setup():
         user=MagicMock(),
         quota_service=AsyncMock(),
         group_service=group_service,
-        website_service=AsyncMock(),
+        update_website_size_service=AsyncMock(),
         space_service=AsyncMock(),
         actor_manager=MagicMock(),
     )

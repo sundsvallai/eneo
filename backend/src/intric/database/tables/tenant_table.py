@@ -1,10 +1,11 @@
 from typing import Optional
 
-from sqlalchemy import BigInteger, Column, ForeignKey, Table
+from sqlalchemy import BigInteger, Column, ForeignKey, String, Table
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from intric.database.tables.base_class import Base, BasePublic
 from intric.database.tables.module_table import Modules
+from intric.tenants.tenant import TenantState
 
 
 class Tenants(BasePublic):
@@ -15,6 +16,8 @@ class Tenants(BasePublic):
     domain: Mapped[Optional[str]] = mapped_column()
     zitadel_org_id: Mapped[Optional[str]] = mapped_column(index=True)
     provisioning: Mapped[bool] = mapped_column(default=False)
+    security_enabled: Mapped[bool] = mapped_column(default=False)
+    state: Mapped[str] = mapped_column(String, default=TenantState.ACTIVE.value)
 
     # relationships
     modules: Mapped[list[Modules]] = relationship(secondary="tenants_modules")

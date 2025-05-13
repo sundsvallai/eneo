@@ -3,9 +3,9 @@ from uuid import UUID
 
 from pydantic import BaseModel, computed_field, model_validator
 
-from intric.groups.api.group_models import GroupInDBBase
+from intric.groups_legacy.api.group_models import GroupInDBBase
 from intric.main.models import InDB
-from intric.websites.website_models import WebsiteInDBBase
+from intric.websites.presentation.website_models import WebsiteInDBBase
 
 
 class InfoBlobBase(BaseModel):
@@ -28,11 +28,18 @@ class InfoBlobAdd(InfoBlobBase, InfoBlobMetadataUpsertPublic):
     group_id: Optional[UUID] = None
     website_id: Optional[UUID] = None
     tenant_id: UUID
+    integration_knowledge_id: Optional[UUID] = None
 
     @model_validator(mode="after")
     def require_one_of_group_id_and_website_id(self) -> "InfoBlobAdd":
-        if self.group_id is None and self.website_id is None:
-            raise ValueError("One of 'group_id' and 'website_id' is required")
+        if (
+            self.group_id is None
+            and self.website_id is None
+            and self.integration_knowledge_id is None
+        ):
+            raise ValueError(
+                "One of 'group_id' and 'website_id' and 'integration_knowledge_id' is required"
+            )
 
         return self
 
@@ -60,6 +67,7 @@ class InfoBlobInDBNoText(InDB):
 
     group_id: Optional[UUID] = None
     website_id: Optional[UUID] = None
+    integration_knowledge_id: Optional[UUID] = None
 
     group: Optional[GroupInDBBase] = None
     website: Optional[WebsiteInDBBase] = None

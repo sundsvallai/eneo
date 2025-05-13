@@ -1,8 +1,6 @@
 <script lang="ts">
   import { IconCancel } from "@intric/icons/cancel";
-  import { IconFile } from "@intric/icons/file";
   import { IconTrash } from "@intric/icons/trash";
-  import { IconAttachment } from "@intric/icons/attachment";
   import { Button, ProgressBar } from "@intric/ui";
   import { formatBytes } from "$lib/core/formatting/formatBytes";
   import { formatFileType } from "$lib/core/formatting/formatFileType";
@@ -12,6 +10,7 @@
   import AttachmentUploadTextButton from "$lib/features/attachments/components/AttachmentUploadTextButton.svelte";
   import { getExplicitAttachmentRules } from "$lib/features/attachments/getAttachmentRules";
   import type { UploadedFile } from "@intric/intric-js";
+  import UploadedFileIcon from "$lib/features/attachments/components/UploadedFileIcon.svelte";
 
   // This is only the new uploads, it is bound to the attachment upload
   const intric = getIntric();
@@ -63,17 +62,17 @@
   $: runningUploads = $newAttachments.filter((attachment) => attachment.status !== "completed");
 </script>
 
-{#each $update.attachments as file}
+{#each $update.attachments as file (file.id)}
   <div
-    class="flex h-16 items-center gap-3 border-b border-default bg-primary px-4 hover:bg-hover-dimmer"
+    class="border-default bg-primary hover:bg-hover-dimmer flex h-16 items-center gap-3 border-b px-4"
   >
-    <IconAttachment></IconAttachment>
+    <UploadedFileIcon {file}></UploadedFileIcon>
 
     <div class="flex flex-grow items-center justify-between gap-1">
       <span class="line-clamp-1">
         {file.name}
       </span>
-      <span class="line-clamp-1 text-right text-sm text-secondary">
+      <span class="text-secondary line-clamp-1 text-right text-sm">
         {formatFileType(file.mimetype)} · {formatBytes(file.size)}
       </span>
     </div>
@@ -92,18 +91,18 @@
   </div>
 {/each}
 
-{#each runningUploads as upload}
+{#each runningUploads as upload (upload.id)}
   <div
-    class="flex h-16 w-full items-center gap-4 border-b border-default bg-primary px-4 hover:bg-hover-dimmer"
+    class="border-default bg-primary hover:bg-hover-dimmer flex h-16 w-full items-center gap-4 border-b px-4"
   >
-    <IconFile />
+    <UploadedFileIcon file={{ mimetype: upload.file.type }}></UploadedFileIcon>
 
     <div class="flex flex-grow flex-col gap-1">
       <div class="flex max-w-full items-center gap-4">
         <span class="line-clamp-1 flex-grow font-medium">
           {upload.file.name}
         </span>
-        <span class="line-clamp-1 text-right text-sm text-secondary">
+        <span class="text-secondary line-clamp-1 text-right text-sm">
           {formatFileType(upload.file.type)} · {formatBytes(upload.file.size)}
         </span>
       </div>

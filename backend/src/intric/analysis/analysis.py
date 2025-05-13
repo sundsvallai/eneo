@@ -4,6 +4,7 @@ from datetime import datetime
 from uuid import UUID
 
 from pydantic import AliasPath, BaseModel, Field
+from typing import Optional
 
 
 class AssistantMetadata(BaseModel):
@@ -12,11 +13,15 @@ class AssistantMetadata(BaseModel):
 
 
 class SessionMetadata(AssistantMetadata):
-    assistant_id: UUID = Field(validation_alias=AliasPath("assistant", "id"))
+    assistant_id: Optional[UUID] = Field(
+        default=None,
+        validation_alias=AliasPath("assistant", "id"),
+    )
+    group_chat_id: Optional[UUID] = None
 
 
-class QuestionMetadata(SessionMetadata):
-    assistant_id: UUID
+class QuestionMetadata(AssistantMetadata):
+    assistant_id: Optional[UUID] = None
     session_id: UUID
 
 
@@ -40,3 +45,15 @@ class AskAnalysis(BaseModel):
 
 class AnalysisAnswer(BaseModel):
     answer: str
+
+
+class ConversationInsightRequest(BaseModel):
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
+    assistant_id: Optional[UUID] = None
+    group_chat_id: Optional[UUID] = None
+
+
+class ConversationInsightResponse(BaseModel):
+    total_conversations: int
+    total_questions: int

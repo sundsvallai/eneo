@@ -5,10 +5,11 @@
   import BlobPreview from "$lib/features/knowledge/components/BlobPreview.svelte";
   import BlobActions from "./BlobActions.svelte";
   import { formatBytes } from "$lib/core/formatting/formatBytes";
+  import { PAGINATION } from "$lib/core/constants";
 
   export let blobs: InfoBlob[];
   export let canEdit: boolean;
-  const table = Table.createWithResource(blobs);
+  const table = Table.createWithResource(blobs, PAGINATION.PAGE_SIZE);
 
   const viewModel = table.createViewModel([
     table.columnPrimary({

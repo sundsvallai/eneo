@@ -60,7 +60,7 @@
   {...$trigger}
   {...aria}
   use:trigger
-  class="flex h-16 items-center justify-between border-b border-default px-4 hover:bg-hover-dimmer"
+  class="border-default hover:bg-hover-dimmer flex h-16 items-center justify-between border-b px-4"
 >
   {#if $selected}
     <div class="flex items-center gap-3">
@@ -74,23 +74,23 @@
 </button>
 
 <div
-  class="z-20 flex flex-col overflow-y-auto rounded-lg border border-stronger bg-primary shadow-xl"
+  class="border-stronger bg-primary z-20 flex flex-col overflow-y-auto rounded-lg border shadow-xl"
   {...$menu}
   use:menu
 >
-  {#each Object.entries(groupedTypes) as [type, inputOptions]}
+  {#each Object.entries(groupedTypes) as [type, inputOptions] (type)}
     <div {...$group(type)} use:group class="">
       <div
-        class="bg-frosted-glass-secondary flex items-center gap-3 border-b border-default px-4 py-2 font-mono text-sm capitalize"
+        class="bg-frosted-glass-secondary border-default flex items-center gap-3 border-b px-4 py-2 font-mono text-sm capitalize"
         {...$groupLabel(type)}
         use:groupLabel
       >
         {type}
       </div>
-      {#each inputOptions as inputOption}
+      {#each inputOptions as inputOption (inputOption)}
         {@const { icon, label } = inputTypes[inputOption]}
         <div
-          class="flex min-h-16 items-center justify-between border-b border-default px-4 last-of-type:border-b-0 hover:cursor-pointer hover:bg-hover-default"
+          class="border-default hover:bg-hover-default flex min-h-16 items-center justify-between border-b px-4 last-of-type:border-b-0 hover:cursor-pointer"
           {...$option({ value: inputOption })}
           use:option
         >
@@ -99,7 +99,7 @@
             <span>{label}</span>
           </div>
           <div class="check {$isSelected(inputOption) ? 'block' : 'hidden'}">
-            <IconCheck class="!size-8 text-positive-default"></IconCheck>
+            <IconCheck class="text-positive-default !size-8"></IconCheck>
           </div>
         </div>
       {/each}
@@ -108,6 +108,7 @@
 </div>
 
 <style lang="postcss">
+  @reference "@intric/ui/styles";
   div[data-highlighted] {
     @apply bg-hover-default;
   }

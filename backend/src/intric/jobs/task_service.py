@@ -5,14 +5,14 @@ from uuid import UUID
 from intric.files.audio import AudioMimeTypes
 from intric.files.file_size_service import FileSizeService
 from intric.files.text import TextMimeTypes
-from intric.groups.api.group_models import Group
 from intric.jobs.job_models import JobInDb, Task
 from intric.jobs.job_service import JobService
-from intric.jobs.task_models import EmbedGroup, Transcription, UploadInfoBlob
+from intric.jobs.task_models import Transcription, UploadInfoBlob
 from intric.main.config import get_settings
 from intric.main.exceptions import FileNotSupportedException, FileTooLargeException
 from intric.users.user import UserInDB
-from intric.websites.crawl_dependencies.crawl_models import CrawlTask, CrawlType
+from intric.websites.crawl_dependencies.crawl_models import CrawlTask
+from intric.websites.domain.crawl_run import CrawlType
 
 
 class TaskService:
@@ -52,7 +52,12 @@ class TaskService:
             raise FileTooLargeException("File too large.")
 
     async def queue_upload_file(
-        self, group_id: UUID, file: SpooledTemporaryFile, mimetype: str, filename: str
+        self,
+        group_id: UUID,
+        space_id: UUID,
+        file: SpooledTemporaryFile,
+        mimetype: str,
+        filename: str,
     ):
         task_type = self.get_task_type(mimetype)
 
@@ -66,6 +71,7 @@ class TaskService:
                 filename=filename,
                 user_id=self.user.id,
                 group_id=group_id,
+                space_id=space_id,
                 mimetype=mimetype,
             )
         elif task_type == Task.TRANSCRIPTION:
@@ -74,13 +80,12 @@ class TaskService:
                 filename=filename,
                 user_id=self.user.id,
                 group_id=group_id,
+                space_id=space_id,
                 mimetype=mimetype,
             )
 
         # Set name of the job to the filename being processed
-        job = await self.job_service.queue_job(
-            task_type, name=filename, task_params=params
-        )
+        job = await self.job_service.queue_job(task_type, name=filename, task_params=params)
 
         return job
 
@@ -102,17 +107,4 @@ class TaskService:
             website_id=website_id,
         )
 
-        return await self.job_service.queue_job(
-            Task.CRAWL, name=name, task_params=params
-        )
-
-    async def queue_re_embed_group(self, group: Group):
-        # Set name
-        name = f"Re-embed {group.name}"
-
-        # Set params
-        params = EmbedGroup(user_id=self.user.id, group_id=group.id)
-
-        return await self.job_service.queue_job(
-            Task.EMBED_GROUP, name=name, task_params=params
-        )
+        return await self.job_service.queue_job(Task.CRAWL, name=name, task_params=params)

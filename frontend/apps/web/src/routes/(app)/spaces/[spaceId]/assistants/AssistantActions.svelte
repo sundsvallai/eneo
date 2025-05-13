@@ -7,7 +7,10 @@
   import { Button, Dialog, Dropdown, Input, Select } from "@intric/ui";
   import { getIntric } from "$lib/core/Intric";
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
-  import { derived } from "svelte/store";
+  import { derived, writable } from "svelte/store";
+  import PublishingDialog from "$lib/features/publishing/components/PublishingDialog.svelte";
+  import { IconArrowUpToLine } from "@intric/icons/arrow-up-to-line";
+  import { IconArrowDownToLine } from "@intric/icons/arrow-down-to-line";
 
   export let assistant: AssistantSparse;
 
@@ -48,6 +51,7 @@
   let isProcessing = false;
   let showDeleteDialog: Dialog.OpenState;
   let showMoveDialog: Dialog.OpenState;
+  const showPublishDialog = writable(false);
 
   const moveTargets = derived(accessibleSpaces, ($accessibleSpaces) => {
     return $accessibleSpaces.reduce(
@@ -85,6 +89,23 @@
           <IconEdit size="sm" />
           Edit</Button
         >
+      {/if}
+      {#if assistant.permissions?.includes("publish")}
+        <Button
+          is={item}
+          on:click={() => {
+            $showPublishDialog = true;
+          }}
+          padding="icon-leading"
+        >
+          {#if assistant.published}
+            <IconArrowDownToLine size="sm"></IconArrowDownToLine>
+            Unpublish
+          {:else}
+            <IconArrowUpToLine size="sm"></IconArrowUpToLine>
+            Publish
+          {/if}
+        </Button>
       {/if}
       {#if assistant.permissions?.includes("delete")}
         <Button
@@ -140,15 +161,15 @@
         bind:value={moveDestination}
         fitViewport={true}
         resourceName="space"
-        class="rounded-t-md border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+        class="border-default hover:bg-hover-dimmer rounded-t-md border-b px-4 py-4"
         >Destination</Select.Simple
       >
-      <Input.Switch bind:value={moveResources} class="px-4 py-4 hover:bg-hover-dimmer"
+      <Input.Switch bind:value={moveResources} class="hover:bg-hover-dimmer px-4 py-4"
         >Include assistant's knowledge</Input.Switch
       >
       {#if moveResources}
         <p
-          class="label-warning mx-4 mb-3 rounded-md border border-label-default bg-label-dimmer px-2 py-1 text-sm text-label-stronger"
+          class="label-warning border-label-default bg-label-dimmer text-label-stronger mx-4 mb-3 rounded-md border px-2 py-1 text-sm"
         >
           <span class="font-bold">Hint:</span>
           Moving the assistant's connected collections and websites will only work if the destination
@@ -165,3 +186,10 @@
     </Dialog.Controls>
   </Dialog.Content>
 </Dialog.Root>
+
+<PublishingDialog
+  resource={assistant}
+  endpoints={intric.assistants}
+  openController={showPublishDialog}
+  awaitUpdate
+></PublishingDialog>

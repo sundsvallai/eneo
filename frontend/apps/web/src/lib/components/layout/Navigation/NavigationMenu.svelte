@@ -1,22 +1,24 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { getAppContext } from "$lib/core/AppContext";
   import { IconFeedback } from "@intric/icons/feedback";
 
   let cls: string = "";
   export { cls as class };
+
+  const { featureFlags, environment } = getAppContext();
 </script>
 
 <nav class="{cls} flex flex-grow flex-col gap-0.5 py-3">
   <slot />
-  {#if $page.data.feedbackFormUrl}
+  {#if featureFlags.showHelpCenter}
     <div class="flex-grow justify-end"></div>
     <a
-      href={$page.data.feedbackFormUrl}
+      href={environment.helpCenterUrl}
       target="_blank"
       rel="noreferrer"
-      class="relative flex items-center justify-center gap-3 px-[1.45rem] py-2.5 tracking-[0.008rem] text-muted hover:bg-hover-default hover:font-medium hover:tracking-normal hover:text-primary"
+      class="text-muted hover:bg-hover-default hover:text-primary relative flex items-center justify-center gap-3 px-[1.45rem] py-2.5 tracking-[0.008rem] hover:font-medium hover:tracking-normal"
     >
-      <span>Send Feedback</span>
+      <span>Have a question?</span>
       <IconFeedback />
     </a>
   {/if}

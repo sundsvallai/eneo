@@ -44,15 +44,15 @@
 
 {#if audioFile && audioURL}
   {#if $attachments.length > 0}
-    {#each $attachments as attachment}
-      <div class="w-[60ch] rounded-lg border border-stronger bg-primary p-2">
+    {#each $attachments as attachment (attachment.id)}
+      <div class="border-stronger bg-primary w-[60ch] rounded-lg border p-2">
         <div class="flex flex-col">
           <AttachmentItem {attachment}></AttachmentItem>
         </div>
       </div>
     {/each}
   {:else}
-    <audio controls src={audioURL} class="ml-2 h-12 rounded-full border border-stronger shadow-sm"
+    <audio controls src={audioURL} class="border-stronger ml-2 h-12 rounded-full border shadow-sm"
     ></audio>
 
     <div class="flex items-center gap-4">
@@ -88,7 +88,8 @@
 {:else}
   <AudioRecorder
     onRecordingDone={({ blob, mimeType }) => {
-      const fileName = `Recording ${dayjs().format("YYYY-MM-DD HH:mm:ss")}`;
+      const extension = mimeType.replaceAll("audio/", "").split(";")[0] ?? "";
+      const fileName = `Recording ${dayjs().format("YYYY-MM-DD HH:mm:ss")}.${extension}`;
       audioFile = new File([blob], fileName, { type: mimeType });
       audioURL = URL.createObjectURL(blob);
     }}

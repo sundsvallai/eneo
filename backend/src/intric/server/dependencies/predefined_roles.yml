@@ -2,25 +2,30 @@ roles:
   - name: 'User'
     permissions:
       - assistants
+      - group_chats
       - apps
       - collections
 
   - name: 'AI Configurator'
     permissions:
       - assistants
+      - group_chats
       - apps
       - services
       - collections
       - AI
       - websites
+      - integration_knowledge_list
   
   - name: 'Owner'
     permissions:
       - admin
       - assistants
+      - group_chats
       - apps
       - services
       - collections
       - insights
       - AI
       - websites
+      - integration_knowledge_list

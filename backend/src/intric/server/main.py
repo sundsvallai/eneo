@@ -14,16 +14,9 @@ from intric.server.middleware.cors import CORSMiddleware
 from intric.server.models.api import VersionResponse
 from intric.server.routers import router as api_router
 from intric.server.websockets.websocket_models import WS_MODELS
+from intric.sessions.session import SSE_MODELS
 
 logger = get_logger(__name__)
-
-
-if SETTINGS.using_intric_proprietary:
-    from intric_prop.config import get_allowed_origins
-
-    allowed_origins = get_allowed_origins()
-else:
-    allowed_origins = ["*"]
 
 
 def get_application():
@@ -33,7 +26,7 @@ def get_application():
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=allowed_origins,
+        allow_origins=["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -58,11 +51,9 @@ def get_application():
         )
 
         # Adding websocket models to the schema
-        for model in WS_MODELS:
-            openapi_schema["components"]["schemas"][model.__name__] = (
-                model.model_json_schema(
-                    ref_template=f"#/components/schemas/{model.__name__}/$defs/{{model}}"
-                )
+        for model in WS_MODELS + SSE_MODELS:
+            openapi_schema["components"]["schemas"][model.__name__] = model.model_json_schema(
+                ref_template=f"#/components/schemas/{model.__name__}/$defs/{{model}}"
             )
 
         app.openapi_schema = openapi_schema
@@ -90,7 +81,7 @@ async def custom_http_500_exception_handler(request, exc):
         # all the config, then update our response headers
         cors = CORSMiddleware(
             app=app,
-            allow_origins=allowed_origins,
+            allow_origins=["*"],
             allow_credentials=True,
             allow_methods=["*"],
             allow_headers=["*"],

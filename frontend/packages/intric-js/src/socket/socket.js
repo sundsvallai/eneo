@@ -33,8 +33,11 @@ export function createIntricSocket(args, options) {
   const currentSubscriptions = new Map();
 
   function connect() {
-    const url = baseUrl.split("//")[1];
-    socket = new WebSocket(`wss://${url}/api/v1/ws`, ["intric", `auth_${token}`]);
+    const url = new URL(baseUrl);
+    // In local dev we do not always have SSL
+    url.protocol = url.protocol === "http:" ? "ws:" : "wss:";
+    url.pathname = "api/v1/ws";
+    socket = new WebSocket(url.toString(), ["intric", `auth_${token}`]);
     socket.onmessage = dispatchToHandlers;
     // Don't set onclose, this will be handled by our heartbeat
     // socket.onclose = reconnect;

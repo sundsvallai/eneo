@@ -23,12 +23,17 @@ class InfoBlobChunkRepo:
         self.session = session
 
     @staticmethod
-    def _filter_on_groups_and_websites(
-        stmt: sa.Select, group_ids: list[UUID], website_ids: list[UUID]
+    def _filter_on_sources(
+        stmt: sa.Select,
+        group_ids: list[UUID],
+        website_ids: list[UUID],
+        integration_knowledge_ids: list[UUID],
     ):
         return stmt.where(
             sa.or_(
-                InfoBlobs.group_id.in_(group_ids), InfoBlobs.website_id.in_(website_ids)
+                InfoBlobs.group_id.in_(group_ids),
+                InfoBlobs.website_id.in_(website_ids),
+                InfoBlobs.integration_knowledge_id.in_(integration_knowledge_ids),
             )
         )
 
@@ -58,6 +63,7 @@ class InfoBlobChunkRepo:
         *,
         group_ids: Optional[list[UUID]] = [],
         website_ids: Optional[list[UUID]] = [],
+        integration_knowledge_ids: Optional[list[UUID]] = [],
         limit: int = 30,
     ) -> list[InfoBlobChunkInDBWithScore]:
         # Postgres will sometimes think that a sequential scan of the whole table is
@@ -88,13 +94,18 @@ class InfoBlobChunkRepo:
             .limit(limit)
         )
 
-        stmt = self._filter_on_groups_and_websites(stmt, group_ids, website_ids)
+        stmt = self._filter_on_sources(
+            stmt,
+            group_ids,
+            website_ids,
+            integration_knowledge_ids=integration_knowledge_ids,
+        )
 
         chunks_in_db = await self.session.execute(stmt)
 
         chunks_with_score = [
             InfoBlobChunkInDBWithScore(
-                **chunk[0].to_dict(exclude='embedding'),
+                **chunk[0].to_dict(exclude="embedding"),
                 score=1 - chunk[1],
                 info_blob_title=chunk[2],
             )
@@ -117,6 +128,6 @@ class InfoBlobChunkRepo:
         )
 
         if group_ids is not None:
-            stmt = self._filter_on_groups_and_websites(stmt, group_ids)
+            stmt = self._filter_on_sources(stmt, group_ids)
 
         return await self.delegate.get_models_from_query(stmt)

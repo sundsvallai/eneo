@@ -1,15 +1,23 @@
-from typing import Literal, Optional
+from typing import Annotated, Literal, Optional
 from uuid import UUID
 
-from pydantic import AliasChoices, AliasPath, BaseModel, Field, model_validator
+from pydantic import (
+    AliasChoices,
+    AliasPath,
+    BaseModel,
+    ConfigDict,
+    Field,
+    SkipValidation,
+    model_validator,
+)
 
 from intric.ai_models.completion_models.completion_model import (
-    CompletionModel,
     CompletionModelPublic,
     ModelKwargs,
 )
+from intric.completion_models.domain.completion_model import CompletionModel
 from intric.files.file_models import FilePublic
-from intric.groups.api.group_models import GroupInDBBase, GroupPublicBase
+from intric.groups_legacy.api.group_models import GroupInDBBase, GroupPublicBase
 from intric.info_blobs.info_blob import (
     InfoBlobChunkInDBWithScore,
     InfoBlobInDBWithScore,
@@ -52,9 +60,7 @@ class ServiceCreate(ServiceBase):
     user_id: UUID
     groups: list[ModelId] = []
     completion_model_id: UUID = Field(
-        validation_alias=AliasChoices(
-            AliasPath("completion_model", "id"), "completion_model_id"
-        )
+        validation_alias=AliasChoices(AliasPath("completion_model", "id"), "completion_model_id")
     )
 
 
@@ -72,8 +78,10 @@ class Service(InDB, ServiceBase, ResourcePermissionsMixin):
     space_id: Optional[UUID] = None
     groups: list[GroupInDBBase]
     completion_model_id: UUID
-    completion_model: Optional[CompletionModel] = None
+    completion_model: Annotated[Optional[CompletionModel], SkipValidation] = None
     user: UserInDBBase
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class ServicePublicBase(InDB, OutputValidation):
@@ -98,7 +106,7 @@ class RunService(BaseModel):
 
 
 class ServiceOutput(BaseModel):
-    output: dict | list | str
+    output: dict | list | str | bool
     files: list[FilePublic] = []
 
 

@@ -13,7 +13,6 @@ class TenantIntegrationFactory:
     def create_entity(record: "TenantIntegrationDBModel") -> TenantIntegration:
         return TenantIntegration(
             id=record.id,
-            enabled=record.enabled,
             tenant_id=record.tenant_id,
             integration=record.integration,
         )

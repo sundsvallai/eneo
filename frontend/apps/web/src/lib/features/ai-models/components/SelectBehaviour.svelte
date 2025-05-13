@@ -19,7 +19,7 @@
 </script>
 
 <Select.Simple
-  class="relative w-full border-b border-dimmer px-4 py-4 hover:bg-hover-dimmer"
+  class="border-dimmer hover:bg-hover-dimmer relative w-full border-b px-4 py-4"
   bind:value
   options={behaviourList.map((behaviour) => ({
     value: behaviour,

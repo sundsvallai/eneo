@@ -8,7 +8,6 @@ from intric.apps.app_runs.api.app_run_models import (
     RunAppRequest,
 )
 from intric.apps.apps.api.app_models import AppPublic, AppUpdateRequest
-from intric.main.config import SETTINGS
 from intric.main.container.container import Container
 from intric.main.models import PaginatedResponse
 from intric.prompts.api.prompt_models import PromptSparse
@@ -54,15 +53,14 @@ async def update_app(
         if update_service_req.completion_model is not None
         else None
     )
-    prompt_text = (
-        update_service_req.prompt.text
-        if update_service_req.prompt is not None
+    transcription_model_id = (
+        update_service_req.transcription_model.id
+        if update_service_req.transcription_model is not None
         else None
     )
+    prompt_text = update_service_req.prompt.text if update_service_req.prompt is not None else None
     prompt_description = (
-        update_service_req.prompt.description
-        if update_service_req.prompt is not None
-        else None
+        update_service_req.prompt.description if update_service_req.prompt is not None else None
     )
 
     app, permissions = await service.update_app(
@@ -75,6 +73,8 @@ async def update_app(
         attachment_ids=update_service_req.attachments,
         prompt_text=prompt_text,
         prompt_description=prompt_description,
+        transcription_model_id=transcription_model_id,
+        data_retention_days=update_service_req.data_retention_days,
     )
 
     return assembler.from_app_to_model(app, permissions=permissions)
@@ -127,9 +127,7 @@ async def get_app_runs(
     assembler = container.app_run_assembler()
 
     app_runs = await service.get_app_runs(app_id=id)
-    app_runs_public = [
-        assembler.from_app_run_to_sparse_model(app_run) for app_run in app_runs
-    ]
+    app_runs_public = [assembler.from_app_run_to_sparse_model(app_run) for app_run in app_runs]
 
     return protocol.to_paginated_response(app_runs_public)
 
@@ -152,7 +150,19 @@ async def get_prompts(
     return protocol.to_paginated_response(prompts)
 
 
-if SETTINGS.using_intric_proprietary:
-    from intric_prop.apps.api.app_router_prop import include_prop_endpoints
+@router.post(
+    "/{id}/publish/",
+    response_model=AppPublic,
+    responses=responses.get_responses([403, 404]),
+)
+async def publish_app(
+    id: UUID,
+    published: bool,
+    container: Container = Depends(get_container(with_user=True)),
+):
+    service = container.app_service()
+    assembler = container.app_assembler()
 
-    include_prop_endpoints(router=router)
+    app, permissions = await service.publish_app(app_id=id, publish=published)
+
+    return assembler.from_app_to_model(app=app, permissions=permissions)

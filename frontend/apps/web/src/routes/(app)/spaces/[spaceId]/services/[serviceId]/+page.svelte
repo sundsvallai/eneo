@@ -47,18 +47,16 @@
       parent={{ title: "Services", href: `/spaces/${$currentSpace.routeId}/services` }}
       title={data.service.name}
     ></Page.Title>
-  </Page.Header>
 
-  <Page.LegacyTabbar>
-    <Page.Flex>
-      <Page.LegacyTabTrigger tab="playground" label="Test your service {data.service.name}"
-        >Playground</Page.LegacyTabTrigger
-      >
-    </Page.Flex>
-    <Page.Flex>
-      <Page.LegacyTabTrigger tab="edit">Settings</Page.LegacyTabTrigger>
-    </Page.Flex>
-  </Page.LegacyTabbar>
+    <Page.Tabbar>
+      <Page.Flex>
+        <Page.TabTrigger tab="playground" label="Test your service {data.service.name}"
+          >Playground</Page.TabTrigger
+        >
+        <Page.TabTrigger tab="edit">Settings</Page.TabTrigger>
+      </Page.Flex>
+    </Page.Tabbar>
+  </Page.Header>
 
   <Page.Main>
     <Page.Tab id="playground">
@@ -77,7 +75,7 @@
         <div class="flex flex-col items-end gap-1">
           <h3 class="self-start font-medium">Output</h3>
           <div
-            class="h-full w-full overflow-y-auto border-b border-dynamic-default bg-dynamic-dimmer p-4 font-mono text-sm text-dynamic-default"
+            class="border-dynamic-default bg-dynamic-dimmer text-dynamic-default h-full w-full overflow-y-auto border-b p-4 font-mono text-sm"
           >
             {runningService ? "Loading..." : playgroundOutput}
           </div>

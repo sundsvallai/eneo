@@ -27,6 +27,9 @@ declare module "@intric/icons/assistant" {
 declare module "@intric/icons/assistants" {
   export { Icon as IconAssistants } from "@intric/icons/*";
 }
+declare module "@intric/icons/at-symbol" {
+  export { Icon as IconAtSymbol } from "@intric/icons/*";
+}
 declare module "@intric/icons/attachment" {
   export { Icon as IconAttachment } from "@intric/icons/*";
 }
@@ -108,6 +111,9 @@ declare module "@intric/icons/history" {
 declare module "@intric/icons/info" {
   export { Icon as IconInfo } from "@intric/icons/*";
 }
+declare module "@intric/icons/integrations" {
+  export { Icon as IconIntegrations } from "@intric/icons/*";
+}
 declare module "@intric/icons/intric" {
   export { Icon as IconIntric } from "@intric/icons/*";
 }
@@ -135,6 +141,12 @@ declare module "@intric/icons/list" {
 declare module "@intric/icons/loading-spinner" {
   export { Icon as IconLoadingSpinner } from "@intric/icons/*";
 }
+declare module "@intric/icons/lock-closed" {
+  export { Icon as IconLockClosed } from "@intric/icons/*";
+}
+declare module "@intric/icons/lock-open" {
+  export { Icon as IconLockOpen } from "@intric/icons/*";
+}
 declare module "@intric/icons/logout" {
   export { Icon as IconLogout } from "@intric/icons/*";
 }
@@ -152,6 +164,9 @@ declare module "@intric/icons/notification" {
 }
 declare module "@intric/icons/overview" {
   export { Icon as IconOverview } from "@intric/icons/*";
+}
+declare module "@intric/icons/people" {
+  export { Icon as IconPeople } from "@intric/icons/*";
 }
 declare module "@intric/icons/play" {
   export { Icon as IconPlay } from "@intric/icons/*";
@@ -177,6 +192,9 @@ declare module "@intric/icons/search" {
 declare module "@intric/icons/selected-item" {
   export { Icon as IconSelectedItem } from "@intric/icons/*";
 }
+declare module "@intric/icons/send-arrow" {
+  export { Icon as IconSendArrow } from "@intric/icons/*";
+}
 declare module "@intric/icons/service" {
   export { Icon as IconService } from "@intric/icons/*";
 }
@@ -197,6 +215,9 @@ declare module "@intric/icons/sort-asc" {
 }
 declare module "@intric/icons/sort-desc" {
   export { Icon as IconSortDesc } from "@intric/icons/*";
+}
+declare module "@intric/icons/sparkles" {
+  export { Icon as IconSparkles } from "@intric/icons/*";
 }
 declare module "@intric/icons/speech-bubble" {
   export { Icon as IconSpeechBubble } from "@intric/icons/*";
@@ -230,6 +251,9 @@ declare module "@intric/icons/upload-cloud" {
 }
 declare module "@intric/icons/upload" {
   export { Icon as IconUpload } from "@intric/icons/*";
+}
+declare module "@intric/icons/usage" {
+  export { Icon as IconUsage } from "@intric/icons/*";
 }
 declare module "@intric/icons/web" {
   export { Icon as IconWeb } from "@intric/icons/*";

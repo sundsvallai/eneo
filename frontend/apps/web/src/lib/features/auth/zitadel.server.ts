@@ -5,8 +5,8 @@ import { dev } from "$app/environment";
 import { env } from "$env/dynamic/private";
 import type { Cookies } from "@sveltejs/kit";
 import { createCodePair, encodeState, setFrontendAuthCookie } from "./auth.server";
-import { createClient } from "@intric/intric-js";
 import { LoginError } from "./LoginError";
+import { getRequestEvent } from "$app/server";
 
 /** Name of the cookie we use to store the code verifier */
 const ZitadelVerifierCookie = "zitadel-verifier" as const;
@@ -14,30 +14,33 @@ const ZitadelVerifierCookie = "zitadel-verifier" as const;
 const basicScopes = ["openid", "email", "urn:zitadel:iam:org:project:id:zitadel:aud"] as const;
 
 /** Function to get all scopes based on a origin (e.g. when using a subdomain) */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function getScopeByOrigin(origin?: string) {
   // Basic scope
   const scopes: string[] = [...basicScopes];
+  // const { fetch } = getRequestEvent();
 
-  try {
-    // Lookup org id via origin
-    if (origin && env.INTRIC_BACKEND_URL && env.INTRIC_SYS_API_KEY) {
-      const client = createClient({
-        baseUrl: env.INTRIC_BACKEND_URL,
-        apiKey: env.INTRIC_SYS_API_KEY
-      });
-      const tenant = await client.fetch("/api/v1/sysadmin/tenants/", {
-        method: "get",
-        params: {
-          query: { domain: origin }
-        }
-      });
-      if (tenant.items.length === 1 && tenant.items[0].zitadel_org_id) {
-        scopes.push(`urn:zitadel:iam:org:id:${tenant.items[0].zitadel_org_id}`);
-      }
-    }
-  } catch {
-    // In this case we just don't add the additional scope
-  }
+  // try {
+  //   // Lookup org id via origin
+  //   if (origin && env.INTRIC_SYS_API_KEY) {
+  //     const client = createClient({
+  //       baseUrl: env.INTRIC_BACKEND_URL!,
+  //       apiKey: env.INTRIC_SYS_API_KEY,
+  //       fetch
+  //     });
+  //     const tenant = await client.fetch("/api/v1/sysadmin/tenants/", {
+  //       method: "get",
+  //       params: {
+  //         query: { domain: origin }
+  //       }
+  //     });
+  //     if (tenant.items.length === 1 && tenant.items[0].zitadel_org_id) {
+  //       scopes.push(`urn:zitadel:iam:org:id:${tenant.items[0].zitadel_org_id}`);
+  //     }
+  //   }
+  // } catch {
+  //   // In this case we just don't add the additional scope
+  // }
 
   return scopes;
 }
@@ -96,18 +99,14 @@ export async function getZitadelLink(
   return env.ZITADEL_INSTANCE_URL + "/oauth/v2/authorize?" + authParams.toString();
 }
 
-export async function loginWithZitadel(
-  event: {
-    url: URL;
-    cookies: Cookies;
-  },
-  code: string
-): Promise<boolean> {
+export async function loginWithZitadel(code: string): Promise<boolean> {
   // Onlytry to login if the environment is correctly set
   // This should have been taken care of by the login/callback/+page.server.ts already
   if (!env.ZITADEL_PROJECT_CLIENT_ID || !env.ZITADEL_INSTANCE_URL) {
     throw new LoginError("zitadel", "NO_CONFIG");
   }
+
+  const event = getRequestEvent();
 
   const code_verifier = event.cookies.get(ZitadelVerifierCookie);
 
@@ -125,7 +124,7 @@ export async function loginWithZitadel(
 
   const tokenUrl = env.ZITADEL_INSTANCE_URL + "/oauth/v2/token?" + searchParams.toString();
 
-  const response = await fetch(tokenUrl, {
+  const response = await event.fetch(tokenUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -138,7 +137,7 @@ export async function loginWithZitadel(
 
   try {
     const tokens = (await response.json()) as { id_token: string; access_token: string };
-    await setFrontendAuthCookie(tokens, event.cookies);
+    await setFrontendAuthCookie(tokens);
     event.cookies.delete(ZitadelVerifierCookie, { path: "/" });
     return true;
   } catch (error) {

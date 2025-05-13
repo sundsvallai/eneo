@@ -5,9 +5,10 @@ from sqlalchemy.orm import defer, selectinload
 
 from intric.database.database import AsyncSession
 from intric.database.repositories.base import BaseRepositoryDelegate
-from intric.database.tables.groups_table import Groups
-from intric.database.tables.info_blobs_table import InfoBlobs
+from intric.database.tables.collections_table import CollectionsTable
 from intric.database.tables.info_blob_chunk_table import InfoBlobChunks
+from intric.database.tables.info_blobs_table import InfoBlobs
+from intric.database.tables.integration_table import IntegrationKnowledge
 from intric.database.tables.users_table import Users
 from intric.database.tables.websites_table import Websites
 from intric.info_blobs.info_blob import (
@@ -27,7 +28,7 @@ class InfoBlobRepository:
             InfoBlobInDB,
             with_options=[
                 selectinload(InfoBlobs.group),
-                selectinload(InfoBlobs.group).selectinload(Groups.embedding_model),
+                selectinload(InfoBlobs.group).selectinload(CollectionsTable.embedding_model),
                 selectinload(InfoBlobs.embedding_model),
                 selectinload(InfoBlobs.website),
             ],
@@ -35,7 +36,7 @@ class InfoBlobRepository:
         self.session = session
 
     async def _get_group(self, group_id: UUID):
-        stmt = sa.select(Groups).where(Groups.id == group_id)
+        stmt = sa.select(CollectionsTable).where(CollectionsTable.id == group_id)
         group = await self.session.scalar(stmt)
 
         return group
@@ -46,6 +47,12 @@ class InfoBlobRepository:
 
         return website
 
+    async def _get_integration_knowledge(self, knowledge_id: UUID):
+        stmt = sa.select(IntegrationKnowledge).where(IntegrationKnowledge.id == knowledge_id)
+        knowledge = await self.session.scalar(stmt)
+
+        return knowledge
+
     async def add(self, info_blob: InfoBlobAdd):
         if info_blob.group_id is not None:
             group = await self._get_group(info_blob.group_id)
@@ -55,8 +62,15 @@ class InfoBlobRepository:
             website = await self._get_website(info_blob.website_id)
             embedding_model_id = website.embedding_model_id
 
+        elif info_blob.integration_knowledge_id is not None:
+            integration_knowledge = await self._get_integration_knowledge(
+                knowledge_id=info_blob.integration_knowledge_id
+            )
+            embedding_model_id = integration_knowledge.embedding_model_id
+
         info_blob_to_db = InfoBlobAddToDB(
-            **info_blob.model_dump(), embedding_model_id=embedding_model_id
+            **info_blob.model_dump(),
+            embedding_model_id=embedding_model_id,
         )
 
         return await self.delegate.add(info_blob_to_db)
@@ -79,9 +93,7 @@ class InfoBlobRepository:
 
         stmt = (
             sa.update(InfoBlobs)
-            .values(
-                size=sa.func.coalesce(chunks_size_subquery + current_size_subquery, 0)
-            )
+            .values(size=sa.func.coalesce(chunks_size_subquery + current_size_subquery, 0))
             .where(InfoBlobs.id == info_blob_id)
             .returning(InfoBlobs)
         )
@@ -111,16 +123,12 @@ class InfoBlobRepository:
             conditions={InfoBlobs.title: title, InfoBlobs.group_id: group_id}
         )
 
-    async def delete_by_title_and_group(
-        self, title: str, group_id: UUID
-    ) -> InfoBlobInDB:
+    async def delete_by_title_and_group(self, title: str, group_id: UUID) -> InfoBlobInDB:
         return await self.delegate.delete_by(
             conditions={InfoBlobs.title: title, InfoBlobs.group_id: group_id}
         )
 
-    async def delete_by_title_and_website(
-        self, title: str, website_id: UUID
-    ) -> InfoBlobInDB:
+    async def delete_by_title_and_website(self, title: str, website_id: UUID) -> InfoBlobInDB:
         return await self.delegate.delete_by(
             conditions={InfoBlobs.title: title, InfoBlobs.website_id: website_id}
         )
@@ -139,18 +147,14 @@ class InfoBlobRepository:
         return await self.delegate.get_models_from_query(query)
 
     async def get_by_website(self, website_id: UUID) -> list[InfoBlobInDB]:
-        return await self.delegate.filter_by(
-            conditions={InfoBlobs.website_id: website_id}
-        )
+        return await self.delegate.filter_by(conditions={InfoBlobs.website_id: website_id})
 
     async def delete(self, id: int) -> InfoBlobInDB:
         return await self.delegate.delete(id)
 
     async def get_count_of_group(self, group_id: UUID):
         stmt = (
-            sa.select(sa.func.count())
-            .select_from(InfoBlobs)
-            .where(InfoBlobs.group_id == group_id)
+            sa.select(sa.func.count()).select_from(InfoBlobs).where(InfoBlobs.group_id == group_id)
         )
 
         return await self.session.scalar(stmt)

@@ -14,6 +14,8 @@
   import { getCardCell, setTableContext, type ResourceTableViewModel } from "./create.js";
   import SortButton from "./SortButton.svelte";
   import Group from "./Group.svelte";
+  import EmptyState from "./EmptyState.svelte";
+  import { cva } from "class-variance-authority";
 
   export let displayAs: "cards" | "list" = "list";
   const displayType = writable<"cards" | "list">(displayAs);
@@ -51,13 +53,37 @@
     layout
   });
 
-  const { headerRows, rows, tableAttrs } = viewModel;
+  const { headerRows, pageRows: rows, tableAttrs } = viewModel;
   const { filterValue } = viewModel.pluginStates.tableFilter;
   const showCardSwitch = getCardCell($rows[0]) !== undefined;
+
+  const filterContainer = cva("flex items-center justify-between gap-4 pb-1 pr-3 pt-3.5", {
+    variants: {
+      fitted: {
+        true: "pl-3",
+        false: null
+      }
+    },
+    defaultVariants: {
+      fitted: false
+    }
+  });
+
+  const tableHeader = cva("h-14 border-b border-default px-2 text-left font-medium", {
+    variants: {
+      action: {
+        true: "w-[1%]",
+        false: "w-[10%]"
+      }
+    },
+    defaultVariants: {
+      action: false
+    }
+  });
 </script>
 
 <div class="flex w-full flex-col">
-  <div class:fitted class="flex items-center justify-between gap-4 pb-1 pr-3 pt-3.5">
+  <div class={filterContainer({ fitted })}>
     {#if filter}
       <Input.Text
         bind:value={$filterValue}
@@ -99,7 +125,7 @@
   <div class="w-full">
     {#if $rows.length > 0}
       {#if $displayType === "list"}
-        <table {...$tableAttrs} class="w-full">
+        <table {...$tableAttrs} class="w-full border-separate border-spacing-0">
           <thead class="bg-frosted-glass-primary sticky top-0 z-30">
             {#each $headerRows as headerRow (headerRow.id)}
               <Subscribe rowAttrs={headerRow.attrs()} let:rowAttrs>
@@ -107,7 +133,10 @@
                   {#each headerRow.cells as cell (cell.id)}
                     {#if cell.id !== "table-card-key"}
                       <Subscribe attrs={cell.attrs()} let:attrs>
-                        <th {...attrs} class={cell.id}>
+                        <th
+                          {...attrs}
+                          class={tableHeader({ action: cell.id === "table-action-key" })}
+                        >
                           <SortButton
                             props={cell.props()}
                             actionPadding={cell.id === "table-action-key"
@@ -127,66 +156,20 @@
           <slot>
             <Group />
           </slot>
-          <!-- If there arent slots I want to show a div that says no slots -->
         </table>
       {:else}
-        <slot>
-          <Group />
-        </slot>
-        <!-- If there arent slots I want to show a div that says no slots -->
+        <div class="card-container">
+          <slot>
+            <Group />
+          </slot>
+        </div>
       {/if}
     {:else}
       <div
-        class="pointer-events-none absolute inset-0 flex min-h-[500px] items-center justify-center text-secondary"
+        class="pointer-events-none absolute inset-0 flex min-h-[500px] items-center justify-center"
       >
-        <div class="flex flex-col items-center gap-2">
-          {#if emptyIcon}
-            <svelte:component this={emptyIcon} size="large" class="h-24 w-24"></svelte:component>
-          {:else}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1"
-              stroke="currentColor"
-              class="h-24 w-24 opacity-20"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776"
-              />
-            </svg>
-          {/if}
-          {#if $filterValue === ""}
-            {emptyMessage ?? `There are currently no ${resourceName}s configured`}
-          {:else}
-            Found no {resourceName}s matching your criteria
-          {/if}
-        </div>
+        <EmptyState filterValue={$filterValue} {resourceName} {emptyMessage} {emptyIcon} />
       </div>
     {/if}
   </div>
 </div>
-
-<style lang="postcss">
-  .fitted {
-    @apply pl-3;
-  }
-
-  .table-border {
-    @apply overflow-clip rounded-xl border border-default bg-primary shadow;
-  }
-
-  table {
-    @apply w-full border-separate border-spacing-0;
-  }
-
-  th {
-    @apply h-14 w-[10%] border-b border-default px-2 text-left font-medium;
-  }
-
-  th.table-action-key {
-    @apply w-[1%];
-  }
-</style>

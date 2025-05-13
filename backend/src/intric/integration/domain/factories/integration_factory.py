@@ -12,7 +12,10 @@ class IntegrationFactory:
     @classmethod
     def create_entity(cls, record: "IntegrationDBModel") -> "Integration":
         return Integration(
-            id=record.id, name=record.name, description=record.description
+            id=record.id,
+            name=record.name,
+            description=record.description,
+            integration_type=record.integration_type,
         )
 
     @classmethod

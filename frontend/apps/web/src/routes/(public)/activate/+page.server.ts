@@ -1,6 +1,6 @@
-import { DEFAULT_LANDING_PAGE } from "$lib/core/constants.js";
-import { env } from "$env/dynamic/private";
 import { redirect } from "@sveltejs/kit";
+import { env } from "$env/dynamic/private";
+import { DEFAULT_LANDING_PAGE } from "$lib/core/constants.js";
 
 export const load = async (event) => {
   const accessToken = event.cookies.get("acc");
@@ -10,7 +10,7 @@ export const load = async (event) => {
     redirect(302, "/login");
   }
 
-  const response = await fetch(env.INTRIC_BACKEND_URL + "/api/v1/users/provision/", {
+  const response = await event.fetch(env.INTRIC_BACKEND_URL + "/api/v1/users/provision/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"

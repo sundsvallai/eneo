@@ -1,23 +1,25 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
+from uuid import UUID
+
+from intric.base.base_entity import Entity
 
 if TYPE_CHECKING:
-    from uuid import UUID
-
     from intric.integration.domain.entities.tenant_integration import TenantIntegration
 
 
-class UserIntegration:
+class UserIntegration(Entity):
     def __init__(
         self,
-        id: "UUID",
-        user_id: "UUID",
+        user_id: UUID,
         tenant_integration: "TenantIntegration",
+        id: Optional[UUID] = None,
         authenticated: bool = False,
     ):
-        self.id = id
+        super().__init__(id=id)
         self.user_id = user_id
         self.tenant_integration = tenant_integration
         self.authenticated = authenticated
 
-    def is_connected(self) -> bool:
-        return self.authenticated
+    @property
+    def integration_type(self) -> str:
+        return self.tenant_integration.integration.integration_type

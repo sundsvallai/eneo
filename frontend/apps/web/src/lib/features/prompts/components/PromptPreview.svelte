@@ -26,7 +26,7 @@
   {#if $previewedPrompt}
     <section class="flex-grow">
       <div
-        class="sticky top-0 flex items-center justify-between border-b border-default bg-primary px-4 py-2.5 font-medium backdrop-blur"
+        class="border-default bg-primary sticky top-0 flex items-center justify-between border-b px-4 py-2.5 font-medium backdrop-blur"
       >
         <h2 class="font-medium">
           <span class="sr-only">Previewing prompt created at</span>
@@ -36,7 +36,7 @@
         <MemberChip member={$previewedPrompt.user}></MemberChip>
       </div>
 
-      <div class="flex-grow overflow-y-auto whitespace-pre-wrap p-8">
+      <div class="flex-grow overflow-y-auto p-8 whitespace-pre-wrap">
         {$previewedPrompt.text}
       </div>
     </section>
@@ -44,7 +44,7 @@
     <div class="flex flex-col gap-3">
       {#if $previewedPrompt.description}
         <div
-          class="rounded-md border border-accent-stronger bg-accent-dimmer px-5 py-4 text-accent-stronger"
+          class="border-accent-stronger bg-accent-dimmer text-accent-stronger rounded-md border px-5 py-4"
         >
           {$previewedPrompt.description}
         </div>
@@ -67,14 +67,15 @@
       </div>
     </div>
   {:else}
-    <div class="flex h-full w-full items-center justify-center text-secondary">
+    <div class="text-secondary flex h-full w-full items-center justify-center">
       Please select a prompt
     </div>
   {/if}
 </div>
 
 <style lang="postcss">
+  @reference "@intric/ui/styles";
   section {
-    @apply overflow-auto rounded-md border border-b border-stronger bg-primary shadow-md;
+    @apply border-stronger bg-primary overflow-auto rounded-md border border-b shadow-md;
   }
 </style>

@@ -37,10 +37,9 @@ export function initFiles(client) {
     },
 
     /**
-     * Upload a supported filetype and start converting it into an `InfoBlob`. Depending on the filetype and size the conversion can take some time,
-     * so after a successful upload a `Job` is returned that can be independently tracked.
+     * Delete a file from the database
      * @param {Object} params
-     * @param {string} params.fileId The file to upload
+     * @param {string} params.fileId The file to delete
      * @throws {IntricError}
      * */
     delete: async ({ fileId }) => {
@@ -48,6 +47,35 @@ export function initFiles(client) {
         method: "delete",
         params: { path: { id: fileId } }
       });
+    },
+
+    /**
+     * Generate a signed URL to access the uploaded file
+     * @param {Object} params
+     * @param {string} params.id The file to upload
+     * @param {boolean} [params.download] Show as "Save as" prompt?
+     * @param {number} [params.expiresIn] Expiry time in seconds´
+     * @throws {IntricError}
+     * */
+    url: async ({ id, download, expiresIn }) => {
+      const expires_in = expiresIn ?? 3600;
+      const content_disposition = download ? "attachment" : "inline";
+
+      const res = await client.fetch(`/api/v1/files/{id}/signed-url/`, {
+        method: "post",
+        params: { path: { id } },
+        requestBody: {
+          "application/json": {
+            content_disposition,
+            expires_in
+          }
+        }
+      });
+
+      // The backend does not necessarily know the protocol it uses, as it sits behind a reverse proxy
+      const url = new URL(res.url);
+      url.protocol = client.baseUrl.protocol;
+      return url.toString();
     }
   };
 }

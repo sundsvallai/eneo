@@ -1,48 +1,33 @@
 <script lang="ts">
   import { Button } from "@intric/ui";
-  import { initChatManager } from "$lib/features/assistants/ChatManager.js";
   import { pushState } from "$app/navigation";
-  import { page } from "$app/stores";
-  import SessionView from "$lib/features/assistants/components/session/SessionView.svelte";
+  import ConversationView from "$lib/features/chat/components/conversation/ConversationView.svelte";
   import { fade, fly } from "svelte/transition";
   import { quadInOut } from "svelte/easing";
+  import { initChatService } from "$lib/features/chat/ChatService.svelte.js";
 
-  export let data;
+  let { data } = $props();
 
-  const {
-    state: { currentSession, assistant },
-    loadSession,
-    startNewSession,
-    reInit
-  } = initChatManager(data);
+  const chat = initChatService(data);
 
-  // In the current dashboard config this will never run, as you can't open old sessions
-  async function watchPageState(currentPage: { state: { session?: { id: string } } }) {
-    if ("session" in currentPage.state && currentPage.state.session) {
-      // When the user clicks the back button in the browser we will cycle
-      // through the previous state values. When neccessary, we should load the
-      // corresponding session.
-      if ($currentSession.id !== currentPage.state.session.id)
-        loadSession(currentPage.state.session);
-    }
-  }
-
-  $: watchPageState($page);
-  $: reInit(data);
+  $effect(() => {
+    // Re-init if rout param changes
+    chat.init(data);
+  });
 </script>
 
 <svelte:head>
-  <title>Intric.ai – Dashboard – {data.assistant.name}</title>
+  <title>Intric.ai – Dashboard – {chat.partner.name}</title>
 </svelte:head>
 
-<div class="outer flex w-full flex-col bg-primary">
+<div class="outer bg-primary flex w-full flex-col">
   <div
-    class="sticky top-0 flex items-center justify-between bg-primary px-3.5 py-3 backdrop-blur-md"
+    class="bg-primary sticky top-0 flex items-center justify-between px-3.5 py-3 backdrop-blur-md"
     in:fade={{ duration: 50 }}
   >
     <a href="/dashboard" class="flex max-w-[calc(100%_-_7rem)] flex-grow items-center rounded-lg">
       <span
-        class="flex h-8 w-8 items-center justify-center rounded-lg border border-default hover:bg-hover-dimmer"
+        class="border-default hover:bg-hover-dimmer flex h-8 w-8 items-center justify-center rounded-lg border"
         >←</span
       >
       <h1
@@ -54,15 +39,15 @@
         }}
         class="truncate px-3 py-1 text-xl font-extrabold"
       >
-        {$assistant.name}
+        {chat.partner.name}
       </h1>
     </a>
     <Button
       variant="primary"
       on:click={() => {
-        startNewSession();
-        pushState(`/dashboard/${data.assistant.id}?tab=chat`, {
-          session: undefined,
+        chat.newConversation();
+        pushState(`/dashboard/${chat.partner.id}?tab=chat`, {
+          conversation: undefined,
           tab: "chat"
         });
       }}
@@ -71,7 +56,7 @@
     </Button>
   </div>
 
-  <SessionView></SessionView>
+  <ConversationView></ConversationView>
 </div>
 
 <style>

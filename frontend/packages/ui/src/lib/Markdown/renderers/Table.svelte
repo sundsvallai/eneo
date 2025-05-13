@@ -8,23 +8,19 @@
 <table>
   <thead>
     <tr>
-      {#each token.header as cell}
-        <th scope="col">
-          {#each cell.tokens as children}
-            <RenderToken token={children} />
-          {/each}
+      {#each token.header as cell (cell)}
+        <th scope="col" style={cell.align ? `text-align: ${cell.align};` : undefined}>
+          <RenderToken token={cell.tokens} />
         </th>
       {/each}
     </tr>
   </thead>
   <tbody>
-    {#each token.rows as row}
+    {#each token.rows as row (row)}
       <tr>
-        {#each row as cell}
-          <td>
-            {#each cell.tokens as children}
-              <RenderToken token={children} />
-            {/each}
+        {#each row as cell (cell)}
+          <td style={cell.align ? `text-align: ${cell.align};` : undefined}>
+            <RenderToken token={cell.tokens} />
           </td>
         {/each}
       </tr>

@@ -31,11 +31,11 @@
 {#if $members.length > 0}
   <Button
     unstyled
-    class="-mr-2 flex cursor-pointer rounded-lg p-2 pl-4 hover:bg-hover-default"
+    class="hover:bg-hover-default -mr-2 flex cursor-pointer rounded-lg p-2 pl-4"
     href="/spaces/{$currentSpace.routeId}/members"
     aria-label="Go to members page for this space"
   >
-    {#each $members as member}
+    {#each $members as member (member)}
       <MemberChip {member}></MemberChip>
     {/each}
   </Button>

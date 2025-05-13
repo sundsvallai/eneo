@@ -18,7 +18,8 @@ function initAssistantEditor(data: {
     intric: data.intric,
     resource: data.assistant,
     defaults: {
-      prompt: { description: "", text: "" }
+      prompt: { description: "", text: "" },
+      insight_enabled: false
     },
     updateResource: async (resource, changes) => {
       const updated = await data.intric.assistants.update({ assistant: resource, update: changes });
@@ -27,11 +28,14 @@ function initAssistantEditor(data: {
     },
     editableFields: {
       name: true,
-      completion_model: ["id"],
+      description: true,
+      insight_enabled: true,
+      completion_model: { id: true },
       completion_model_kwargs: true,
-      prompt: ["description", "text"],
+      prompt: { description: true, text: true },
       websites: ["id"],
       groups: ["id"],
+      integration_knowledge_list: ["id"],
       attachments: ["id"]
     },
     manageAttachements: "attachments"

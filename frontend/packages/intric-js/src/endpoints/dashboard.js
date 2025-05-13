@@ -13,7 +13,12 @@ export function initDashboard(client) {
      * */
     list: async () => {
       const res = await client.fetch("/api/v1/dashboard/", {
-        method: "get"
+        method: "get",
+        params: {
+          query: {
+            only_published: false
+          }
+        }
       });
       return res;
     }

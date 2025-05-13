@@ -1,5 +1,6 @@
-from uuid import UUID
 from typing import Optional
+from uuid import UUID
+
 import aiohttp
 import jwt
 from fastapi import APIRouter, Depends, Query
@@ -215,6 +216,6 @@ async def provision_user(
     user_provision: UserProvision,
     container: Container = Depends(get_container()),
 ):
-    user_service = container.user_provision_service()
+    user_service = container.user_creation_service()
 
     await user_service.provision_user(access_token=user_provision.zitadel_token)

@@ -13,12 +13,16 @@
   import { onDestroy } from "svelte";
   import IntricWordMark from "$lib/assets/IntricWordMark.svelte";
   import { IconIntric } from "@intric/icons/intric";
+  import { initAttachmentUrlService } from "$lib/features/attachments/AttachmentUrlService.svelte.js";
+  import { initFaviconUrlService } from "$lib/features/knowledge/FaviconUrlService.svelte.js";
 
   export let data;
 
   initIntric(data);
   initAppContext(data);
   initJobManager(data);
+  initAttachmentUrlService(data);
+  initFaviconUrlService();
   const socket = initIntricSocket(data);
 
   // Open the socket connection
@@ -41,9 +45,11 @@
 
 <a
   href={contentLink}
-  class="absolute left-1 top-1 z-50 h-0 w-0 overflow-hidden rounded-lg bg-primary font-medium text-accent-stronger shadow-lg focus:block focus:h-auto focus:w-auto"
+  class="bg-primary text-accent-stronger absolute top-1 left-1 z-50 h-0 w-0 overflow-hidden rounded-lg font-medium shadow-lg focus:block focus:h-auto focus:w-auto"
   ><span class="block p-2">Jump to content</span></a
 >
+
+<div class="bg-secondary absolute inset-0"></div>
 
 <PageLoadBar color="var(--accent-default)" displayThresholdMs={200} />
 
@@ -54,27 +60,27 @@
   }}
 ></div>
 
-<div class="fixed inset-x-0 h-[8.275rem] bg-tertiary transition-all duration-700 ease-in-out"></div>
+<div class="bg-tertiary fixed inset-x-0 h-[8.275rem] transition-all duration-700 ease-in-out"></div>
 
 <div
-  class="mx-auto flex min-h-[100svh] w-full max-w-[2000px] flex-col bg-secondary p-0 md:px-4 md:pt-3"
+  class="bg-secondary mx-auto flex min-h-[100svh] w-full max-w-[2000px] flex-col p-0 md:px-4 md:pt-3"
 >
   <header
     class:max-h-0={!$showHeader}
     class:max-h-14={$showHeader}
-    class="z-10 box-border flex items-start overflow-clip rounded-t-sm border-stronger bg-secondary transition-all duration-500 ease-in-out"
+    class="border-stronger bg-secondary z-10 box-border flex items-start overflow-clip rounded-t-sm transition-all duration-500 ease-in-out"
   >
     <div
-      class="group flex h-[3.25rem] min-w-[3.85rem] items-center justify-between border-r-[0.5px] border-default pl-6 pr-3 hover:bg-accent-dimmer md:w-[17rem] md:min-w-[17rem]"
+      class="border-default hover:bg-accent-dimmer group flex h-[3.25rem] min-w-[3.85rem] items-center justify-between border-r-[0.5px] pr-3 pl-6 md:w-[17rem] md:min-w-[17rem]"
     >
       <a href="/">
-        <IntricWordMark class="hidden h-[3rem] w-[3.5rem] text-brand-intric md:block"
+        <IntricWordMark class="text-brand-intric hidden h-[3rem] w-[3.5rem] md:block"
         ></IntricWordMark>
-        <IconIntric class="-ml-0.5 block text-brand-intric md:hidden"></IconIntric>
+        <IconIntric class="text-brand-intric -ml-0.5 block md:hidden"></IconIntric>
       </a>
       <Button
         unstyled
-        class="hidden h-9 w-9 items-center justify-center rounded-lg text-lg text-accent-stronger hover:bg-hover-default md:group-hover:flex"
+        class="text-accent-stronger hover:bg-hover-default hidden h-9 w-9 items-center justify-center rounded-lg text-lg md:group-hover:flex"
         on:click={() => {
           $showHeader = false;
         }}
@@ -110,18 +116,19 @@
     </nav>
   </header>
 
-  <main class="border-box relative z-10 flex-grow overflow-clip bg-primary transition-all">
+  <main class="border-box bg-primary relative z-10 flex-grow overflow-clip transition-all">
     <slot />
   </main>
 </div>
 
 <style lang="postcss">
+  @reference "@intric/ui/styles";
   nav a {
-    @apply flex h-[3.25rem] items-center px-8 pt-0.5 text-[0.9rem] tracking-[0.01rem] text-secondary hover:bg-accent-dimmer hover:font-medium hover:tracking-normal hover:text-brand-intric;
+    @apply text-secondary hover:bg-accent-dimmer hover:text-brand-intric flex h-[3.25rem] items-center px-8 pt-0.5 text-[0.9rem] tracking-[0.01rem] hover:font-medium hover:tracking-normal;
   }
 
   nav a[data-current="page"] {
-    @apply font-medium tracking-normal text-brand-intric;
+    @apply text-brand-intric font-medium tracking-normal;
     background: rgba(from var(--background-hover-default) r g b / 0.1);
   }
 

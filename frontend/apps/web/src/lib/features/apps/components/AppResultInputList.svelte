@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { IconFile } from "@intric/icons/file";
+  import UploadedFileIcon from "$lib/features/attachments/components/UploadedFileIcon.svelte";
   import { IconFileText } from "@intric/icons/file-text";
   import type { AppRun } from "@intric/intric-js";
   export let run: Pick<AppRun, "input">;
@@ -9,18 +9,18 @@
   <div class="flex gap-2">
     {#if run.input.text}
       <div
-        class="flex max-w-[40ch] gap-2 rounded-lg p-1 pr-2 backdrop-blur-sm group-hover:bg-primary group-hover:shadow"
+        class="group-hover:bg-primary flex max-w-[40ch] gap-2 rounded-lg p-1 pr-2 backdrop-blur-sm group-hover:shadow"
       >
         <IconFileText class="min-w-6" /><span class="truncate">
           Input: {run.input.text}
         </span>
       </div>
     {/if}
-    {#each run.input.files as file}
+    {#each run.input.files as file (file.id)}
       <div
-        class="flex max-w-[40ch] gap-2 rounded-lg p-1 pr-2 backdrop-blur-sm group-hover:bg-primary group-hover:shadow"
+        class="group-hover:bg-primary flex max-w-[40ch] gap-2 rounded-lg p-1 pr-2 backdrop-blur-sm group-hover:shadow"
       >
-        <IconFile class="min-w-6" />
+        <UploadedFileIcon {file} class="min-w-6" />
         <span class="truncate">
           {file.name}
         </span>

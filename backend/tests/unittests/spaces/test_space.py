@@ -4,7 +4,7 @@ from uuid import uuid4
 
 import pytest
 
-from intric.main.exceptions import BadRequestException, UnauthorizedException
+from intric.main.exceptions import BadRequestException, NotFoundException, UnauthorizedException
 from intric.spaces.space import UNAUTHORIZED_EXCEPTION_MESSAGE, Space, SpaceRoleValue
 
 
@@ -18,20 +18,21 @@ def space():
         description=None,
         embedding_models=[],
         completion_models=[],
+        transcription_models=[],
         default_assistant=MagicMock(),
         assistants=[],
         apps=[],
         services=[],
         websites=[],
-        groups=[],
+        collections=[],
+        integration_knowledge_list=[],
         members={},
     )
 
 
 def test_get_latest_available_embedding_model(space: Space):
     embedding_models = [
-        MagicMock(created_at=datetime(2024, 1, 3 - i), can_access=True)
-        for i in range(3)
+        MagicMock(created_at=datetime(2024, 1, 3 - i), can_access=True) for i in range(3)
     ]
     space.embedding_models = embedding_models
 
@@ -42,8 +43,7 @@ def test_get_latest_available_embedding_model(space: Space):
 
 def test_get_latest_available_embedding_model_when_not_ordered(space: Space):
     embedding_models = [
-        MagicMock(created_at=datetime(2024, 1, 3 - i), can_access=True)
-        for i in range(3)
+        MagicMock(created_at=datetime(2024, 1, 3 - i), can_access=True) for i in range(3)
     ]
     embedding_models = list(reversed(embedding_models))
     space.embedding_models = embedding_models
@@ -95,9 +95,7 @@ def test_space_update_completion_models(space: Space):
 
 
 def test_get_latest_completion_model(space: Space):
-    completion_models = [
-        MagicMock(created_at=datetime(2024, 1, 3 - i)) for i in range(3)
-    ]
+    completion_models = [MagicMock(created_at=datetime(2024, 1, 3 - i)) for i in range(3)]
     completion_models = list(reversed(completion_models))
 
     space.completion_models = completion_models
@@ -116,17 +114,18 @@ def test_get_default_model(space: Space):
     default_model.is_org_default = True
     default_model.can_access = True
     space.completion_models = [default_model]
-    assert space.get_default_model() is not None
+    assert space.get_default_completion_model() is not None
 
     # Disable access
     default_model.can_access = False
-    assert space.get_default_model() is None
+    with pytest.raises(NotFoundException):
+        space.get_default_completion_model()
 
     non_default_model = MagicMock()
     non_default_model.is_org_default = False
     non_default_model.can_access = True
     space.completion_models = [non_default_model]
-    assert space.get_default_model() is None
+    assert space.get_default_completion_model() is not None
 
 
 def test_is_completion_model_in_space(space: Space):
@@ -142,7 +141,7 @@ def test_is_completion_model_not_in_space(space: Space):
 
 def test_is_group_in_space(space: Space):
     group = MagicMock(id=uuid4())
-    space.groups = [group]
+    space.collections = [group]
 
     assert space.is_group_in_space(group.id)
 
@@ -160,6 +159,17 @@ def test_is_website_in_space(space: Space):
 
 def test_is_website_not_in_space(space: Space):
     assert not space.is_website_in_space(uuid4())
+
+
+def test_is_integration_knowledge_in_space(space: Space):
+    knowledge = MagicMock(id=uuid4())
+    space.integration_knowledge_list = [knowledge]
+
+    assert space.is_integration_knowledge_in_space(knowledge.id)
+
+
+def test_is_integration_knowledge_not_in_space(space: Space):
+    assert not space.is_integration_knowledge_in_space(uuid4())
 
 
 def test_add_user_that_already_exists(space: Space):
@@ -240,11 +250,3 @@ def test_cannot_change_completion_models_of_personal_space(space: Space):
 
     with pytest.raises(BadRequestException):
         space.update(completion_models=[MagicMock()])
-
-
-def test_all_models_are_available_if_personal_space(space: Space):
-    space.user_id = MagicMock()
-
-    assert space.completion_models == []
-
-    assert space.is_completion_model_in_space(MagicMock())

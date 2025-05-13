@@ -4,14 +4,16 @@ import { detectMobile } from "$lib/core/detectMobile";
 import { getFeatureFlags } from "$lib/core/flags.server";
 import { authenticateUser, clearFrontendCookies } from "$lib/features/auth/auth.server";
 import { IntricError, type IntricErrorCode } from "@intric/intric-js";
-import { redirect, type HandleServerError } from "@sveltejs/kit";
+import { redirect, type Handle, type HandleFetch, type HandleServerError } from "@sveltejs/kit";
+import { env } from "$env/dynamic/private";
+import { getEnvironmentConfig } from "./lib/core/environment.server";
 
 function routeRequiresLogin(route: { id: string | null }): boolean {
   const routeIsPublic = route.id?.includes("(public)") ?? false;
   return !routeIsPublic;
 }
 
-export const handle = async ({ event, resolve }) => {
+const authHandle: Handle = async ({ event, resolve }) => {
   // Clear authentication cookies if the 'clear_cookies' URL parameter is present
   if (event.url.searchParams.get("clear_cookies")) {
     clearFrontendCookies(event);
@@ -40,9 +42,12 @@ export const handle = async ({ event, resolve }) => {
   event.locals.id_token = tokens.id_token ?? null;
   event.locals.access_token = tokens.access_token ?? null;
   event.locals.featureFlags = getFeatureFlags();
+  event.locals.environment = getEnvironmentConfig();
 
   return resolve(event);
 };
+
+export const handle = authHandle;
 
 export const handleError: HandleServerError = async ({ error, status, message }) => {
   let code: IntricErrorCode = 0;
@@ -61,4 +66,19 @@ export const handleError: HandleServerError = async ({ error, status, message })
     message,
     code
   };
+};
+
+export const handleFetch: HandleFetch = async ({ request, fetch }) => {
+  if (
+    env.INTRIC_BACKEND_SERVER_URL &&
+    env.INTRIC_BACKEND_URL &&
+    request.url.startsWith(env.INTRIC_BACKEND_URL)
+  ) {
+    request = new Request(
+      request.url.replace(env.INTRIC_BACKEND_URL, env.INTRIC_BACKEND_SERVER_URL),
+      request
+    );
+  }
+
+  return fetch(request);
 };

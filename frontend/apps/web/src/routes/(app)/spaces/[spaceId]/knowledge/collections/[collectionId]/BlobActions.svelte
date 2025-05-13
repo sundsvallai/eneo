@@ -85,7 +85,7 @@
       <Input.Text
         bind:value={updatableTitle}
         label="Name"
-        class=" border-default px-4 py-4 hover:bg-hover-dimmer"
+        class=" border-default hover:bg-hover-dimmer px-4 py-4"
       ></Input.Text>
     </Dialog.Section>
     <Dialog.Controls let:close>

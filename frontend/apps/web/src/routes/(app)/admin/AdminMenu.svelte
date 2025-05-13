@@ -12,71 +12,12 @@
   import { IconCPU } from "@intric/icons/CPU";
   import { IconBulb } from "@intric/icons/bulb";
   import { page } from "$app/stores";
-  import type { ComponentType } from "svelte";
-  import { getAppContext } from "$lib/core/AppContext";
   import { Navigation } from "$lib/components/layout";
-  import { IconStorage } from "@intric/icons/storage";
-
+  // import { IconIntegrations } from "@intric/icons/integrations";
+  import { IconUsage } from "@intric/icons/usage";
+  import { IconKey } from "@intric/icons/key";
   let currentRoute = "";
   $: currentRoute = $page.url.pathname;
-
-  const { featureFlags } = getAppContext();
-
-  const userPages = featureFlags.newAuth
-    ? [
-        {
-          icon: IconAssistant,
-          label: "Users",
-          url: "/admin/users"
-        }
-      ]
-    : [
-        {
-          icon: IconAssistant,
-          label: "Users",
-          url: "/admin/legacy/users"
-        },
-        {
-          icon: IconAssistants,
-          label: "User groups",
-          url: "/admin/legacy/user-groups"
-        },
-        {
-          icon: IconThumb,
-          label: "Roles",
-          url: "/admin/legacy/roles"
-        }
-      ];
-
-  const menuItems: {
-    icon: ComponentType;
-    label: string;
-    url: string;
-    beta?: boolean;
-  }[] = [
-    {
-      icon: IconLibrary,
-      label: "Organisation",
-      url: "/admin"
-    },
-    {
-      icon: IconCPU,
-      label: "Models",
-      url: "/admin/models"
-    },
-    {
-      icon: IconBulb,
-      label: "Insights",
-      url: "/admin/insights",
-      beta: true
-    },
-    ...userPages,
-    {
-      icon: IconStorage,
-      label: "Storage",
-      url: "/admin/storage"
-    }
-  ];
 
   function isSelected(url: string, currentRoute: string) {
     url = url.replaceAll("/admin", "");
@@ -87,19 +28,67 @@
 </script>
 
 <Navigation.Menu>
-  {#each menuItems as item}
-    <Navigation.Link
-      href={item.url}
-      isActive={isSelected(item.url, currentRoute)}
-      icon={item.icon}
-      label={item.label}
+  <Navigation.Link
+    href="/admin"
+    isActive={isSelected("/admin", currentRoute)}
+    icon={IconLibrary}
+    label="Organisation"
+  />
+
+  <div class="border-default my-2 border-b-[0.5px]"></div>
+  <Navigation.Link
+    href="/admin/models"
+    isActive={isSelected("/admin/models", currentRoute)}
+    icon={IconCPU}
+    label="Models"
+  />
+  <Navigation.Link
+    href="/admin/security-classifications"
+    isActive={isSelected("/admin/security-classifications", currentRoute)}
+    icon={IconKey}
+    label="Security"
+  />
+  <div class="border-default my-2 border-b-[0.5px]"></div>
+  <Navigation.Link
+    href="/admin/usage"
+    isActive={isSelected("/admin/usage", currentRoute)}
+    icon={IconUsage}
+    label="Usage"
+  />
+  <Navigation.Link
+    href="/admin/insights"
+    isActive={isSelected("/admin/insights", currentRoute)}
+    icon={IconBulb}
+    label="Insights"
+  >
+    <span
+      class="hidden rounded-md border border-[var(--beta-indicator)] px-1 py-0.5 text-xs font-normal !tracking-normal text-[var(--beta-indicator)] md:block"
+      >Beta</span
     >
-      {#if item.beta}
-        <span
-          class="hidden rounded-md border border-[var(--beta-indicator)] px-1 py-0.5 text-xs font-normal !tracking-normal text-[var(--beta-indicator)] md:block"
-          >Beta</span
-        >
-      {/if}
-    </Navigation.Link>
-  {/each}
+  </Navigation.Link>
+  <div class="border-default my-2 border-b-[0.5px]"></div>
+  <Navigation.Link
+    href="/admin/legacy/users"
+    isActive={isSelected("/admin/legacy/users", currentRoute)}
+    icon={IconAssistant}
+    label="Users"
+  />
+  <Navigation.Link
+    href="/admin/legacy/user-groups"
+    isActive={isSelected("/admin/legacy/user-groups", currentRoute)}
+    icon={IconAssistants}
+    label="User groups"
+  />
+  <Navigation.Link
+    href="/admin/legacy/roles"
+    isActive={isSelected("/admin/legacy/roles", currentRoute)}
+    icon={IconThumb}
+    label="Roles"
+  />
+  <!-- <Navigation.Link
+    href="/admin/integrations"
+    isActive={isSelected("/admin/integrations", currentRoute)}
+    icon={IconIntegrations}
+    label="Integrations"
+  /> -->
 </Navigation.Menu>

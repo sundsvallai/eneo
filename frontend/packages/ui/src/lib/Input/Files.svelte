@@ -131,7 +131,7 @@
 />
 
 <div
-  class="relative flex h-full max-h-[80vh] min-h-[50vh] w-full min-w-[200px] flex-col gap-2 overflow-y-auto rounded-lg border border-stronger bg-primary p-2 shadow-md"
+  class="border-stronger bg-primary relative flex h-full max-h-[80vh] min-h-[50vh] w-full min-w-[200px] flex-col gap-2 overflow-y-auto rounded-lg border p-2 shadow-md"
   bind:this={dropzone}
   on:dragenter={handleDragOver}
   on:dragover={handleDragOver}
@@ -142,9 +142,9 @@
   tabindex="0"
 >
   {#if files.length > 0}
-    {#each files as file (file.name + file.lastModified + file.size)}
+    {#each files as file (file)}
       <div
-        class="flex cursor-default items-center justify-between rounded-md border border-default p-2 hover:bg-hover-dimmer"
+        class="border-default hover:bg-hover-dimmer flex cursor-default items-center justify-between rounded-md border p-2"
       >
         <div class="flex items-center gap-2">
           <IconFile />
@@ -157,14 +157,14 @@
     {/each}
   {:else}
     <button
-      class="absolute inset-0 rounded-lg hover:bg-hover-dimmer"
+      class="hover:bg-hover-dimmer absolute inset-0 rounded-lg"
       on:click={handleClick}
       tabindex="0"
       aria-labelledby="upload-notice"
     >
     </button>
     <div
-      class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-primary"
+      class="text-primary pointer-events-none absolute inset-0 flex flex-col items-center justify-center"
     >
       {#if !isDragging}
         <IconUploadCloud size="lg" />
@@ -176,7 +176,7 @@
         <IconDropFile size="lg" />
         <div class="text-center">Drop your files here</div>
       {/if}
-      <div class="pt-2 text-sm text-secondary">
+      <div class="text-secondary pt-2 text-sm">
         Click <button
           on:click={() => {
             alert(
@@ -184,7 +184,7 @@
                 acceptedMimeTypes.join("\n")
             );
           }}
-          class="pointer-events-auto underline hover:bg-hover-default">here</button
+          class="hover:bg-hover-default pointer-events-auto underline">here</button
         > to see a list of supported filetypes.
       </div>
     </div>

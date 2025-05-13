@@ -21,7 +21,7 @@
   </div>
   <Select.Trigger placeholder="Select theme..."></Select.Trigger>
   <Select.Options>
-    {#each availableThemes as theme}
+    {#each availableThemes as theme (theme)}
       <Select.Item value={theme} label={capitalise(theme)}></Select.Item>
     {/each}
   </Select.Options>

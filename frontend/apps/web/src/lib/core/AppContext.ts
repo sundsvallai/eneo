@@ -31,6 +31,7 @@ type AppContextParams = {
     preview?: { branch?: string; commit?: string };
   };
   featureFlags: App.Locals["featureFlags"];
+  environment: App.Locals["environment"];
 };
 
 function AppContext(data: AppContextParams) {
@@ -63,6 +64,7 @@ function AppContext(data: AppContextParams) {
     limits: data.limits,
     versions: data.versions,
     featureFlags: data.featureFlags,
+    environment: data.environment,
     /** Update the user's name. */
     updateUserInfo,
     state: {

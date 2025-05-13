@@ -106,18 +106,18 @@
         description="A descriptive name for this role"
         required
         {disabled}
-        class="border-b border-default px-4 py-4 hover:bg-hover-stronger"
+        class="border-default hover:bg-hover-stronger border-b px-4 py-4"
       ></Input.Text>
       <div class="px-4 py-4">
         <div class="flex items-baseline justify-between pb-2 pl-3 font-medium">
-          Included permissions<span class="px-2 text-[0.9rem] font-normal text-secondary"
+          Included permissions<span class="text-secondary px-2 text-[0.9rem] font-normal"
             >What users of this role can manage</span
           >
         </div>
-        <div class="overflow-clip rounded-md border border-stronger bg-primary">
-          {#each permissions as permission}
+        <div class="border-stronger bg-primary overflow-clip rounded-md border">
+          {#each permissions as permission (permission)}
             <div
-              class="flex flex-col gap-1 border-b border-default px-4 py-4 last-of-type:border-b-0 hover:bg-hover-dimmer"
+              class="border-default hover:bg-hover-dimmer flex flex-col gap-1 border-b px-4 py-4 last-of-type:border-b-0"
             >
               <Input.Switch
                 {disabled}
@@ -127,7 +127,7 @@
                   togglePermission(permission.name);
                 }}>{permission.name}</Input.Switch
               >
-              <p class="text-[0.9rem] text-secondary">{permission.description}</p>
+              <p class="text-secondary text-[0.9rem]">{permission.description}</p>
             </div>
           {/each}
         </div>

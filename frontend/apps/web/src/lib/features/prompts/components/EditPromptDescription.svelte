@@ -38,7 +38,7 @@
     <Dialog.Section>
       <Input.TextArea
         bind:value={description}
-        class="border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+        class="border-default hover:bg-hover-dimmer border-b px-4 py-4"
         rows={3}
       >
         Description</Input.TextArea

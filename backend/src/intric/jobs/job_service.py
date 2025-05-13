@@ -50,10 +50,8 @@ class JobService:
 
         return await self.job_repo.update_job(job_id, job_update)
 
-    async def get_jobs(self, include_completed: bool = False):
-        return await self.job_repo.get_jobs(
-            self.user.id, include_completed=include_completed
-        )
+    async def get_running_jobs(self):
+        return await self.job_repo.get_running_jobs(self.user.id)
 
     async def get_job(self, job_id: UUID):
         job = await self.job_repo.get_job(job_id)

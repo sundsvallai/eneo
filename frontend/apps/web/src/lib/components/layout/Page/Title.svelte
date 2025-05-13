@@ -52,7 +52,7 @@
         <Button
           unstyled
           href={parent.href}
-          class="-mx-2 inline-block whitespace-nowrap rounded-lg border border-transparent px-2 py-0.5 text-[1.35rem] tracking-[-0.01rem] text-muted hover:border-dimmer hover:bg-hover-default hover:text-primary"
+          class="text-muted hover:border-dimmer hover:bg-hover-default hover:text-primary -mx-2 inline-block rounded-lg border border-transparent px-2 py-0.5 text-[1.35rem] tracking-[-0.01rem] whitespace-nowrap"
           >←
           {#if parent.title}
             <span class:sr-only={isOverflowing}>
@@ -69,7 +69,7 @@
         <h1
           in:fly|global={{ x: -5, duration: parent ? 300 : 0, easing: quadInOut, opacity: 0.3 }}
           class:pl-2={isOverflowing}
-          class="inline-block w-full items-center gap-2 truncate pr-4 text-[1.45rem] font-extrabold leading-normal text-primary"
+          class="text-primary inline-block w-full items-center gap-2 truncate pr-4 text-[1.45rem] leading-normal font-extrabold"
         >
           {title}
         </h1>

@@ -29,10 +29,11 @@
 {/if}
 
 <style lang="postcss">
+  @reference "@intric/ui/styles";
   .chip {
-    @apply flex min-h-[1.6rem] min-w-[1.6rem] items-center justify-center rounded-md bg-dynamic-default text-on-fill;
+    @apply bg-dynamic-default text-on-fill flex min-h-[1.6rem] min-w-[1.6rem] items-center justify-center rounded-md;
   }
   .star {
-    @apply flex min-h-[1.6rem] min-w-[1.6rem] items-center justify-center rounded-md bg-dynamic-dimmer text-dynamic-stronger;
+    @apply bg-dynamic-dimmer text-dynamic-stronger flex min-h-[1.6rem] min-w-[1.6rem] items-center justify-center rounded-md;
   }
 </style>

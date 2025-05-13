@@ -1,12 +1,13 @@
 from uuid import UUID
 
 import sqlalchemy as sa
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import defer, selectinload
 
 from intric.apps.app_runs.app_run import AppRun
 from intric.apps.app_runs.app_run_factory import AppRunFactory
 from intric.database.database import AsyncSession
 from intric.database.tables.app_table import AppRuns, AppRunsFiles
+from intric.database.tables.files_table import Files
 from intric.files.file_models import FileInfo
 
 
@@ -18,7 +19,9 @@ class AppRunRepository:
     def _options(self):
         return [
             selectinload(AppRuns.user),
-            selectinload(AppRuns.input_files).selectinload(AppRunsFiles.file),
+            selectinload(AppRuns.input_files)
+            .selectinload(AppRunsFiles.file)
+            .options(defer(Files.blob)),
             selectinload(AppRuns.job),
         ]
 
@@ -75,6 +78,7 @@ class AppRunRepository:
                 tenant_id=app_run.tenant_id,
                 user_id=app_run.user_id,
                 app_id=app_run.app_id,
+                completion_model_id=app_run.completion_model_id,
             )
             .returning(AppRuns)
         )

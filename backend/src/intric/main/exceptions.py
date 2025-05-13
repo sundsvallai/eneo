@@ -24,6 +24,10 @@ class ErrorCodes(int, Enum):
     USER_INACTIVE = 9019
     NO_MODEL_SELECTED = 9020
     CRAWL_ALREADY_RUNNING = 9021
+    IAM_EXCEPTION = 9022
+    INTERNAL_HTTP_ERROR = 9023
+    INTERNAL_SERVER_ERROR = 9024
+    TENANT_SUSPENDED = 9025
 
 
 class NotFoundException(Exception):
@@ -122,6 +126,22 @@ class CrawlAlreadyRunningException(Exception):
     pass
 
 
+class IAMException(Exception):
+    pass
+
+
+class InternalHTTPException(Exception):
+    pass
+
+
+class InternalServerException(Exception):
+    pass
+
+
+class TenantSuspendedException(Exception):
+    pass
+
+
 # Map exceptions to response codes
 # Set message to None to use the internal message
 # Set error codes in the range 9000 - 9999
@@ -156,4 +176,16 @@ EXCEPTION_MAP = {
     UserInactiveException: (403, None, ErrorCodes.USER_INACTIVE),
     NoModelSelectedException: (400, None, ErrorCodes.NO_MODEL_SELECTED),
     CrawlAlreadyRunningException: (429, None, ErrorCodes.CRAWL_ALREADY_RUNNING),
+    IAMException: (500, None, ErrorCodes.IAM_EXCEPTION),
+    InternalHTTPException: (
+        500,
+        "Something went wrong.",
+        ErrorCodes.INTERNAL_HTTP_ERROR,
+    ),
+    InternalServerException: (
+        500,
+        "Something went wrong.",
+        ErrorCodes.INTERNAL_SERVER_ERROR,
+    ),
+    TenantSuspendedException: (403, "Tenant is suspended", ErrorCodes.TENANT_SUSPENDED),
 }

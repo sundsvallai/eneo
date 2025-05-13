@@ -17,6 +17,7 @@ class StorageInfoQueryResult(TypedDict):
     spaces: "Spaces"
     group_size: int
     website_size: int
+    integration_knowledge_size: int
     total_size: int
     quota_limit: int
 

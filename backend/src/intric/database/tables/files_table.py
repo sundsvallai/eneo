@@ -19,6 +19,7 @@ class Files(BasePublic):
     size: Mapped[int] = mapped_column()
     mimetype: Mapped[Optional[str]] = mapped_column()
     file_type: Mapped[str] = mapped_column(server_default=FileType.TEXT)
+    transcription: Mapped[Optional[str]] = mapped_column()
 
     # Foreign keys
     user_id: Mapped[UUID] = mapped_column(ForeignKey(Users.id, ondelete="CASCADE"))

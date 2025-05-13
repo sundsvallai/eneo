@@ -1,10 +1,16 @@
 from intric.apps.app_runs.api.app_run_worker import worker as app_worker
+from intric.data_retention.infrastructure.data_retention_worker import (
+    worker as data_retention_worker,
+)
+from intric.integration.tasks.integration_task import worker as integration_worker
 from intric.worker.routes import worker as sub_worker
 from intric.worker.worker import Worker
 
 worker = Worker()
 worker.include_subworker(sub_worker)
 worker.include_subworker(app_worker)
+worker.include_subworker(integration_worker)
+worker.include_subworker(data_retention_worker)
 
 
 class WorkerSettings:

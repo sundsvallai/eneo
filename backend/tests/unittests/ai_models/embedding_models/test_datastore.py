@@ -1,6 +1,6 @@
 import pytest
 
-from intric.ai_models.embedding_models.datastore.datastore import autocut
+from intric.embedding_models.infrastructure.datastore import autocut
 from intric.info_blobs.info_blob import InfoBlobChunkWithEmbedding
 from tests.fixtures import TEST_UUID
 

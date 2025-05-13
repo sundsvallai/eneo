@@ -79,7 +79,7 @@
     bind:value={editableService.name}
     label="Name"
     required
-    class="border-b border-dimmer px-4 py-4 hover:bg-hover-dimmer"
+    class="border-dimmer hover:bg-hover-dimmer border-b px-4 py-4"
   ></Input.Text>
 
   <Input.TextArea
@@ -87,7 +87,7 @@
     label="Prompt"
     required
     rows={6}
-    class="border-b border-dimmer px-4 py-4 hover:bg-hover-dimmer"
+    class="border-dimmer hover:bg-hover-dimmer border-b px-4 py-4"
   ></Input.TextArea>
 
   <div class="flex">
@@ -104,7 +104,7 @@
   {/if}
 
   <Select.Simple
-    class="border-b border-dimmer px-4 py-4 hover:bg-hover-dimmer"
+    class="border-dimmer hover:bg-hover-dimmer border-b px-4 py-4"
     options={[
       { value: "json", label: "JSON" },
       { value: "list", label: "List" },
@@ -117,7 +117,7 @@
   {#if editableService.output_format === "json"}
     <Input.TextArea
       bind:value={stringJsonSchema}
-      class="border-b border-dimmer px-4 py-4 hover:bg-hover-dimmer"
+      class="border-dimmer hover:bg-hover-dimmer border-b px-4 py-4"
       rows={15}
       required
     >

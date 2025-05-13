@@ -1,12 +1,12 @@
 from uuid import uuid4
 
 from intric.ai_models.embedding_models.embedding_model import (
-    EmbeddingModel,
     EmbeddingModelFamily,
+    EmbeddingModelLegacy,
     ModelHostingLocation,
     ModelStability,
 )
-from intric.ai_models.embedding_models.embedding_model_adapters.text_embedding_openai import (
+from intric.embedding_models.infrastructure.adapters.openai_embeddings import (
     OpenAIEmbeddingAdapter,
 )
 from intric.info_blobs.info_blob import InfoBlobChunk
@@ -14,7 +14,7 @@ from tests.fixtures import TEST_UUID
 
 
 def _get_adapter_with_max_limit(max_limit: int):
-    model = EmbeddingModel(
+    model = EmbeddingModelLegacy(
         id=uuid4(),
         name="multilingual-e5-large",
         family=EmbeddingModelFamily.E5,

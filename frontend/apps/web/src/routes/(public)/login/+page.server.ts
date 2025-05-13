@@ -6,7 +6,7 @@ import { getZitadelLink } from "$lib/features/auth/zitadel.server";
 import { redirect, fail, type Actions } from "@sveltejs/kit";
 
 export const actions: Actions = {
-  login: async ({ cookies, request }) => {
+  login: async ({ request }) => {
     const data = await request.formData();
     const username = data.get("email")?.toString() ?? null;
     const password = data.get("password")?.toString() ?? null;
@@ -14,7 +14,7 @@ export const actions: Actions = {
     const redirectUrl = next ? decodeURIComponent(next) : DEFAULT_LANDING_PAGE;
 
     if (username && password) {
-      const success = await loginWithIntric(cookies, username, password);
+      const success = await loginWithIntric(username, password);
 
       if (success) {
         redirect(302, `/${redirectUrl.slice(1)}`);

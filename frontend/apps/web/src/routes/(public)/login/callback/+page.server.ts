@@ -27,11 +27,11 @@ export const load = async (event) => {
 
   try {
     if (decodedState?.loginMethod === "mobilityguard") {
-      success = await loginWithMobilityguard(event, code);
+      success = await loginWithMobilityguard(code);
     }
 
     if (decodedState?.loginMethod === "zitadel") {
-      success = await loginWithZitadel(event, code);
+      success = await loginWithZitadel(code);
     }
   } catch (e) {
     if (e instanceof LoginError) {

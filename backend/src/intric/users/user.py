@@ -1,4 +1,3 @@
-import string
 from enum import Enum
 from typing import Optional
 from uuid import UUID
@@ -6,12 +5,7 @@ from uuid import UUID
 from pydantic import EmailStr, Field, computed_field, field_serializer, field_validator
 
 from intric.authentication.auth_models import AccessToken, ApiKey, ApiKeyInDB
-from intric.main.models import (
-    BaseModel,
-    InDB,
-    ModelId,
-    partial_model,
-)
+from intric.main.models import BaseModel, InDB, ModelId, partial_model
 from intric.predefined_roles.predefined_role import (
     PredefinedRoleInDB,
     PredefinedRolePublic,
@@ -19,8 +13,6 @@ from intric.predefined_roles.predefined_role import (
 from intric.roles.permissions import Permission
 from intric.roles.role import RoleInDB, RolePublic
 from intric.tenants.tenant import TenantInDB
-
-ALLOWED_CHARS = string.ascii_letters + string.digits + "-" + "_"
 
 
 class UserState(str, Enum):
@@ -42,10 +34,8 @@ class UserBase(BaseModel):
     def username_is_valid(cls, username: Optional[str]) -> Optional[str]:
         if username is None:
             return
-        if not all(char in ALLOWED_CHARS for char in username):
-            raise ValueError("Invalid characters in username")
-        if len(username) < 3:
-            raise ValueError("Username must be 3 characters or more")
+        if len(username) < 1:
+            raise ValueError("Username must be 1 characters or more")
 
         return username
 
@@ -209,6 +199,10 @@ class UserUpdatePublic(UserBase):
 class UserSparse(InDB):
     email: EmailStr
     username: Optional[str] = None
+
+    @field_serializer("email")
+    def to_lower(self, email: EmailStr):
+        return email.lower()
 
 
 @partial_model

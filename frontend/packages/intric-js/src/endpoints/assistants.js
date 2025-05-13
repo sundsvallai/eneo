@@ -102,6 +102,8 @@ export function initAssistants(client) {
      * */
     update: async ({ assistant, update }) => {
       const { id } = assistant;
+      // We want to set the update to null instead of to an empty string
+      update.description = update.description?.trim() === "" ? null : update.description;
       const res = await client.fetch("/api/v1/assistants/{id}/", {
         method: "post",
         params: { path: { id } },
@@ -113,16 +115,16 @@ export function initAssistants(client) {
     /**
      * Delete a specific assistant.
      * @param  {{id: string} | Assistant} assistant assistant
-     * @returns {Promise<Assistant>} The deleted assistant
+     * @returns {Promise<true>} true on success, otherwise throws
      * @throws {IntricError}
      * */
     delete: async (assistant) => {
       const { id } = assistant;
-      const res = await client.fetch("/api/v1/assistants/{id}/", {
+      await client.fetch("/api/v1/assistants/{id}/", {
         method: "delete",
         params: { path: { id } }
       });
-      return res;
+      return true;
     },
 
     /**
@@ -188,7 +190,6 @@ export function initAssistants(client) {
      * @param {Object} params
      * @param {{id: string} | Assistant} params.assistant
      * @param {{limit?: number, cursor?: string | undefined }} [params.pagination] - The number of sessions to retrieve.
-     * @returns {Promise<import('../types/resources').Paginated<AssistantSession>>} - Paginated list of sessions. Combines the pagination info with the items.
      * @throws {IntricError}
      * */
     listSessions: async ({ assistant, pagination }) => {

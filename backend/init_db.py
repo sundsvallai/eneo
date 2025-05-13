@@ -43,9 +43,7 @@ def hash_password(password):
 
 
 # Add tenant and user
-def add_tenant_user(
-    conn, tenant_name, quota_limit, user_name, user_email, user_password
-):
+def add_tenant_user(conn, tenant_name, quota_limit, user_name, user_email, user_password):
     try:
         cur = conn.cursor()
 
@@ -56,17 +54,15 @@ def add_tenant_user(
 
         if tenant is None:
             add_tenant_query = sql.SQL(
-                "INSERT INTO tenants (name, quota_limit) VALUES (%s, %s) RETURNING id"
+                "INSERT INTO tenants (name, quota_limit, state) VALUES (%s, %s, %s) RETURNING id"
             )
-            cur.execute(add_tenant_query, (tenant_name, quota_limit))
+            cur.execute(add_tenant_query, (tenant_name, quota_limit, "active"))
             tenant_id = cur.fetchone()[0]
         else:
             tenant_id = tenant[0]
 
         # Check if user already exists
-        check_user_query = sql.SQL(
-            "SELECT id FROM users WHERE email = %s AND tenant_id = %s"
-        )
+        check_user_query = sql.SQL("SELECT id FROM users WHERE email = %s AND tenant_id = %s")
         cur.execute(check_user_query, (user_email, tenant_id))
         user = cur.fetchone()
 

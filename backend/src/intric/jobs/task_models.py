@@ -19,6 +19,7 @@ class KnowledgeTask(TaskParams):
 
 class InfoBlobTask(TaskParams):
     group_id: UUID
+    space_id: UUID
 
 
 class UploadTask(InfoBlobTask):
@@ -32,8 +33,4 @@ class UploadInfoBlob(UploadTask):
 
 
 class Transcription(UploadTask):
-    pass
-
-
-class EmbedGroup(InfoBlobTask):
     pass

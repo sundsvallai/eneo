@@ -18,10 +18,11 @@ function initAppEditor(data: { app: App; intric: Intric; onUpdateDone?: (app: Ap
     editableFields: {
       name: true,
       description: true,
-      completion_model: ["id"],
+      completion_model: { id: true },
       completion_model_kwargs: true,
+      transcription_model: { id: true },
       attachments: ["id"],
-      prompt: ["description", "text"],
+      prompt: { description: true, text: true },
       input_fields: ["type", "description"]
     },
     manageAttachements: "attachments",

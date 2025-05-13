@@ -3,7 +3,7 @@ from uuid import UUID
 from intric.apps.app_runs.app_run import AppRun
 from intric.apps.apps.app import App
 from intric.database.tables.app_table import AppRuns
-from intric.files.file_models import FileInfo
+from intric.files.file_models import FileInfo, FilePublic
 from intric.jobs.job_models import JobInDb
 from intric.users.user import UserSparse
 
@@ -32,11 +32,12 @@ class AppRunFactory:
             num_tokens_input=None,
             num_tokens_output=None,
             job=None,
+            completion_model_id=app.completion_model.id,
         )
 
     def create_app_run_from_db(self, app_run_in_db: AppRuns):
         input_files = [
-            FileInfo.model_validate(input_file.file)
+            FilePublic.model_validate(input_file.file)
             for input_file in app_run_in_db.input_files
         ]
         user = UserSparse.model_validate(app_run_in_db.user)
@@ -61,4 +62,5 @@ class AppRunFactory:
             num_tokens_input=app_run_in_db.num_tokens_input,
             num_tokens_output=app_run_in_db.num_tokens_output,
             job=job,
+            completion_model_id=app_run_in_db.completion_model_id,
         )

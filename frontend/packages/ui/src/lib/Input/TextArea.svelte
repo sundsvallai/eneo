@@ -13,7 +13,7 @@
 </script>
 
 <div class="flex flex-col gap-1 {containerClass}">
-  <label for={id} class="pl-3 font-medium text-primary">
+  <label for={id} class="text-primary pl-3 font-medium">
     {#if $$slots.default}
       <slot />
     {:else}
@@ -21,13 +21,13 @@
         <div>
           {label}
           {#if required}
-            <span class="px-2 text-[0.9rem] font-normal text-muted" aria-hidden="true"
+            <span class="text-muted px-2 text-[0.9rem] font-normal" aria-hidden="true"
               >(required)</span
             >
           {/if}
         </div>
         {#if description}
-          <span class="px-2 text-[0.9rem] font-normal text-muted">{description}</span>
+          <span class="text-muted px-2 text-[0.9rem] font-normal">{description}</span>
         {/if}
       </div>
     {/if}
@@ -40,6 +40,6 @@
     on:change
     bind:value
     {...$$restProps}
-    class="h-full min-h-10 items-center justify-between rounded-lg border border-stronger bg-primary px-3 py-2 text-primary shadow ring-default placeholder:text-muted focus-within:ring-2 hover:ring-2 focus-visible:ring-2"
-  />
+    class="border-stronger bg-primary text-primary ring-default placeholder:text-muted h-full min-h-10 items-center justify-between rounded-lg border px-3 py-2 shadow focus-within:ring-2 hover:ring-2 focus-visible:ring-2"
+  ></textarea>
 </div>

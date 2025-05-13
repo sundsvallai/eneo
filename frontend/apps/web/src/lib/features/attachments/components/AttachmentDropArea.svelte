@@ -47,13 +47,13 @@
   class="absolute inset-0 z-[100] flex items-center justify-center p-4 pl-0"
 >
   <div
-    class="bg-frosted-glass-primary pointer-events-none flex h-full w-full items-center justify-center gap-2 rounded-md border border-stronger p-4 shadow-xl"
+    class="bg-frosted-glass-primary border-stronger pointer-events-none flex h-full w-full items-center justify-center gap-2 rounded-md border p-4 shadow-xl"
   >
     <div
-      class=" flex h-full w-full flex-col items-center justify-center gap-4 rounded border-2 border-dashed border-stronger"
+      class=" border-stronger flex h-full w-full flex-col items-center justify-center gap-4 rounded border-2 border-dashed"
     >
       <IconDropFile size="lg" />
-      <p class="text-center text-secondary">{label}</p>
+      <p class="text-secondary text-center">{label}</p>
     </div>
   </div>
 </form>

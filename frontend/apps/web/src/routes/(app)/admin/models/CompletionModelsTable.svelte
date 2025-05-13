@@ -13,9 +13,9 @@
     default as ModelLabels,
     getLabels
   } from "$lib/features/ai-models/components/ModelLabels.svelte";
-  import { modelOrgs } from "$lib/features/ai-models/components/ModelNameAndVendor.svelte";
   import ModelActions from "./ModelActions.svelte";
   import ModelCardDialog from "$lib/features/ai-models/components/ModelCardDialog.svelte";
+  import ModelClassificationPreview from "$lib/features/security-classifications/components/ModelClassificationPreview.svelte";
 
   export let completionModels: CompletionModel[];
   const table = Table.createWithResource(completionModels);
@@ -40,12 +40,12 @@
         }
       }
     }),
-    table.column({ accessor: "name", header: "Model" }),
+
     table.column({
       accessor: (model) => model,
       header: "Enabled",
       cell: (item) => {
-        return createRender(ModelEnabledSwitch, { model: item.value });
+        return createRender(ModelEnabledSwitch, { model: item.value, type: "completionModel" });
       },
       plugins: {
         sort: {
@@ -77,9 +77,29 @@
       }
     }),
 
+    table.column({
+      accessor: (model) => model,
+      header: "Security",
+      cell: (item) => {
+        return createRender(ModelClassificationPreview, { model: item.value });
+      },
+      plugins: {
+        sort: {
+          getSortValue(value) {
+            return value.security_classification?.security_level ?? 0;
+          }
+        },
+        tableFilter: {
+          getFilterValue(value) {
+            return value.security_classification?.name ?? "";
+          }
+        }
+      }
+    }),
+
     table.columnActions({
       cell: (item) => {
-        return createRender(ModelActions, { model: item.value });
+        return createRender(ModelActions, { model: item.value, type: "completionModel" });
       }
     })
   ]);
@@ -90,11 +110,22 @@
     };
   }
 
+  function listOrgs(models: CompletionModel[]) {
+    const uniqueOrgs = new Set<string>();
+
+    for (const model of models) {
+      if (model.org) uniqueOrgs.add(model.org);
+    }
+
+    return uniqueOrgs;
+  }
+
+  $: uniqueOrgs = listOrgs(completionModels);
   $: table.update(completionModels);
 </script>
 
 <Table.Root {viewModel} resourceName="model" displayAs="list">
-  {#each Object.entries(modelOrgs) as [org]}
+  {#each uniqueOrgs.values() as org (org)}
     <Table.Group filterFn={createOrgFilter(org)} title={org} />
   {/each}
 </Table.Root>

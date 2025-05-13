@@ -1,5 +1,5 @@
 import type { MarkedToken } from "marked";
-import type { ComponentType } from "svelte";
+import type { Component, Snippet } from "svelte";
 import type { IntricToken } from "../CustomComponents";
 import Heading from "./Heading.svelte";
 import Text from "./Text.svelte";
@@ -10,6 +10,7 @@ import Strong from "./Strong.svelte";
 import Emphasis from "./Emphasis.svelte";
 import Code from "./Code.svelte";
 import Inref from "./Inref.svelte";
+import Mention from "./Mention.svelte";
 import CodeSpan from "./CodeSpan.svelte";
 import Blockquote from "./Blockquote.svelte";
 import Del from "./Del.svelte";
@@ -20,10 +21,29 @@ import Def from "./Def.svelte";
 import Table from "./Table.svelte";
 import Link from "./Link.svelte";
 import Image from "./Image.svelte";
+import Html from "./Html.svelte";
 
-export const renderers: Record<MarkedToken["type"] | IntricToken["type"], ComponentType> = {
+type TokenMap = {
+  [K in MarkedToken["type"]]: Extract<MarkedToken, { type: K }>;
+} & {
+  [K in IntricToken["type"]]: Extract<IntricToken, { type: K }>;
+};
+
+export type SupportedToken = TokenMap[keyof TokenMap];
+
+export type Renderers = {
+  [K in keyof TokenMap]:
+    | Component<{
+        token: TokenMap[K];
+        children?: Snippet;
+      }>
+    | Component;
+};
+
+export const renderers: Renderers = {
   // Custom blocks
   intricInref: Inref,
+  intricMention: Mention,
   // Basic markdown blocks
   heading: Heading,
   text: Text,
@@ -44,11 +64,15 @@ export const renderers: Record<MarkedToken["type"] | IntricToken["type"], Compon
   table: Table,
   link: Link,
   image: Image,
-  html: CodeSpan // We're not rendering any html tags
+  html: Html // We're not rendering any html tags
 };
 
-export type SupportedTokenType = keyof typeof renderers;
+export function isSupportedToken(token: { type: string }): token is SupportedToken {
+  return token.type in renderers;
+}
 
-export function isSupportedToken(tokenType: string): tokenType is SupportedTokenType {
-  return tokenType in renderers;
+export function hasChildTokens<T extends SupportedToken>(
+  token: T
+): token is T & { tokens: SupportedToken[] } {
+  return "tokens" in token && token.tokens !== undefined && token.tokens.length > 0;
 }

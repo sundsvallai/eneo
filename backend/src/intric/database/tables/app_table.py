@@ -5,7 +5,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from intric.database.tables.ai_models_table import CompletionModels
+from intric.database.tables.ai_models_table import CompletionModels, TranscriptionModels
 from intric.database.tables.app_template_table import AppTemplates
 from intric.database.tables.base_class import BaseCrossReference, BasePublic
 from intric.database.tables.files_table import Files
@@ -21,6 +21,7 @@ class Apps(BasePublic):
     description: Mapped[Optional[str]] = mapped_column()
     completion_model_kwargs: Mapped[Optional[dict]] = mapped_column(JSONB)
     published: Mapped[bool] = mapped_column()
+    data_retention_days: Mapped[Optional[int]] = mapped_column()
 
     # Foreign keys
     tenant_id: Mapped[UUID] = mapped_column(ForeignKey(Tenants.id, ondelete="CASCADE"))
@@ -32,16 +33,20 @@ class Apps(BasePublic):
     completion_model_id: Mapped[UUID] = mapped_column(
         ForeignKey(CompletionModels.id, ondelete="SET NULL")
     )
+    transcription_model_id: Mapped[Optional[UUID]] = mapped_column(
+        ForeignKey(TranscriptionModels.id, ondelete="SET NULL")
+    )
 
     # Relationships
     completion_model: Mapped[CompletionModels] = relationship()
+    transcription_model: Mapped[Optional[TranscriptionModels]] = relationship()
     input_fields: Mapped[list["InputFields"]] = relationship(
         order_by="InputFields.created_at", viewonly=True
     )
     attachments: Mapped[list["AppsFiles"]] = relationship(
         order_by="AppsFiles.created_at", viewonly=True
     )
-    template: Mapped[Optional[AppTemplates]] = relationship()
+    template: Mapped[Optional[AppTemplates]] = relationship(viewonly=True)
 
 
 class AppRuns(BasePublic):
@@ -56,6 +61,9 @@ class AppRuns(BasePublic):
     app_id: Mapped[UUID] = mapped_column(ForeignKey(Apps.id, ondelete="CASCADE"))
     job_id: Mapped[Optional[UUID]] = mapped_column(
         ForeignKey(Jobs.id, ondelete="SET NULL")
+    )
+    completion_model_id: Mapped[UUID] = mapped_column(
+        ForeignKey(CompletionModels.id, ondelete="SET NULL")
     )
 
     # Relationships

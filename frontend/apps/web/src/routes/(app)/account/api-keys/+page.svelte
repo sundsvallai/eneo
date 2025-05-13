@@ -12,6 +12,7 @@
   const intric = getIntric();
 
   let apiKey: string | null = null;
+  let showCopiedMessage = false;
 
   async function generateApiKey() {
     apiKey = (await intric.users.generateApiKey()).key;
@@ -29,9 +30,9 @@
   </Page.Header>
   <Page.Main>
     <div
-      class="flex items-center justify-between gap-1 border-b border-default py-4 pl-2 pr-4 hover:bg-hover-dimmer"
+      class="border-default hover:bg-hover-dimmer flex items-center gap-1 border-b py-4 pr-4 pl-2"
     >
-      <div class="flex flex-col gap-1">
+      <div class="flex flex-grow flex-col gap-1">
         <h3 class="font-medium">Api Key</h3>
         <pre class="">{apiKey
             ? apiKey
@@ -39,6 +40,25 @@
               ? `****${user.truncated_api_key}`
               : "No active key"}</pre>
       </div>
+      {#if apiKey}
+        <Button
+          on:click={() => {
+            if (!apiKey) {
+              alert("No api key found. Please generate a new one.");
+              return;
+            }
+            navigator.clipboard.writeText(apiKey);
+            showCopiedMessage = true;
+            setTimeout(() => {
+              showCopiedMessage = false;
+            }, 2000);
+          }}
+          variant="outlined"
+          class="w-24"
+        >
+          <span>{showCopiedMessage ? "Copied!" : "Copy key"}</span>
+        </Button>
+      {/if}
       <Dialog.Root alert>
         <Dialog.Trigger asFragment let:trigger>
           <Button variant="outlined" is={trigger}>Generate API key</Button>

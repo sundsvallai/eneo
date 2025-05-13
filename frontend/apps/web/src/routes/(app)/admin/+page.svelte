@@ -7,7 +7,8 @@
 <script lang="ts">
   import { Page, Settings } from "$lib/components/layout/index.js";
   import { getAppContext } from "$lib/core/AppContext.js";
-  import StorageOverviewBar from "./storage/StorageOverviewBar.svelte";
+  import StorageOverviewBar from "./usage/storage/StorageOverviewBar.svelte";
+  import TokenOverviewBar from "./usage/tokens/TokenOverviewBar.svelte";
 
   const { tenant } = getAppContext();
   export let data;
@@ -23,8 +24,9 @@
   </Page.Header>
   <Page.Main>
     <Settings.Page>
-      <Settings.Group title="Storage">
+      <Settings.Group title="Usage">
         <StorageOverviewBar storageStats={data.storageStats}></StorageOverviewBar>
+        <TokenOverviewBar tokenStats={data.tokenStats}></TokenOverviewBar>
       </Settings.Group>
     </Settings.Page>
   </Page.Main>

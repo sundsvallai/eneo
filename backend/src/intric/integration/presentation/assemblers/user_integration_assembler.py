@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING
 
-from intric.integration.presentation.models import UserIntegration as UserIntegrationModel
+from intric.integration.presentation.models import (
+    UserIntegration as UserIntegrationModel,
+)
 from intric.integration.presentation.models import UserIntegrationList
 
 if TYPE_CHECKING:
@@ -12,8 +14,10 @@ class UserIntegrationAssembler:
     def from_domain_to_model(cls, item: "UserIntegration") -> "UserIntegrationModel":
         return UserIntegrationModel(
             id=item.id,
+            tenant_integration_id=item.tenant_integration.id,
             connected=item.authenticated,
             name=item.tenant_integration.integration.name,
+            integration_type=item.tenant_integration.integration.integration_type,
             description=item.tenant_integration.integration.description,
         )
 

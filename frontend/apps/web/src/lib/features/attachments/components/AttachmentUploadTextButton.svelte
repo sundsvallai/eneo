@@ -26,7 +26,7 @@
 
 <label
   for="fileInput"
-  class="flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-default hover:bg-hover-stronger"
+  class="border-default hover:bg-hover-stronger flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border"
 >
   <IconUpload />
   <span>Upload attachment</span>

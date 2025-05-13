@@ -76,19 +76,19 @@
       {#if mode === "create"}
         {#if $currentSpace.embedding_models.length < 1}
           <p
-            class="label-warning m-4 rounded-md border border-label-default bg-label-dimmer px-2 py-1 text-sm text-label-stronger"
+            class="label-warning border-label-default bg-label-dimmer text-label-stronger m-4 rounded-md border px-2 py-1 text-sm"
           >
             <span class="font-bold">Warning:</span>
             This space does currently not have any embedding models enabled. Enable at least one embedding
             model to be able to create a collection.
           </p>
-          <div class="border-b border-default"></div>
+          <div class="border-default border-b"></div>
         {/if}
         <Input.Text
           bind:value={collectionName}
           label="Name"
           required
-          class="border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+          class="border-default hover:bg-hover-dimmer border-b px-4 py-4"
         ></Input.Text>
         <SelectEmbeddingModel
           hideWhenNoOptions
@@ -100,7 +100,7 @@
           bind:value={collectionName}
           label="Name"
           required
-          class="border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+          class="border-default hover:bg-hover-dimmer border-b px-4 py-4"
         ></Input.Text>
       {/if}
     </Dialog.Section>

@@ -4,6 +4,6 @@
 </script>
 
 <div class="absolute inset-0 flex flex-col items-center justify-center gap-4">
-  <IntricWordMark class="h-8 w-20 text-brand-intric"></IntricWordMark>
+  <IntricWordMark class="text-brand-intric h-8 w-20"></IntricWordMark>
   <IconLoadingSpinner class="animate-spin" />
 </div>

@@ -4,9 +4,9 @@ from uuid import uuid4
 import pytest
 
 from intric.ai_models.completion_models.completion_model import ModelKwargs
-from intric.assistants.api.assistant_models import DefaultAssistant
+from intric.assistants.api.assistant_models import AssistantType, DefaultAssistant
 from intric.files.file_models import FileRestrictions, Limit
-from intric.questions.question import Tools
+from intric.questions.question import UseTools
 from intric.spaces.api.space_assembler import SpaceAssembler
 from intric.spaces.api.space_models import SpaceMember, SpaceRoleValue
 from intric.spaces.space import Space
@@ -33,9 +33,11 @@ TEST_DEFAULT_ASSISTANT = DefaultAssistant(
     ),
     groups=[],
     websites=[],
+    integration_knowledge_list=[],
     completion_model=TEST_MODEL_CHATGPT,
     user=TEST_USER,
-    tools=Tools(assistants=[]),
+    tools=UseTools(assistants=[]),
+    type=AssistantType.DEFAULT_ASSISTANT,
 )
 
 
@@ -67,6 +69,7 @@ def space():
         websites=[],
         groups=[],
         members={},
+        security_classification=None,
     )
     space.name = TEST_NAME
 

@@ -12,7 +12,7 @@
 
 {#if members.length > 0}
   <div class="flex">
-    {#each members.slice(0, 3) as member}
+    {#each members.slice(0, 3) as member (member.id)}
       <MemberChip {member}></MemberChip>
     {/each}
     {#if members.length > 3}

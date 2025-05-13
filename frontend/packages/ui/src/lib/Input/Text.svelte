@@ -21,17 +21,17 @@
     {#if $$slots.default}
       <slot />
     {:else}
-      <div class="flex items-baseline justify-between text-primary">
+      <div class="text-primary flex items-baseline justify-between">
         <div>
           {label}
           {#if required}
-            <span class="px-2 text-[0.9rem] font-normal text-muted" aria-hidden="true"
+            <span class="text-muted px-2 text-[0.9rem] font-normal" aria-hidden="true"
               >(required)</span
             >
           {/if}
         </div>
         {#if description}
-          <span class="px-2 text-[0.9rem] font-normal text-muted">{description}</span>
+          <span class="text-muted px-2 text-[0.9rem] font-normal">{description}</span>
         {/if}
       </div>
     {/if}
@@ -49,7 +49,7 @@
     aria-required={required}
     aria-describedby={description ? `${id}-description` : undefined}
     aria-invalid={!isValid}
-    class="h-10 items-center justify-between overflow-hidden rounded-lg border
-  border-stronger bg-primary px-3 py-2 text-primary shadow ring-default placeholder:text-muted focus-within:ring-2 hover:ring-2 focus-visible:ring-2 {inputClass}"
+    class="border-stronger bg-primary text-primary ring-default placeholder:text-muted h-10
+  items-center justify-between overflow-hidden rounded-lg border px-3 py-2 shadow focus-within:ring-2 hover:ring-2 focus-visible:ring-2 {inputClass}"
   />
 </div>

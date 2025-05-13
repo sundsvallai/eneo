@@ -1,8 +1,8 @@
 from enum import Enum
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 from uuid import UUID
 
-from pydantic import BaseModel, computed_field
+from pydantic import BaseModel, ConfigDict, Field, computed_field
 
 from intric.ai_models.completion_models.completion_model import (
     CompletionModelSparse,
@@ -10,22 +10,37 @@ from intric.ai_models.completion_models.completion_model import (
 )
 from intric.ai_models.embedding_models.embedding_model import EmbeddingModelSparse
 from intric.assistants.api.assistant_models import AssistantSparse, DefaultAssistant
-from intric.groups.api.group_models import GroupMetadata, GroupPublicWithMetadata
+from intric.collections.presentation.collection_models import CollectionPublic
+from intric.completion_models.presentation.completion_model_models import (
+    CompletionModelPublic,
+)
+from intric.embedding_models.presentation.embedding_model_models import (
+    EmbeddingModelPublic,
+)
+from intric.group_chat.presentation.models import GroupChatSparse
+from intric.groups_legacy.api.group_models import GroupMetadata, GroupPublicWithMetadata
+from intric.integration.presentation.models import IntegrationKnowledgePublic
 from intric.main.models import (
+    NOT_PROVIDED,
     InDB,
     ModelId,
+    NotProvided,
     PaginatedPermissions,
     ResourcePermissionsMixin,
     partial_model,
 )
-from intric.services.service import ServiceSparse
-from intric.users.user import UserSparse
-from intric.websites.crawl_dependencies.crawl_models import CrawlRunPublic, CrawlType
-from intric.websites.website_models import (
-    UpdateInterval,
-    WebsiteMetadata,
-    WebsiteSparse,
+from intric.security_classifications.presentation.security_classification_models import (
+    SecurityClassificationPublic,
 )
+from intric.services.service import ServiceSparse
+from intric.transcription_models.presentation.transcription_model_models import (
+    TranscriptionModelPublic,
+)
+from intric.users.user import UserSparse
+from intric.websites.crawl_dependencies.crawl_models import CrawlRunPublic
+from intric.websites.domain.crawl_run import CrawlType
+from intric.websites.domain.website import UpdateInterval
+from intric.websites.presentation.website_models import WebsiteMetadata, WebsitePublic
 
 
 class SpaceRoleValue(str, Enum):
@@ -78,17 +93,41 @@ class UpdateSpaceRequest(BaseModel):
 
     embedding_models: list[ModelId]
     completion_models: list[ModelId]
+    transcription_models: list[ModelId]
+
+    security_classification: Union[ModelId, NotProvided, None] = Field(
+        default=NOT_PROVIDED,
+        description=(
+            "ID of the security classification to apply to this space. "
+            "Set to null to remove the security classification. "
+            "Omit to keep the current security classification unchanged."
+        ),
+    )
+
+
+class UpdateSpaceDryRunResponse(BaseModel):
+    assistants: list[AssistantSparse]
+    group_chats: list[GroupChatSparse]
+    services: list[ServiceSparse]
+    apps: list[AppSparse]
+    completion_models: list[CompletionModelPublic]
+    embedding_models: list[EmbeddingModelPublic]
+    transcription_models: list[TranscriptionModelPublic]
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Applications(BaseModel):
     assistants: PaginatedPermissions[AssistantSparse]
+    group_chats: PaginatedPermissions[GroupChatSparse]
     services: PaginatedPermissions[ServiceSparse]
     apps: PaginatedPermissions[AppSparse]
 
 
 class Knowledge(BaseModel):
-    groups: PaginatedPermissions[GroupPublicWithMetadata]
-    websites: PaginatedPermissions[WebsiteSparse]
+    groups: PaginatedPermissions[CollectionPublic]
+    websites: PaginatedPermissions[WebsitePublic]
+    integration_knowledge_list: PaginatedPermissions[IntegrationKnowledgePublic]
 
 
 class SpaceSparse(InDB, ResourcePermissionsMixin):
@@ -111,15 +150,16 @@ class SpaceRole(BaseModel):
 
 
 class SpacePublic(SpaceDashboard):
-    embedding_models: list[EmbeddingModelSparse]
-
-    completion_models: list[CompletionModelSparse]
+    embedding_models: list[EmbeddingModelPublic]
+    completion_models: list[CompletionModelPublic]
+    transcription_models: list[TranscriptionModelPublic]
     knowledge: Knowledge
     members: PaginatedPermissions[SpaceMember]
 
     default_assistant: DefaultAssistant
 
     available_roles: list[SpaceRole]
+    security_classification: Optional[SecurityClassificationPublic]
 
 
 # Assistants
@@ -224,3 +264,10 @@ class AddSpaceMemberRequest(BaseModel):
 
 class UpdateSpaceMemberRequest(BaseModel):
     role: SpaceRoleValue
+
+
+class CreateSpaceIntegrationKnowledge(BaseModel):
+    name: str
+    embedding_model: ModelId
+    url: str
+    key: Optional[str] = None

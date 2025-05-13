@@ -87,22 +87,22 @@
   }}
 >
   <div
-    class="flex w-full max-w-[64ch] flex-col gap-2 rounded-xl border border-default bg-primary p-2 shadow-xl"
+    class="border-default bg-primary flex w-full max-w-[64ch] flex-col gap-2 rounded-xl border p-2 shadow-xl"
   >
     <div class="-mt-[2.5rem] flex flex-grow flex-col items-center justify-center rounded pb-2">
-      <div class="flex items-center gap-4 rounded-2xl bg-primary pl-4 pr-6">
+      <div class="bg-primary flex items-center gap-4 rounded-2xl pr-6 pl-4">
         <AppIcon app={$app} size="medium"></AppIcon>
         <span class="text-4xl font-extrabold">{formatEmojiTitle($app.name)}</span>
       </div>
     </div>
 
     {#if $app.description}
-      <p class="mx-auto max-w-[50ch] pb-2 text-center text-secondary">
+      <p class="text-secondary mx-auto max-w-[50ch] pb-2 text-center">
         {$app.description}
       </p>
     {/if}
     <div
-      class="flex min-h-[14rem] w-full flex-grow flex-col items-center justify-center gap-4 rounded-lg border border-dynamic-dimmer bg-dynamic-dimmer py-6"
+      class="border-dynamic-dimmer bg-dynamic-dimmer flex min-h-[14rem] w-full flex-grow flex-col items-center justify-center gap-4 rounded-lg border py-6"
     >
       <AppInput app={$app} bind:inputData={inputs}></AppInput>
     </div>
@@ -112,7 +112,7 @@
         disabled={!hasData || isSubmitting}
         unstyled
         on:click={createRun}
-        class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-stronger bg-dynamic-default px-4 py-2 pl-3 text-lg text-on-fill shadow-lg hover:border-dynamic-default hover:bg-dynamic-dimmer hover:text-dynamic-stronger "
+        class="border-stronger bg-dynamic-default text-on-fill hover:border-dynamic-default hover:bg-dynamic-dimmer hover:text-dynamic-stronger flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-2 pl-3 text-lg shadow-lg "
       >
         <IconPlay />
         {isSubmitting ? "Submitting..." : "Submit"}

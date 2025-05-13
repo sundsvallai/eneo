@@ -35,12 +35,12 @@
           Send <span class="italice">{user.email}</span> the link below so they can create their account.
         </p>
         <p
-          class="border-l-2 border-accent-default bg-accent-dimmer px-4 py-2 text-sm text-accent-stronger"
+          class="border-accent-default bg-accent-dimmer text-accent-stronger border-l-2 px-4 py-2 text-sm"
         >
           <span class="font-bold">Note:</span> Please make sure they sign up with the same email address
           you have registered.
         </p>
-        <div class="flex items-center justify-between rounded-lg border bg-primary p-1 shadow-sm">
+        <div class="bg-primary flex items-center justify-between rounded-lg border p-1 shadow-sm">
           <span class="pl-2 font-mono">{inviteLink}</span>
           <Button variant="outlined" on:click={copyInviteLink}>{copyButtonText}</Button>
         </div>

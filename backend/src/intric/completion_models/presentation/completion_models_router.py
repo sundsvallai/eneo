@@ -48,6 +48,7 @@ async def update_completion_model(
         model_id=id,
         is_org_enabled=update_flags.is_org_enabled,
         is_org_default=update_flags.is_org_default,
+        security_classification=update_flags.security_classification,
     )
 
     return assembler.from_completion_model_to_model(completion_model=completion_model)

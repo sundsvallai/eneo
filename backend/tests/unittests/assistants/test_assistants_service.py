@@ -5,8 +5,6 @@ from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
-from pydantic import ValidationError
-
 from intric.assistants.api.assistant_models import (
     AskAssistant,
     AssistantBase,
@@ -18,9 +16,10 @@ from intric.main.config import get_settings
 from intric.main.exceptions import BadRequestException, UnauthorizedException
 from intric.main.models import ModelId
 from intric.prompts.api.prompt_models import PromptCreate
+from pydantic import ValidationError
 from tests.fixtures import (
     TEST_ASSISTANT,
-    TEST_GROUP,
+    TEST_COLLECTION,
     TEST_MODEL_GPT4,
     TEST_USER,
     TEST_UUID,
@@ -57,8 +56,6 @@ def setup_fixture():
         service_repo=AsyncMock(),
         step_repo=AsyncMock(),
         completion_model_crud_service=AsyncMock(),
-        group_service=AsyncMock(),
-        website_service=AsyncMock(),
         space_service=AsyncMock(),
         factory=MagicMock(),
         prompt_service=AsyncMock(),
@@ -66,6 +63,9 @@ def setup_fixture():
         assistant_template_service=AsyncMock(),
         session_service=AsyncMock(),
         actor_manager=MagicMock(),
+        integration_knowledge_repo=AsyncMock(),
+        completion_service=AsyncMock(),
+        references_service=AsyncMock(),
     )
 
     setup = Setup(assistant=assistant, service=service, group_service=AsyncMock())
@@ -82,45 +82,27 @@ async def assistant_service():
         service_repo=AsyncMock(),
         step_repo=AsyncMock(),
         completion_model_crud_service=AsyncMock(),
-        group_service=AsyncMock(),
-        website_service=AsyncMock(),
         space_service=AsyncMock(),
         factory=AsyncMock(),
         prompt_repo=AsyncMock(),
+        integration_knowledge_repo=AsyncMock(),
     )
 
 
 def with_two_different_groups(setup: Setup, attr: str, value_1: Any, value_2: Any):
-    group_1 = deepcopy(TEST_GROUP)
-    group_2 = deepcopy(TEST_GROUP)
+    collection_1 = deepcopy(TEST_COLLECTION)
+    collection_2 = deepcopy(TEST_COLLECTION)
 
-    setattr(group_1, attr, value_1)
-    setattr(group_2, attr, value_2)
+    setattr(collection_1, attr, value_1)
+    setattr(collection_2, attr, value_2)
 
     assistant = deepcopy(TEST_ASSISTANT)
-    assistant.groups = [group_1, group_2]
+    assistant.collections = [collection_1, collection_2]
 
     setup.service.repo.add.return_value = assistant
     setup.service.repo.update.return_value = assistant
     setup.service.user.id = 1
     setup.service.user.tenant_id = 1
-
-
-async def test_create_assistant_with_logging_fails_without_compliance_permission(
-    setup: Setup,
-):
-    setup.service.user = MagicMock()
-    setup.service.user.permissions = {}
-    setup.assistant.logging_enabled = True
-    with pytest.raises(UnauthorizedException):
-        await setup.service.create_assistant(setup.assistant)
-
-
-async def test_create_public_assistant_fails_when_not_deployer(setup: Setup):
-    setup.service.user = MagicMock()
-    setup.service.user.permissions = {}
-    with pytest.raises(UnauthorizedException):
-        await setup.service.create_assistant(setup.assistant)
 
 
 async def test_ask_assistant_model():
@@ -182,44 +164,12 @@ async def test_update_assistant_completion_model_in_space(setup: Setup):
     await setup.service.update_assistant(TEST_UUID)
 
 
-async def test_completion_model_disabled_in_space(setup: Setup):
+async def test_error_when_assistant_cannot_be_used_in_space(setup: Setup):
     assistant = MagicMock(completion_model_id=uuid4(), space_id=uuid4())
     space = MagicMock()
     space.get_assistant.return_value = assistant
-    space.is_completion_model_in_space.return_value = False
+    space.can_ask_assistant.return_value = False
     setup.service.space_repo.get_space_by_assistant.return_value = space
 
-    with pytest.raises(BadRequestException):
-        await setup.service.ask(question="hello", assistant_id=MagicMock())
-
-
-async def test_group_embedding_model_disabled_in_space(setup: Setup):
-    assistant = MagicMock(
-        space_id=uuid4(),
-        groups=[MagicMock(embedding_model_id=uuid4())],
-        websites=[],
-    )
-
-    space = MagicMock()
-    space.get_assistant.return_value = assistant
-    space.is_embedding_model_in_space.return_value = False
-    setup.service.space_repo.get_space_by_assistant.return_value = space
-
-    with pytest.raises(BadRequestException):
-        await setup.service.ask(question="hello", assistant_id=MagicMock())
-
-
-async def test_website_embedding_model_disabled_in_space(setup: Setup):
-    assistant = MagicMock(
-        space_id=uuid4(),
-        websites=[MagicMock(embedding_model_id=uuid4())],
-        groups=[],
-    )
-
-    space = MagicMock()
-    space.get_assistant.return_value = assistant
-    space.is_embedding_model_in_space.return_value = False
-    setup.service.space_repo.get_space_by_assistant.return_value = space
-
-    with pytest.raises(BadRequestException):
+    with pytest.raises(UnauthorizedException):
         await setup.service.ask(question="hello", assistant_id=MagicMock())

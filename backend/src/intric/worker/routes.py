@@ -10,9 +10,7 @@ worker = Worker()
 
 @worker.function()
 async def upload_info_blob(job_id: str, params: UploadInfoBlob, container: Container):
-    return await upload_info_blob_task(
-        job_id=job_id, params=params, container=container
-    )
+    return await upload_info_blob_task(job_id=job_id, params=params, container=container)
 
 
 @worker.function()

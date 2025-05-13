@@ -1,13 +1,16 @@
 import { dev } from "$app/environment";
-import { type Cookies, type RequestEvent } from "@sveltejs/kit";
+import { getRequestEvent } from "$app/server";
+import { type RequestEvent } from "@sveltejs/kit";
 
 export const IntricIdTokenCookie = "auth";
 export const IntricAccessTokenCookie = "acc";
 
-export const setFrontendAuthCookie = async (
-  tokens: { id_token: string; access_token?: string },
-  cookies: Cookies
-) => {
+export const setFrontendAuthCookie = async (tokens: {
+  id_token: string;
+  access_token?: string;
+}) => {
+  const { cookies } = getRequestEvent();
+
   // Decode token to get expiry
   const token_info = (await parseJwt(tokens.id_token)) as { exp?: number };
   // Expires 10 min prior to server token

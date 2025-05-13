@@ -55,13 +55,13 @@
   </Page.Header>
   <Page.Main>
     <Page.Tab id="crawls">
-      {#if data.integrationRequestFormUrl}
+      {#if data.environment.integrationRequestFormUrl}
         <CrawlLimitations></CrawlLimitations>
       {/if}
       <CrawlRunsTable runs={data.crawlRuns} />
     </Page.Tab>
     <Page.Tab id="blobs">
-      {#if data.integrationRequestFormUrl}
+      {#if data.environment.integrationRequestFormUrl}
         <CrawlLimitations></CrawlLimitations>
       {/if}
       <BlobTable blobs={data.infoBlobs} canEdit={false}></BlobTable>

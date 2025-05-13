@@ -6,6 +6,10 @@
   import type { AppSparse } from "@intric/intric-js";
   import { getIntric } from "$lib/core/Intric";
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
+  import PublishingDialog from "$lib/features/publishing/components/PublishingDialog.svelte";
+  import { writable } from "svelte/store";
+  import { IconArrowDownToLine } from "@intric/icons/arrow-down-to-line";
+  import { IconArrowUpToLine } from "@intric/icons/arrow-up-to-line";
 
   export let app: AppSparse;
 
@@ -31,6 +35,7 @@
 
   let isProcessing = false;
   let showDeleteDialog: Dialog.OpenState;
+  const showPublishDialog = writable(false);
 
   let showActions = (["edit", "publish", "delete"] as const).some((permission) =>
     app.permissions?.includes(permission)
@@ -54,6 +59,23 @@
           <IconEdit size="sm" />
           Edit</Button
         >
+      {/if}
+      {#if app.permissions?.includes("publish")}
+        <Button
+          is={item}
+          on:click={() => {
+            $showPublishDialog = true;
+          }}
+          padding="icon-leading"
+        >
+          {#if app.published}
+            <IconArrowDownToLine size="sm"></IconArrowDownToLine>
+            Unpublish
+          {:else}
+            <IconArrowUpToLine size="sm"></IconArrowUpToLine>
+            Publish
+          {/if}
+        </Button>
       {/if}
       {#if app.permissions?.includes("delete")}
         <Button
@@ -86,3 +108,10 @@
     </Dialog.Controls>
   </Dialog.Content>
 </Dialog.Root>
+
+<PublishingDialog
+  resource={app}
+  endpoints={intric.apps}
+  openController={showPublishDialog}
+  awaitUpdate
+></PublishingDialog>

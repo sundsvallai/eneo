@@ -3,11 +3,13 @@
   import js from "highlight.js/lib/languages/javascript";
   import python from "highlight.js/lib/languages/python";
   import c from "highlight.js/lib/languages/c";
+  import xml from "highlight.js/lib/languages/xml";
   import { IconCopy } from "@intric/icons/copy";
 
   hljs.registerLanguage("javascript", js);
   hljs.registerLanguage("python", python);
   hljs.registerLanguage("c", c);
+  hljs.registerLanguage("xml", xml);
 
   export let source: string;
   let cls = "";
@@ -19,13 +21,17 @@
   $: highlighted = hljs.highlightAuto(source, ["javascript", "python", "c"]).value;
 </script>
 
-<div class="code-wrapper group relative">
+<div class="code-wrapper group relative p-0" style="color-scheme: dark;">
   <!-- Pre will print new lines, so this is a bit scuffed -->
-  <pre class={cls}><!-- eslint-disable svelte/no-at-html-tags --><code class="hljs"
-      >{@html highlighted}</code
+  <pre
+    class={[
+      "bg-overlay-stronger w-full overflow-auto rounded-lg px-8 py-7",
+      cls
+    ]}><!-- eslint-disable svelte/no-at-html-tags --><code class="hljs">{@html highlighted}</code
     ></pre>
 
   <button
+    class="border-stronger bg-secondary hover:bg-tertiary absolute top-2 right-2 hidden gap-1 rounded-md border p-1 shadow group-hover:flex"
     on:click={() => {
       navigator.clipboard.writeText(source);
       showCopiedMessage = true;
@@ -40,20 +46,7 @@
   >
 </div>
 
-<style lang="postcss">
-  div {
-    @apply p-0;
-    color-scheme: dark;
-  }
-
-  pre {
-    @apply w-full overflow-auto rounded-lg bg-overlay-stronger px-8 py-7;
-  }
-
-  button {
-    @apply absolute right-2 top-2 hidden gap-1 rounded-md border border-stronger bg-secondary p-1 shadow hover:bg-tertiary group-hover:flex;
-  }
-
+<style>
   /* HLJS styles below... */
   :global(.hljs),
   :global(.hljs-subst) {

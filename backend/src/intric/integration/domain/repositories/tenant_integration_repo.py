@@ -1,42 +1,26 @@
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
-
-from sqlalchemy.future import select
-from sqlalchemy.orm import selectinload
-
-from intric.database.tables.integration_table import (
-    TenantIntegration as TenantIntegrationDBModel,
-)
-from intric.integration.domain.factories.tenant_integration_factory import (
-    TenantIntegrationFactory,
-)
 
 if TYPE_CHECKING:
     from uuid import UUID
 
-    from sqlalchemy.ext.asyncio import AsyncSession
-
     from intric.integration.domain.entities.tenant_integration import TenantIntegration
 
 
-class TenantIntegrationRepository:
-    def __init__(self, session: "AsyncSession"):
-        self.session = session
-        self._db_model = TenantIntegrationDBModel
+class TenantIntegrationRepository(ABC):
+    @abstractmethod
+    async def query(self, **filters) -> list["TenantIntegration"]: ...
 
-        self._options = [selectinload(self._db_model.integration)]
+    @abstractmethod
+    async def one_or_none(
+        self, id: "UUID | None" = None, **filters
+    ) -> "TenantIntegration | None": ...
 
-    async def get_integrations_by_tenant_id(
-        self, tenant_id: "UUID"
-    ) -> list["TenantIntegration"]:
-        query = (
-            select(self._db_model)
-            .filter_by(tenant_id=tenant_id)
-            .options(*self._options)
-        )
-        result = await self.session.scalars(query)
-        result = result.all()
+    @abstractmethod
+    async def one(self, id: "UUID | None" = None, **filters) -> "TenantIntegration": ...
 
-        if not result:
-            return []
+    @abstractmethod
+    async def add(self, obj: "TenantIntegration") -> "TenantIntegration": ...
 
-        return TenantIntegrationFactory.create_entities(records=result)
+    @abstractmethod
+    async def delete(self, id: "UUID") -> None: ...

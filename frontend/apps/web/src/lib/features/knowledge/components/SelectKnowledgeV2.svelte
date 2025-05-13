@@ -6,16 +6,22 @@
   import { IconTrash } from "@intric/icons/trash";
   import { IconWeb } from "@intric/icons/web";
   import { Button } from "@intric/ui";
-  import type { GroupSparse, WebsiteSparse } from "@intric/intric-js";
+  import type { GroupSparse, IntegrationKnowledge, WebsiteSparse } from "@intric/intric-js";
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
   import { getAvailableKnowledge } from "../getAvailableKnowledge";
   import { tick } from "svelte";
   import { formatWebsiteName } from "$lib/core/formatting/formatWebsiteName";
+  import IntegrationVendorIcon from "$lib/features/integrations/components/IntegrationVendorIcon.svelte";
 
   /** Bind this variable if you want to be able to select websites */
   export let selectedWebsites: WebsiteSparse[] | undefined = undefined;
   /** Bind this variable if you want to be able to select collections aka groups */
   export let selectedCollections: GroupSparse[] | undefined = undefined;
+  /** Bind this variable if you want to be able to select collections aka groups */
+  export let selectedIntegrationKnowledge:
+    | Omit<IntegrationKnowledge[], "tenant_id" | "user_integration_id" | "space_id">
+    | undefined = undefined;
+
   export let aria: AriaProps = { "aria-label": "Select knowledge" };
   /**
    * Set this to true if you're rendering the selector inside a dialog. Will portal it to the body element
@@ -26,7 +32,11 @@
   const {
     elements: { input, menu, group, groupLabel, option },
     states: { open, inputValue }
-  } = createCombobox<{ website: WebsiteSparse } | { collection: GroupSparse }>({
+  } = createCombobox<
+    | { website: WebsiteSparse }
+    | { collection: GroupSparse }
+    | { integrationKnowledge: IntegrationKnowledge }
+  >({
     forceVisible: false,
     loop: true,
     positioning: {
@@ -53,12 +63,20 @@
     state: { currentSpace }
   } = getSpacesManager();
 
-  function addItem(item: { website: WebsiteSparse } | { collection: GroupSparse }) {
+  function addItem(
+    item:
+      | { website: WebsiteSparse }
+      | { collection: GroupSparse }
+      | { integrationKnowledge: IntegrationKnowledge }
+  ) {
     if ("collection" in item && selectedCollections) {
       selectedCollections = [...selectedCollections, item.collection];
     }
     if ("website" in item && selectedWebsites) {
       selectedWebsites = [...selectedWebsites, item.website];
+    }
+    if ("integrationKnowledge" in item && selectedIntegrationKnowledge) {
+      selectedIntegrationKnowledge = [...selectedIntegrationKnowledge, item.integrationKnowledge];
     }
   }
 
@@ -69,6 +87,7 @@
     $currentSpace,
     selectedWebsites,
     selectedCollections,
+    selectedIntegrationKnowledge,
     $inputValue
   );
 
@@ -93,12 +112,12 @@
       <div class="flex-grow"></div>
       {#if collection.metadata.num_info_blobs > 0}
         <span
-          class="label-blue rounded-full border border-label-default bg-label-dimmer px-3 py-1 text-sm text-label-stronger"
+          class="label-blue border-label-default bg-label-dimmer text-label-stronger rounded-full border px-3 py-1 text-sm"
           >{collection.metadata.num_info_blobs} files</span
         >
       {:else}
         <span
-          class="label-neutral rounded-full border border-label-default bg-label-dimmer px-3 py-1 text-sm text-label-stronger"
+          class="label-neutral border-label-default bg-label-dimmer text-label-stronger rounded-full border px-3 py-1 text-sm"
           >Empty</span
         >
       {/if}
@@ -140,8 +159,36 @@
   {/each}
 {/if}
 
+{#if selectedIntegrationKnowledge}
+  {#each selectedIntegrationKnowledge as knowledge (knowledge.id)}
+    {@const isItemModelEnabled = enabledModels.includes(knowledge.embedding_model.id)}
+    <div class="knowledge-item">
+      {#if isItemModelEnabled}
+        <IntegrationVendorIcon size="sm" type={knowledge.integration_type}></IntegrationVendorIcon>
+      {:else}
+        <IconCancel />
+      {/if}
+      <span class="truncate px-2">{knowledge.name}</span>
+      {#if !isItemModelEnabled}
+        <span>(model disabled)</span>
+      {/if}
+      <div class="flex-grow"></div>
+      <Button
+        variant="destructive"
+        padding="icon"
+        on:click={() => {
+          selectedIntegrationKnowledge = selectedIntegrationKnowledge?.filter(
+            (item) => item.id !== knowledge.id
+          );
+          if ($open) inputElement.focus();
+        }}><IconTrash /></Button
+      >
+    </div>
+  {/each}
+{/if}
+
 {#if $open}
-  <div class="relative mt-2 h-12 w-full overflow-clip rounded-lg border border-default">
+  <div class="border-default relative mt-2 h-12 w-full overflow-clip rounded-lg border">
     <input
       bind:this={inputElement}
       name="knowledgeFilter"
@@ -152,7 +199,7 @@
 
     <label
       for="knowledgeFilter"
-      class="pointer-events-none absolute bottom-0 left-3 top-0 flex items-center text-lg text-muted"
+      class="text-muted pointer-events-none absolute top-0 bottom-0 left-3 flex items-center text-lg"
       >Filter:</label
     >
   </div>
@@ -160,7 +207,7 @@
   <button
     bind:this={triggerButton}
     {...aria}
-    class="relative mt-2 flex h-12 w-full items-center justify-center gap-1 overflow-clip rounded-lg border border-default hover:bg-hover-default"
+    class="border-default hover:bg-hover-default relative mt-2 flex h-12 w-full items-center justify-center gap-1 overflow-clip rounded-lg border"
     on:click={async () => {
       $open = true;
       await tick();
@@ -172,16 +219,16 @@
 {/if}
 
 <div
-  class="z-20 flex flex-col overflow-hidden overflow-y-auto rounded-lg border border-default bg-primary shadow-xl"
+  class="border-default bg-primary z-20 flex flex-col overflow-hidden overflow-y-auto rounded-lg border shadow-xl"
   class:inDialog
   {...$menu}
   use:menu
 >
   {#if sections.length > 0}
-    {#each sections as section}
+    {#each sections as section (section)}
       <div {...$group(section.name)} use:group class="flex w-full flex-col">
         <div
-          class="bg-frosted-glass-secondary sticky top-0 flex items-center gap-3 border-b border-default px-4 py-2 font-mono text-sm"
+          class="bg-frosted-glass-secondary border-default sticky top-0 flex items-center gap-3 border-b px-4 py-2 font-mono text-sm"
           {...$groupLabel(section.name)}
           use:groupLabel
         >
@@ -211,12 +258,12 @@
 
               {#if collection.metadata.num_info_blobs > 0}
                 <span
-                  class="label-blue rounded-full border border-label-default bg-label-dimmer px-3 py-1 text-sm text-label-stronger"
+                  class="label-blue border-label-default bg-label-dimmer text-label-stronger rounded-full border px-3 py-1 text-sm"
                   >{collection.metadata.num_info_blobs} files</span
                 >
               {:else}
                 <span
-                  class="label-neutral rounded-full border border-label-default bg-label-dimmer px-3 py-1 text-sm text-label-stronger"
+                  class="label-neutral border-label-default bg-label-dimmer text-label-stronger rounded-full border px-3 py-1 text-sm"
                   >Empty</span
                 >
               {/if}
@@ -234,6 +281,20 @@
               </div>
             </div>
           {/each}
+          {#each section.integrationKnowledge as integrationKnowledge (integrationKnowledge.id)}
+            <div
+              class="knowledge-item cursor-pointer"
+              {...$option({ value: { integrationKnowledge } })}
+              use:option
+            >
+              <div class="flex max-w-full flex-grow items-center gap-3">
+                <IntegrationVendorIcon size="sm" type={integrationKnowledge.integration_type}
+                ></IntegrationVendorIcon>
+
+                <span class=" truncate">{integrationKnowledge.name}</span>
+              </div>
+            </div>
+          {/each}
         {/if}
       </div>
     {/each}
@@ -245,12 +306,13 @@
 </div>
 
 <style lang="postcss">
+  @reference "@intric/ui/styles";
   p.knowledge-message {
-    @apply flex min-h-16 items-center justify-center px-4 text-center text-muted;
+    @apply text-muted flex min-h-16 items-center justify-center px-4 text-center;
   }
 
   .knowledge-item {
-    @apply flex h-16 w-full items-center gap-2 border-b border-default bg-primary px-4 hover:bg-hover-dimmer;
+    @apply border-default bg-primary hover:bg-hover-dimmer flex h-16 w-full items-center gap-2 border-b px-4;
   }
 
   div[data-highlighted] {

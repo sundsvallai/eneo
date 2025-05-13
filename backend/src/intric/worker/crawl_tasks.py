@@ -5,13 +5,7 @@ from dependency_injector import providers
 from intric.main.container.container import Container
 from intric.main.logging import get_logger
 from intric.websites.crawl_dependencies.crawl_models import (
-    CrawlRunCreate,
-    CrawlRunUpdate,
     CrawlTask,
-)
-from intric.websites.website_models import UpdateInterval
-from intric.worker.dependencies.worker_container_overrides import (
-    override_embedding_model_from_website,
 )
 
 logger = get_logger(__name__)
@@ -19,35 +13,21 @@ logger = get_logger(__name__)
 
 async def queue_website_crawls(container: Container):
     user_repo = container.user_repo()
-    crawl_run_repo = container.crawl_run_repo()
+    website_sparse_repo = container.website_sparse_repo()
 
     async with container.session().begin():
-        websites = await container.website_repo().get_all()
+        websites = await website_sparse_repo.get_weekly_websites()
 
         for website in websites:
             try:
-                if website.update_interval == UpdateInterval.WEEKLY:
-                    # Get user
-                    user = await user_repo.get_user_by_id(website.user_id)
-                    container.user.override(providers.Object(user))
-                    container.tenant.override(providers.Object(user.tenant))
+                # Get user
+                user = await user_repo.get_user_by_id(website.user_id)
+                container.user.override(providers.Object(user))
+                container.tenant.override(providers.Object(user.tenant))
 
-                    # Create crawl run
-                    crawl_run = await crawl_run_repo.add(
-                        CrawlRunCreate(website_id=website.id, tenant_id=user.tenant_id)
-                    )
-                    crawl_job = await container.task_service().queue_crawl(
-                        name=website.name,
-                        run_id=crawl_run.id,
-                        website_id=website.id,
-                        url=website.url,
-                        download_files=website.download_files,
-                        crawl_type=website.crawl_type,
-                    )
+                crawl_service = container.crawl_service()
 
-                    await crawl_run_repo.update(
-                        CrawlRunUpdate(id=crawl_run.id, job_id=crawl_job.id)
-                    )
+                await crawl_service.crawl(website)
             except Exception as e:
                 # If a website fails to queue, try the next one
                 logger.error(f"Error when queueing up website {website.url}: {e}")
@@ -58,25 +38,21 @@ async def queue_website_crawls(container: Container):
 async def crawl_task(*, job_id: UUID, params: CrawlTask, container: Container):
     task_manager = container.task_manager(job_id=job_id)
     async with task_manager.set_status_on_exception():
-        await override_embedding_model_from_website(
-            container=container,
-            website_id=params.website_id,
-            tenant_id=container.user().tenant_id,
-        )
-
         # Get resources
         crawler = container.crawler()
         uploader = container.text_processor()
         crawl_run_repo = container.crawl_run_repo()
 
         info_blob_repo = container.info_blob_repo()
-        website_service = container.website_service()
+        update_website_size_service = container.update_website_size_service()
+        website_service = container.website_crud_service()
+        website = await website_service.get_website(params.website_id)
 
         # Do task
         logger.info(f"Running crawl with params: {params}")
         num_pages = 0
         num_files = 0
-        num_̈́failed_pages = 0
+        num_failed_pages = 0
         num_failed_files = 0
         num_deleted_blobs = 0
 
@@ -102,12 +78,13 @@ async def crawl_task(*, job_id: UUID, params: CrawlTask, container: Container):
                             title=title,
                             website_id=params.website_id,
                             url=page.url,
+                            embedding_model=website.embedding_model,
                         )
                     crawled_titles.append(title)
 
                 except Exception:
                     logger.exception("Exception while uploading page")
-                    num_̈́failed_pages += 1
+                    num_failed_pages += 1
 
             for file in crawl.files:
                 num_files += 1
@@ -118,6 +95,7 @@ async def crawl_task(*, job_id: UUID, params: CrawlTask, container: Container):
                             filepath=file,
                             filename=filename,
                             website_id=params.website_id,
+                            embedding_model=website.embedding_model,
                         )
 
                     crawled_titles.append(filename)
@@ -132,26 +110,23 @@ async def crawl_task(*, job_id: UUID, params: CrawlTask, container: Container):
                         title=title, website_id=params.website_id
                     )
 
-            await website_service.update_website_size(params.website_id)
+            await update_website_size_service.update_website_size(website_id=website.id)
 
             logger.info(
-                f"Crawler finished. {num_pages} pages, {num_̈́failed_pages} failed. "
+                f"Crawler finished. {num_pages} pages, {num_failed_pages} failed. "
                 f"{num_files} files, {num_failed_files} failed. "
                 f"{num_deleted_blobs} blobs deleted."
             )
 
-            await crawl_run_repo.update(
-                CrawlRunUpdate(
-                    id=params.run_id,
-                    pages_crawled=num_pages,
-                    files_downloaded=num_files,
-                    pages_failed=num_̈́failed_pages,
-                    files_failed=num_failed_files,
-                )
+            crawl_run = await crawl_run_repo.one(params.run_id)
+            crawl_run.update(
+                pages_crawled=num_pages,
+                files_downloaded=num_files,
+                pages_failed=num_failed_pages,
+                files_failed=num_failed_files,
             )
+            await crawl_run_repo.update(crawl_run)
 
-        task_manager.result_location = (
-            f"/api/v1/websites/{params.website_id}/info-blobs/"
-        )
+        task_manager.result_location = f"/api/v1/websites/{params.website_id}/info-blobs/"
 
     return task_manager.successful()

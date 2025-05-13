@@ -4,7 +4,7 @@
   <link rel="manifest" href="manifest.json" crossorigin="use-credentials" />
 </svelte:head>
 
-<div class="app-container fixed inset-0 flex justify-center bg-secondary">
+<div class="app-container bg-secondary fixed inset-0 flex justify-center">
   <slot />
 </div>
 

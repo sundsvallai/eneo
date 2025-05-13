@@ -1,20 +1,27 @@
 import { getContext, setContext } from "svelte";
-import { type InfoBlob } from "@intric/intric-js";
-import { writable } from "svelte/store";
-import type { CustomInfoBlobComponent } from "./CustomComponents";
+import type { CustomRenderers } from "./CustomComponents";
+import type { InfoBlob } from "@intric/intric-js";
 
 const ctxKey = Symbol("Message references");
 
+// For now we don't need any extra state in here, as the references are already a closure.
+// The only prupose is shuffling the API around a bit so it looks more like our other stores
+// and turning the explicit function call into a getter.
 export function initReferenceContext(params: {
-  references?: InfoBlob[];
-  component?: CustomInfoBlobComponent;
+  references: () => InfoBlob[];
+  renderer: CustomRenderers["inref"];
 }) {
   const data = {
     state: {
-      references: writable<InfoBlob[]>(params.references ?? [])
+      references: {
+        get current() {
+          return params.references();
+        }
+      }
     },
-    customComponent: params.component
+    CustomRenderer: params.renderer
   };
+
   setContext(ctxKey, data);
   return data;
 }

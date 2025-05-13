@@ -23,9 +23,3 @@ If you want to develop the actual SvelteKit app contained in this package, run i
 ```bash
 pnpm run dev:app
 ```
-
-## Tailwind / PostCss / Svelte-Preprocess
-
-This package uses `svelte-preprocess` instead of SvelteKit´s standard `vitePreprocess`, which allows an easier way to inject global css into our components (needed for the hljs powered Markdown components).
-
-This change means there is no postcss.config.js file present, but instead the postcss is directly configured inside svelte.config.css.

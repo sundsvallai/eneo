@@ -15,7 +15,7 @@ from intric.ai_models.embedding_models.embedding_model import (
     EmbeddingModelUpdate,
 )
 from intric.ai_models.embedding_models.embedding_models_repo import (
-    EmbeddingModelsRepository,
+    AdminEmbeddingModelsService,
 )
 from intric.database.database import sessionmanager
 from intric.main.logging import get_logger
@@ -26,9 +26,7 @@ logger = get_logger(__name__)
 
 
 def load_models_from_config():
-    config_path = os.path.join(
-        pathlib.Path(__file__).parent.resolve(), COMPLETION_MODELS_FILE_NAME
-    )
+    config_path = os.path.join(pathlib.Path(__file__).parent.resolve(), COMPLETION_MODELS_FILE_NAME)
     with open(config_path, "r") as file:
         data = yaml.safe_load(file)
         return data
@@ -36,7 +34,7 @@ def load_models_from_config():
 
 async def create_models(
     models: dict,
-    repository: type[CompletionModelsRepository] | type[EmbeddingModelsRepository],
+    repository: type[CompletionModelsRepository] | type[AdminEmbeddingModelsService],
     model_create: type[CompletionModelCreate] | type[EmbeddingModelCreate],
     model_update: type[CompletionModelUpdate] | type[EmbeddingModelUpdate],
 ):
@@ -58,9 +56,7 @@ async def create_models(
             if model.name not in existing_models_names:
                 await repository.create_model(model)
             else:
-                model = model_update(
-                    **model.model_dump(), id=existing_models_names[model.name]
-                )
+                model = model_update(**model.model_dump(), id=existing_models_names[model.name])
                 await repository.update_model(model)
 
 
@@ -82,7 +78,7 @@ async def init_models():
         embedding_models = data["embedding_models"]
         await create_models(
             models=embedding_models,
-            repository=EmbeddingModelsRepository,
+            repository=AdminEmbeddingModelsService,
             model_create=EmbeddingModelCreate,
             model_update=EmbeddingModelUpdate,
         )

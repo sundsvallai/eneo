@@ -23,6 +23,20 @@
   <title>Intric.ai – {$currentSpace.personal ? "Personal" : $currentSpace.name} – Overview</title>
 </svelte:head>
 
+{#snippet tile(params: { title: string; count: number; link: string })}
+  <a
+    href="/spaces/{$currentSpace.routeId}{params.link}"
+    class="border-default bg-hover-dimmer hover:bg-hover-default flex min-h-64 cursor-pointer flex-col border-t px-4 py-2"
+  >
+    <h3 class="text-primary font-mono text-sm uppercase">{params.title}</h3>
+    <div class="flex-grow"></div>
+
+    <div class="text-primary self-end text-[4rem] font-bold">
+      {params.count}
+    </div>
+  </a>
+{/snippet}
+
 <Page.Root>
   <Page.Header>
     <Page.Title title="Overview"></Page.Title>
@@ -30,14 +44,14 @@
   </Page.Header>
 
   <Page.Main>
-    <div class="flex flex-grow flex-col overflow-y-auto pl-2 pr-4 pt-4">
+    <div class="flex flex-grow flex-col overflow-y-auto pt-4 pr-4 pl-2">
       <div class="flex items-center justify-start gap-4 pb-4">
-        <h1 class="text-[2rem] font-extrabold text-primary">
+        <h1 class="text-primary text-[2rem] font-extrabold">
           {$currentSpace.personal ? `Hi, ${$userInfo.firstName}!` : $currentSpace.name}
         </h1>
       </div>
       {#if $currentSpace.personal}
-        <p class="min-h-20 max-w-[70ch] text-primary">
+        <p class="text-primary min-h-20 max-w-[70ch]">
           You can build and experiment with your own AI applications in your personal space.
         </p>
       {:else}
@@ -45,71 +59,50 @@
       {/if}
       <!-- <div class="flex-grow"></div> -->
 
-      <div class="grid gap-4 pb-4 pt-4 md:grid-cols-3">
+      <div class="grid gap-4 pt-4 pb-4 md:grid-cols-3">
         {#if $currentSpace.hasPermission("read", "assistant")}
-          <a href="/spaces/{$currentSpace.routeId}/assistants" class="tile">
-            <h3 class="font-mono text-sm uppercase text-primary">Assistants</h3>
-            <div class="flex-grow"></div>
-            <div class="self-end text-[4rem] font-bold text-primary">
-              {$currentSpace.applications.assistants.length}
-            </div>
-          </a>
+          {@render tile({
+            title: "Assistants",
+            count: $currentSpace.applications.chat.length,
+            link: "/assistants"
+          })}
         {/if}
         {#if $currentSpace.hasPermission("read", "app")}
-          <a href="/spaces/{$currentSpace.routeId}/apps" class="tile">
-            <h3 class="font-mono text-sm uppercase text-primary">Apps</h3>
-            <div class="flex-grow"></div>
-            <div class="self-end text-[4rem] font-bold text-primary">
-              {$currentSpace.applications.apps.length}
-            </div>
-          </a>
+          {@render tile({
+            title: "Apps",
+            count: $currentSpace.applications.apps.length,
+            link: "/apps"
+          })}
         {/if}
         {#if $currentSpace.hasPermission("read", "service")}
-          <a href="/spaces/{$currentSpace.routeId}/services" class="tile">
-            <h3 class="font-mono text-sm uppercase text-primary">Services</h3>
-            <div class="flex-grow"></div>
-            <div class="self-end text-[4rem] font-bold text-primary">
-              {$currentSpace.applications.services.length}
-            </div>
-          </a>
+          {@render tile({
+            title: "Services",
+            count: $currentSpace.applications.services.length,
+            link: "/services"
+          })}
         {/if}
         {#if $currentSpace.hasPermission("read", "collection")}
-          <a href="/spaces/{$currentSpace.routeId}/knowledge?tab=collections" class="tile">
-            <h3 class="font-mono text-sm uppercase text-primary">Collections</h3>
-            <div class="flex-grow"></div>
-
-            <div class="self-end text-[4rem] font-bold text-primary">
-              {$currentSpace.knowledge.groups.length}
-            </div>
-          </a>
+          {@render tile({
+            title: "Collections",
+            count: $currentSpace.knowledge.groups.length,
+            link: "/knowledge?tab=collections"
+          })}
         {/if}
         {#if $currentSpace.hasPermission("read", "website")}
-          <a href="/spaces/{$currentSpace.routeId}/knowledge?tab=websites" class="tile">
-            <h3 class="font-mono text-sm uppercase text-primary">Websites</h3>
-            <div class="flex-grow"></div>
-
-            <div class="self-end text-[4rem] font-bold text-primary">
-              {$currentSpace.knowledge.websites.length}
-            </div>
-          </a>
+          {@render tile({
+            title: "Websites",
+            count: $currentSpace.knowledge.websites.length,
+            link: "/knowledge?tab=websites"
+          })}
         {/if}
         {#if $currentSpace.hasPermission("read", "member")}
-          <a href="/spaces/{$currentSpace.routeId}/members" class="tile">
-            <h3 class="font-mono text-sm uppercase text-primary">Members</h3>
-            <div class="flex-grow"></div>
-
-            <div class="self-end text-[4rem] font-bold text-primary">
-              {$currentSpace.members.length}
-            </div>
-          </a>
+          {@render tile({
+            title: "Members",
+            count: $currentSpace.members.length,
+            link: "/members"
+          })}
         {/if}
       </div>
     </div>
   </Page.Main>
 </Page.Root>
-
-<style lang="postcss">
-  .tile {
-    @apply flex min-h-64 cursor-pointer flex-col border-t border-default bg-hover-dimmer px-4 py-2 hover:bg-hover-default;
-  }
-</style>

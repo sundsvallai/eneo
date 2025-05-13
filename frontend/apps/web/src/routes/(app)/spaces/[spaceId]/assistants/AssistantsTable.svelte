@@ -1,14 +1,17 @@
 <script lang="ts">
-  import type { AssistantSparse } from "@intric/intric-js";
   import { Table } from "@intric/ui";
   import { createRender } from "svelte-headless-table";
   import AssistantTile from "./AssistantTile.svelte";
   import AssistantActions from "./AssistantActions.svelte";
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
   import { IconAssistant } from "@intric/icons/assistant";
+  import PublishingStatusChip from "$lib/features/publishing/components/PublishingStatusChip.svelte";
+  import GroupChatActions from "./GroupChatActions.svelte";
+  import type { AssistantSparse, GroupChatSparse } from "@intric/intric-js";
+  import { getChatQueryParams } from "$lib/features/chat/getChatQueryParams";
 
-  export let assistants: AssistantSparse[];
-  const table = Table.createWithResource(assistants);
+  export let items: (GroupChatSparse | AssistantSparse)[];
+  const table = Table.createWithResource(items);
 
   const {
     state: { currentSpace }
@@ -21,17 +24,45 @@
       cell: (item) => {
         return createRender(Table.PrimaryCell, {
           label: item.value.name,
-          link: `/spaces/${$currentSpace.routeId}/assistants/${item.value.id}`,
+          link: `/spaces/${$currentSpace.routeId}/chat/?${getChatQueryParams({
+            chatPartner: item.value,
+            tab: "chat"
+          })}`,
           icon: IconAssistant
         });
       }
     }),
 
+    // Only show status if we're not in the personal space
+    ...(!$currentSpace.personal
+      ? [
+          table.column({
+            header: "Status",
+            accessor: (item) => item,
+            cell: (item) => {
+              return createRender(PublishingStatusChip, {
+                resource: item.value
+              });
+            }
+          })
+        ]
+      : []),
+
     table.columnActions({
       cell: (item) => {
-        return createRender(AssistantActions, {
-          assistant: item.value
-        });
+        if (item.value.type === "assistant") {
+          return createRender(AssistantActions, {
+            assistant: item.value
+          });
+        }
+
+        if (item.value.type === "group-chat") {
+          return createRender(GroupChatActions, {
+            groupChat: item.value
+          });
+        }
+
+        return createRender(Table.FormattedCell, { value: "Unknown" });
       }
     }),
 
@@ -39,13 +70,17 @@
       value: (item) => item.name,
       cell: (item) => {
         return createRender(AssistantTile, {
-          assistant: item.value
+          item: item.value
         });
       }
     })
   ]);
 
-  $: table.update(assistants);
+  $: table.update(items);
+
+  function isPublished(status: boolean): (assistant: { published: boolean }) => boolean {
+    return (assistant: { published: boolean }) => assistant.published === status;
+  }
 </script>
 
 <Table.Root
@@ -56,5 +91,10 @@
   gapY={1.5}
   layout="grid"
 >
-  <Table.Group></Table.Group>
+  {#if $currentSpace.hasPermission("publish", "assistant")}
+    <Table.Group title="Published" filterFn={isPublished(true)}></Table.Group>
+    <Table.Group title="Drafts" filterFn={isPublished(false)}></Table.Group>
+  {:else}
+    <Table.Group></Table.Group>
+  {/if}
 </Table.Root>

@@ -178,12 +178,18 @@ function derivedCurrentSpace(space: Readable<Space>) {
     // long as we do not run into performance issues.
     // At that point we should probably also independently refresh the resources
     // (apps, knowledge) with their respective endpoints.
+
     return {
       ...$space,
       routeId: $space.personal ? "personal" : $space.id,
       members: $space.members.items,
       applications: {
         assistants: $space.applications.assistants.items,
+        groupChats: $space.applications.group_chats.items,
+        chat: [
+          ...$space.applications.assistants.items,
+          ...$space.applications.group_chats.items
+        ].sort((a, b) => a.name.localeCompare(b.name)),
         apps: $space.applications.apps.items,
         services: $space.applications.services.items.filter((service) => {
           return !service.name.startsWith("_intric");
@@ -191,7 +197,8 @@ function derivedCurrentSpace(space: Readable<Space>) {
       },
       knowledge: {
         websites: $space.knowledge.websites.items,
-        groups: $space.knowledge.groups.items
+        groups: $space.knowledge.groups.items,
+        integrationKnowledge: $space.knowledge.integration_knowledge_list.items
       },
       hasPermission(action: ResourcePermission, resource: Resource) {
         switch (resource) {
@@ -199,6 +206,8 @@ function derivedCurrentSpace(space: Readable<Space>) {
             return $space.permissions?.includes(action) ?? false;
           case "assistant":
             return $space.applications.assistants.permissions?.includes(action) ?? false;
+          case "group_chat":
+            return $space.applications.group_chats.permissions?.includes(action) ?? false;
           case "default_assistant":
             return $space.default_assistant.permissions?.includes(action) ?? false;
           case "app":
@@ -209,6 +218,10 @@ function derivedCurrentSpace(space: Readable<Space>) {
             return $space.knowledge.groups.permissions?.includes(action) ?? false;
           case "website":
             return $space.knowledge.websites.permissions?.includes(action) ?? false;
+          case "integrationKnowledge":
+            return (
+              $space.knowledge.integration_knowledge_list.permissions?.includes(action) ?? false
+            );
           case "member":
             return $space.members.permissions?.includes(action) ?? false;
           default:
@@ -223,8 +236,10 @@ type Resource =
   | "space"
   | "assistant"
   | "default_assistant"
+  | "group_chat"
   | "service"
   | "website"
+  | "integrationKnowledge"
   | "collection"
   | "member"
   | "app";

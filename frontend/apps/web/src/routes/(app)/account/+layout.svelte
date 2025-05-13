@@ -10,13 +10,13 @@
   class="absolute inset-0 flex flex-grow justify-stretch"
   {...dynamicColour({ basedOn: user.email })}
 >
-  <div class="flex flex-col border-r-[0.5px] border-default md:min-w-[17rem] md:max-w-[17rem]">
+  <div class="border-default flex flex-col border-r-[0.5px] md:max-w-[17rem] md:min-w-[17rem]">
     <div
-      class="group relative flex h-[4.25rem] w-full items-center justify-start gap-3 border-b-[0.5px] border-default pl-[1.4rem] pr-5 pt-0.5 font-medium"
+      class="group border-default relative flex h-[4.25rem] w-full items-center justify-start gap-3 border-b-[0.5px] pt-0.5 pr-5 pl-[1.4rem] font-medium"
     >
       <div class="-ml-[0.48rem]"></div>
       <MemberChip member={user}></MemberChip>
-      <span class="flex-grow truncate pl-0.5 text-left text-primary"> {user.email} </span>
+      <span class="text-primary flex-grow truncate pl-0.5 text-left"> {user.email} </span>
     </div>
     <AccountMenu></AccountMenu>
   </div>

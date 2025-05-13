@@ -14,9 +14,10 @@ class TenantIntegrationAssembler:
     ) -> "TenantIntegrationModel":
         return TenantIntegrationModel(
             id=item.id,
-            enabled=item.enabled,
             name=item.integration.name,
             description=item.integration.description,
+            integration_type=item.integration.integration_type,
+            integration_id=item.integration.id,
         )
 
     @classmethod

@@ -6,14 +6,12 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
-
-from intric.main.config import SETTINGS
 from intric.main.container.container import Container
 from intric.prompts.api.prompt_models import PromptPublic, PromptUpdateRequest
 from intric.server.dependencies.container import get_container
 from intric.server.protocol import responses
 
-router = APIRouter(include_in_schema=SETTINGS.dev)
+router = APIRouter()
 
 
 @router.get(

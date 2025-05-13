@@ -3,7 +3,7 @@ from uuid import UUID
 
 from intric.actors import SpaceAction
 from intric.admin.quota_service import QuotaService
-from intric.groups.group_service import GroupService
+from intric.groups_legacy.group_service import GroupService
 from intric.info_blobs.info_blob import (
     InfoBlobAdd,
     InfoBlobInDB,
@@ -19,12 +19,14 @@ from intric.main.exceptions import (
 )
 from intric.main.logging import get_logger
 from intric.users.user import UserInDB
-from intric.websites.website_service import WebsiteService
 
 if TYPE_CHECKING:
     from intric.actors import ActorManager
     from intric.spaces.space_repo import SpaceRepository
     from intric.spaces.space_service import SpaceService
+    from intric.websites.infrastructure.update_website_size_service import (
+        UpdateWebsiteSizeService,
+    )
 
 logger = get_logger(__name__)
 
@@ -38,33 +40,35 @@ class InfoBlobService:
         user: UserInDB,
         quota_service: QuotaService,
         group_service: GroupService,
-        website_service: WebsiteService,
+        update_website_size_service: "UpdateWebsiteSizeService",
         space_service: "SpaceService",
         actor_manager: "ActorManager",
     ):
         self.repo = repo
         self.space_repo = space_repo
         self.group_service = group_service
-        self.website_service = website_service
+        self.update_website_size_service = update_website_size_service
         self.user = user
         self.quota_service = quota_service
         self.space_service = space_service
         self.actor_manager = actor_manager
 
-    async def _get_actor(
-        self, info_blob: Optional[InfoBlobInDB], group_id: Optional[UUID]
-    ):
+    async def _get_actor(self, info_blob: Optional[InfoBlobInDB], group_id: Optional[UUID]):
         if info_blob is None and group_id is None:
             raise ValueError("One of info_blob and group_id has to exist")
 
         if group_id is not None:
-            space = await self.space_repo.get_space_by_group(group_id=group_id)
+            space = await self.space_repo.get_space_by_collection(collection_id=group_id)
 
         else:
             if info_blob.group_id is not None:
-                space = await self.space_repo.get_space_by_group(info_blob.group_id)
+                space = await self.space_repo.get_space_by_collection(info_blob.group_id)
             elif info_blob.website_id is not None:
                 space = await self.space_repo.get_space_by_website(info_blob.website_id)
+            elif info_blob.integration_knowledge_id is not None:
+                space = await self.space_repo.get_space_by_integration_knowledge(
+                    info_blob.integration_knowledge_id
+                )
 
         return self.actor_manager.get_space_actor_from_space(space)
 
@@ -76,9 +80,7 @@ class InfoBlobService:
         if info_blob is None:
             raise NotFoundException("InfoBlob not found")
 
-        await self._can_perform_action(
-            info_blob=info_blob, group_id=None, action=action
-        )
+        await self._can_perform_action(info_blob=info_blob, group_id=None, action=action)
 
     async def _can_perform_action(
         self,
@@ -167,7 +169,7 @@ class InfoBlobService:
         if updated_info_blob.group_id is not None:
             await self.group_service.update_group_size(updated_info_blob.group_id)
         if updated_info_blob.website_id is not None:
-            await self.website_service.update_website_size(updated_info_blob.website_id)
+            await self.update_website_size_service.update_website_size(updated_info_blob.website_id)
 
         return updated_info_blob
 
@@ -206,8 +208,13 @@ class InfoBlobService:
         return await self.repo.get_by_group(group.id)
 
     async def get_by_website(self, id: UUID) -> list[InfoBlobInDB]:
-        website = await self.website_service.get_website(id)
-        return await self.repo.get_by_website(website.id)
+        space = await self.space_service.get_space_by_website(website_id=id)
+        actor = self.actor_manager.get_space_actor_from_space(space)
+
+        if not actor.can_read_info_blobs():
+            raise UnauthorizedException()
+
+        return await self.repo.get_by_website(website_id=id)
 
     async def delete(self, id: str):
         info_blob_deleted = await self.repo.delete(id)

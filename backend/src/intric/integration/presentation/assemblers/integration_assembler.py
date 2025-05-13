@@ -8,10 +8,14 @@ if TYPE_CHECKING:
 
 
 class IntegrationAssembler:
-
     @classmethod
     def from_domain_to_model(self, item: "Integration") -> "IntegrationModel":
-        return IntegrationModel(id=item.id, name=item.name, description=item.description)
+        return IntegrationModel(
+            id=item.id,
+            name=item.name,
+            description=item.description,
+            integration_type=item.integration_type,
+        )
 
     @classmethod
     def to_paginated_response(

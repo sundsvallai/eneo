@@ -1,26 +1,32 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { writable, type Writable } from "svelte/store";
   import { createContentTabs } from "./ctx";
+  import { page } from "$app/state";
+
+  type Props = {
+    tabController?: Writable<string> | undefined;
+    onTabChange?: ((args: { curr: string; next: string }) => string) | undefined;
+    children?: import("svelte").Snippet;
+  };
+
+  let { tabController = writable(), onTabChange = undefined, children }: Props = $props();
 
   const {
-    elements: { root },
-    states: { value: tabState }
-  } = createContentTabs($page.url.searchParams.get("tab") ?? undefined);
+    elements: { root }
+  } = createContentTabs(page.url.searchParams.get("tab") ?? undefined, tabController, onTabChange);
 
-  export const selectedTab = tabState;
+  $effect(() => {
+    const stateTab = page.state.tab;
+    const searchTab = page.url.searchParams.get("tab");
+    const desiredTab = stateTab ?? searchTab;
 
-  function watchTabChange(pageStore: typeof $page) {
-    // Only run if tabs have been initialised
-    if (!tabState) return;
-    const currentTab = pageStore.state.tab ?? pageStore.url.searchParams.get("tab");
-    if (!currentTab) return;
-    if (currentTab === $tabState) return;
-    $tabState = currentTab;
-  }
+    if (!desiredTab) return;
+    if (desiredTab === $tabController) return;
 
-  $: watchTabChange($page);
+    $tabController = desiredTab;
+  });
 </script>
 
-<div {...$root} use:root class="flex flex-grow flex-col overflow-x-auto bg-primary" id="content">
-  <slot />
+<div {...$root} use:root class="bg-primary flex flex-grow flex-col overflow-x-auto" id="content">
+  {@render children?.()}
 </div>

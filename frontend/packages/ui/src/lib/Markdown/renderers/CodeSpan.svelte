@@ -4,7 +4,7 @@
   export let token: Tokens.Codespan;
 </script>
 
-<code class="whitespace-pre-wrap rounded-lg bg-secondary px-1.5 py-0.5 before:hidden after:hidden"
+<code class="bg-secondary rounded-lg px-1.5 py-0.5 whitespace-pre-wrap before:hidden after:hidden"
   >{token.text}</code
 >
 

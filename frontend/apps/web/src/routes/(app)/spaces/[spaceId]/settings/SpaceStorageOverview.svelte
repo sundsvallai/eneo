@@ -43,6 +43,11 @@
       label: "Websites",
       items: $currentSpace.knowledge.websites,
       colour: "accent-default"
+    },
+    {
+      label: "Integrations",
+      items: $currentSpace.knowledge.integrationKnowledge,
+      colour: "chart-intric"
     }
   ]);
 </script>
@@ -52,8 +57,8 @@
   description="See how much storage this space's knowledge is taking up."
 >
   <div class="flex flex-col gap-4">
-    <div class="flex h-4 w-full overflow-clip rounded-full bg-secondary lg:mt-2">
-      {#each items.filter((item) => item.size > 0) as item}
+    <div class="bg-secondary flex h-4 w-full overflow-clip rounded-full lg:mt-2">
+      {#each items.filter((item) => item.size > 0) as item (item)}
         <div
           class="last-of-type:!border-none"
           style="width: {formatPercent(
@@ -66,15 +71,15 @@
       <div>
         <span class="font-medium">Total</span>: {formatBytes(total)}
       </div>
-      {#each items as item}
+      {#each items as item (item)}
         <div class="flex items-center gap-2">
           <div
             style="background: var(--{item.colour})"
-            class="h-3 w-3 rounded-full border border-stronger"
+            class="border-stronger h-3 w-3 rounded-full border"
           ></div>
           <p>
             <span class="font-medium">{item.label}</span>: {formatBytes(item.size)}
-            <span class="pl-2 text-muted">({formatPercent(item.size / total, 1)})</span>
+            <span class="text-muted pl-2">({formatPercent(item.size / total, 1)})</span>
           </p>
         </div>
       {/each}

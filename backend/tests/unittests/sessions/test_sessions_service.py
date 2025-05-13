@@ -13,6 +13,7 @@ TEST_ASSISTANT = AssistantSparse(
     name="test_assistant",
     id=TEST_UUID,
     user_id=TEST_UUID,
+    type="assistant",
 )
 
 

@@ -1,0 +1,159 @@
+@layer base {
+  /* General UI elements */
+
+  --background-primary: var(--color-white); /* Overall app background */
+  --background-secondary: var(--color-soil-50); /* Background colour in dialogs */
+  --background-tertiary: var(--color-soil-100); /* Disabled UI elements */
+
+  --shadow-default: oklch(from var(--color-black) l c h / 8%);
+  --shadow-stronger: oklch(from var(--color-black) l c h / 12%);
+
+  --background-hover-stronger: oklch(
+    from var(--color-soil-300) l c h / 30%
+  ); /* Darker hover, eg. on items that have a background-secondary */
+  --background-hover-default: oklch(
+    from var(--color-soil-300) l c h / 20%
+  ); /* Default hover, eg. on buttons */
+  --background-hover-dimmer: oklch(
+    from var(--color-soil-50) l c h / 50%
+  ); /* Lighter hover, eg. on rows */
+  --background-hover-on-fill: oklch(
+    from var(--color-soil-50) l c h / 95%
+  ); /* Hover on colours, eg on tiles */
+
+  --background-overlay-stronger: oklch(
+    from var(--color-black) l c h / 85%
+  ); /* Overlay behind tooltips */
+  --background-overlay-default: oklch(
+    from var(--color-black) l c h / 60%
+  ); /* Overlay behind dialogs */
+  --background-overlay-dimmer: oklch(
+    from var(--color-black) l c h / 15%
+  ); /* Overlay behind dropdown menus */
+
+  --text-primary: var(--color-black); /* Main text colour */
+  --text-secondary: var(--color-ui-grey-500); /* Text colour for paragraphs with less emphasis */
+  --text-muted: var(--color-ui-grey-200); /* Text colour for e.g. placeholders */
+  --text-on-fill: var(--color-white); /* Text on a coloured background */
+
+  --border-strongest: oklch(from var(--color-ui-grey-900) l c h / 45%);
+  --border-stronger: oklch(from var(--color-ui-grey-900) l c h / 25%);
+  --border-default: oklch(from var(--color-ui-grey-900) l c h / 15%);
+  --border-dimmer: oklch(from var(--color-ui-grey-900) l c h / 5%);
+  --border-on-fill: var(--color-white);
+
+  /* Colors */
+  --brand-intric: var(--color-intric-500);
+
+  --accent-stronger: var(--color-ui-blue-700);
+  --accent-default: var(--color-ui-blue-500);
+  --accent-dimmer: var(--color-ui-blue-50);
+
+  --negative-stronger: var(--color-ui-red-700);
+  --negative-default: var(--color-ui-red-500);
+  --negative-dimmer: var(--color-ui-red-50);
+
+  --positive-stronger: var(--color-ui-green-700);
+  --positive-default: var(--color-ui-green-500);
+  --positive-dimmer: var(--color-ui-green-50);
+
+  --warning-stronger: var(--color-ui-yellow-700);
+  --warning-default: var(--color-ui-yellow-500);
+  --warning-dimmer: var(--color-ui-yellow-50);
+
+  --change-indicator: var(--color-ui-orange-300);
+  --beta-indicator: var(--color-amethyst-300);
+
+  /* Chart colours */
+  --chart-red: var(--color-ui-red-500);
+  --chart-yellow: var(--color-ui-orange-300);
+  --chart-green: var(--color-ui-green-300);
+  --chart-intric: var(--color-intric-300);
+  --chart-violet: var(--color-amethyst-500);
+  --chart-moss: var(--color-moss-300);
+
+  /* Labels */
+  .label-green,
+  .label-positive {
+    --label-stronger: var(--color-ui-green-700);
+    --label-default: var(--color-ui-green-500);
+    --label-dimmer: var(--color-ui-green-50);
+  }
+
+  .label-yellow,
+  .label-warning {
+    --label-stronger: var(--color-ui-yellow-700);
+    --label-default: var(--color-ui-yellow-500);
+    --label-dimmer: var(--color-ui-yellow-50);
+  }
+
+  .label-red,
+  .label-negative {
+    --label-stronger: var(--color-ui-red-700);
+    --label-default: var(--color-ui-red-500);
+    --label-dimmer: var(--color-ui-red-50);
+  }
+
+  .label-blue,
+  .label-info {
+    --label-stronger: var(--color-ui-blue-700);
+    --label-default: var(--color-ui-blue-500);
+    --label-dimmer: var(--color-ui-blue-50);
+  }
+
+  .label-grey,
+  .label-neutral {
+    --label-stronger: var(--color-ui-grey-700);
+    --label-default: var(--color-ui-grey-500);
+    --label-dimmer: var(--color-ui-grey-50);
+  }
+
+  .label-pine {
+    --label-stronger: var(--color-pine-700);
+    --label-default: var(--color-pine-700);
+    --label-dimmer: var(--color-pine-50);
+  }
+
+  .label-amethyst {
+    --label-stronger: var(--color-amethyst-500);
+    --label-default: var(--color-amethyst-500);
+    --label-dimmer: var(--color-amethyst-50);
+  }
+
+  .label-moss {
+    --label-stronger: var(--color-moss-500);
+    --label-default: var(--color-moss-500);
+    --label-dimmer: var(--color-moss-50);
+  }
+
+  /* Dynamic */
+  *[data-dynamic-colour="pine"] {
+    --dynamic-stronger: var(--color-pine-700);
+    --dynamic-default: var(--color-pine-700);
+    --dynamic-dimmer: var(--color-pine-50);
+  }
+
+  *[data-dynamic-colour="amethyst"] {
+    --dynamic-stronger: var(--color-amethyst-500);
+    --dynamic-default: var(--color-amethyst-500);
+    --dynamic-dimmer: var(--color-amethyst-50);
+  }
+
+  *[data-dynamic-colour="moss"] {
+    --dynamic-stronger: var(--color-moss-500);
+    --dynamic-default: var(--color-moss-500);
+    --dynamic-dimmer: var(--color-moss-50);
+  }
+
+  *[data-dynamic-colour="intric"] {
+    --dynamic-stronger: var(--color-intric-500);
+    --dynamic-default: var(--color-intric-500);
+    --dynamic-dimmer: var(--color-intric-50);
+  }
+
+  *[data-dynamic-colour="blue"] {
+    --dynamic-stronger: var(--color-ui-blue-700);
+    --dynamic-default: var(--color-ui-blue-700);
+    --dynamic-dimmer: var(--color-ui-blue-50);
+  }
+}

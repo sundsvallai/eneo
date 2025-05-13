@@ -12,7 +12,7 @@
 </script>
 
 <div
-  class="flex items-center gap-1 rounded-md bg-primary px-2 text-primary hover:cursor-pointer"
+  class="bg-primary text-primary data-[highlighted]:bg-hover-default flex items-center gap-1 rounded-md px-2 hover:cursor-pointer data-[disabled]:opacity-30 data-[disabled]:hover:bg-transparent"
   {...$option({ value, label, disabled })}
   use:option
 >
@@ -34,15 +34,3 @@
     </div>
   {/if}
 </div>
-
-<style lang="postcss">
-  div[data-highlighted] {
-    @apply bg-hover-default;
-  }
-
-  /* div[data-selected] { } */
-
-  div[data-disabled] {
-    @apply opacity-30 hover:bg-transparent;
-  }
-</style>

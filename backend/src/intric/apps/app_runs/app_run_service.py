@@ -1,10 +1,10 @@
 from uuid import UUID
 
-from intric.ai_models.completion_models.context_builder import count_tokens
 from intric.apps.app_runs.api.app_run_models import AppRunParams
 from intric.apps.app_runs.app_run_factory import AppRunFactory
 from intric.apps.app_runs.app_run_repo import AppRunRepository
 from intric.apps.apps.app_service import AppService
+from intric.completion_models.infrastructure.context_builder import count_tokens
 from intric.files.file_service import FileService
 from intric.jobs.job_models import Task
 from intric.jobs.job_service import JobService
@@ -100,10 +100,10 @@ class AppRunService:
         response = await self.app_service.run_app(app_id, file_ids=file_ids, text=text)
 
         # Count the output tokens
-        total_output_tokens = count_tokens(response.completion)
+        total_output_tokens = count_tokens(response.completion.text)
 
         app_run.update(
-            output=response.completion,
+            output=response.completion.text,
             num_tokens_input=response.total_token_count,
             num_tokens_output=total_output_tokens,
         )

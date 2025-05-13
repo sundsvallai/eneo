@@ -2,9 +2,12 @@ from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from intric.database.tables.base_class import BaseCrossReference, BasePublic
+from intric.database.tables.security_classifications_table import (
+    SecurityClassification as SecurityClassificationsTable,
+)
 from intric.database.tables.tenant_table import Tenants
 
 
@@ -24,6 +27,8 @@ class CompletionModels(BasePublic):
     deployment_name: Mapped[Optional[str]] = mapped_column()
     org: Mapped[Optional[str]] = mapped_column()
     vision: Mapped[bool] = mapped_column(server_default="False")
+    reasoning: Mapped[bool] = mapped_column(server_default="False")
+    base_url: Mapped[Optional[str]] = mapped_column()
 
 
 class CompletionModelSettings(BaseCrossReference):
@@ -35,6 +40,47 @@ class CompletionModelSettings(BaseCrossReference):
     )
     is_org_enabled: Mapped[bool] = mapped_column(server_default="False")
     is_org_default: Mapped[bool] = mapped_column(server_default="False")
+
+    # Security classification relationship
+    security_classification_id: Mapped[Optional[UUID]] = mapped_column(
+        ForeignKey(SecurityClassificationsTable.id, ondelete="SET NULL"), nullable=True
+    )
+    security_classification: Mapped[Optional["SecurityClassificationsTable"]] = (
+        relationship(back_populates="completion_model_settings")
+    )
+
+
+class TranscriptionModels(BasePublic):
+    name: Mapped[str] = mapped_column(unique=True)
+    model_name: Mapped[str] = mapped_column()
+    open_source: Mapped[Optional[bool]] = mapped_column()
+    is_deprecated: Mapped[bool] = mapped_column(server_default="False")
+    hf_link: Mapped[Optional[str]] = mapped_column()
+    family: Mapped[str] = mapped_column()
+    stability: Mapped[str] = mapped_column()
+    hosting: Mapped[str] = mapped_column()
+    description: Mapped[Optional[str]] = mapped_column()
+    org: Mapped[Optional[str]] = mapped_column()
+    base_url: Mapped[str] = mapped_column()
+
+
+class TranscriptionModelSettings(BaseCrossReference):
+    tenant_id: Mapped[UUID] = mapped_column(
+        ForeignKey(Tenants.id, ondelete="CASCADE"), primary_key=True
+    )
+    transcription_model_id: Mapped[UUID] = mapped_column(
+        ForeignKey(TranscriptionModels.id, ondelete="CASCADE"), primary_key=True
+    )
+    is_org_enabled: Mapped[bool] = mapped_column(server_default="False")
+    is_org_default: Mapped[bool] = mapped_column(server_default="False")
+
+    # Security classification relationship
+    security_classification_id: Mapped[Optional[UUID]] = mapped_column(
+        ForeignKey(SecurityClassificationsTable.id, ondelete="SET NULL"), nullable=True
+    )
+    security_classification: Mapped[Optional["SecurityClassificationsTable"]] = (
+        relationship(back_populates="transcription_model_settings")
+    )
 
 
 class EmbeddingModels(BasePublic):
@@ -61,3 +107,11 @@ class EmbeddingModelSettings(BaseCrossReference):
     )
     is_org_enabled: Mapped[bool] = mapped_column(server_default="False")
     is_org_default: Mapped[bool] = mapped_column(server_default="False")
+
+    # Security classification relationship
+    security_classification_id: Mapped[Optional[UUID]] = mapped_column(
+        ForeignKey(SecurityClassificationsTable.id, ondelete="SET NULL"), nullable=True
+    )
+    security_classification: Mapped[Optional["SecurityClassificationsTable"]] = (
+        relationship(back_populates="embedding_model_settings")
+    )

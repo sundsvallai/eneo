@@ -10,18 +10,18 @@
   href={blob.metadata.url ?? ""}
   target="_blank"
   variant="simple"
-  class="max-w-[30ch] border !border-default bg-primary shadow-sm"
+  class="!border-default bg-primary max-w-[30ch] border shadow-sm"
   padding="icon-leading"
 >
   {#if index}
     <span
-      class="min-h-7 min-w-7 rounded-md border border-b-2 border-default bg-secondary text-center font-mono font-normal"
+      class="border-default bg-secondary min-h-7 min-w-7 rounded-md border border-b-2 text-center font-mono font-normal"
     >
       {index}
     </span>
   {/if}
   <span class="truncate">
-    {blob.metadata.url}
+    {blob.metadata.title ?? blob.metadata.url}
   </span>
-  <IconLinkExternal class="h-6 w-6 text-secondary" />
+  <IconLinkExternal class="text-secondary h-6 w-6" />
 </Button>

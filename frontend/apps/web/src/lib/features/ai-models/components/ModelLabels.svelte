@@ -5,20 +5,28 @@
 -->
 
 <script context="module" lang="ts">
-  import type { CompletionModel, EmbeddingModel } from "@intric/intric-js";
+  import type { CompletionModel, EmbeddingModel, TranscriptionModel } from "@intric/intric-js";
   import { Label } from "@intric/ui";
-  export function getLabels(model: CompletionModel | EmbeddingModel) {
+  export function getLabels(model: CompletionModel | EmbeddingModel | TranscriptionModel) {
     const labels: {
       label: string | number;
       color: Label.LabelColor;
       tooltip: string;
     }[] = [];
 
+    if ("reasoning" in model && model.reasoning) {
+      labels.push({
+        tooltip: "This model can use reasoning to refine its answers",
+        label: "Reasoning",
+        color: "amethyst"
+      });
+    }
+
     if ("vision" in model && model.vision) {
       labels.push({
         tooltip: "This model can process image files",
         label: "Vision",
-        color: "gold"
+        color: "moss"
       });
     }
 
@@ -51,7 +59,7 @@
 </script>
 
 <script lang="ts">
-  export let model: CompletionModel | EmbeddingModel;
+  export let model: CompletionModel | EmbeddingModel | TranscriptionModel;
   $: labels = getLabels(model);
 </script>
 

@@ -13,10 +13,10 @@
 </script>
 
 <div class="flex w-full items-center justify-start">
-  <Button href="/spaces/{space.id}/overview" padding={"icon-leading"} class="'-ml-1' max-w-full">
+  <Button href="/spaces/{space.id}/overview" padding="icon-leading" class="'-ml-1' max-w-full">
     <SpaceChip {space}></SpaceChip>
 
-    <span class="truncate overflow-ellipsis text-primary">
+    <span class="text-primary truncate overflow-ellipsis">
       {space.name}
     </span>
   </Button>

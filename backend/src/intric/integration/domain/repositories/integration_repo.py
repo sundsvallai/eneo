@@ -1,27 +1,23 @@
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from sqlalchemy.future import select
-
-from intric.database.tables.integration_table import Integration as IntegrationDBModel
-from intric.integration.domain.factories.integration_factory import IntegrationFactory
-
 if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
+    from uuid import UUID
 
     from intric.integration.domain.entities.integration import Integration
 
 
-class IntegrationRepository:
-    def __init__(self, session: "AsyncSession"):
-        self.session = session
-        self._db_model = IntegrationDBModel
+class IntegrationRepository(ABC):
+    @abstractmethod
+    async def all(self) -> list["Integration"]: ...
 
-    async def all(self) -> list["Integration"]:
-        query = select(self._db_model)
-        result = await self.session.scalars(query)
-        result = result.all()
-        if not result:
-            return []
+    @abstractmethod
+    async def one_or_none(
+        self, id: "UUID | None" = None, **filters
+    ) -> "Integration | None": ...
 
-        integration = IntegrationFactory.create_entities(records=result)
-        return integration
+    @abstractmethod
+    async def one(self, id: "UUID | None" = None, **filters) -> "Integration": ...
+
+    @abstractmethod
+    async def add(self, obj: "Integration") -> "Integration": ...

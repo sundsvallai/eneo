@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Optional
 from uuid import UUID
 
@@ -6,6 +7,11 @@ from pydantic.networks import HttpUrl
 
 from intric.main.models import InDB
 from intric.modules.module import ModuleInDB
+
+
+class TenantState(str, Enum):
+    ACTIVE = "active"
+    SUSPENDED = "suspended"
 
 
 class PrivacyPolicyMixin(BaseModel):
@@ -21,6 +27,8 @@ class TenantBase(BaseModel):
     domain: Optional[str] = None
     zitadel_org_id: Optional[str] = None
     provisioning: bool = False
+    state: TenantState = TenantState.ACTIVE
+    security_enabled: bool = False
 
     @field_validator("display_name")
     @classmethod
@@ -42,7 +50,8 @@ class TenantInDB(PrivacyPolicyMixin, InDB):
     domain: Optional[str] = None
     zitadel_org_id: Optional[str] = None
     provisioning: bool = False
-
+    state: TenantState = TenantState.ACTIVE
+    security_enabled: bool = False
     modules: list[ModuleInDB] = []
 
 
@@ -52,6 +61,8 @@ class TenantUpdatePublic(BaseModel):
     domain: Optional[str] = None
     zitadel_org_id: Optional[str] = None
     provisioning: Optional[bool] = None
+    state: Optional[TenantState] = None
+    security_enabled: Optional[bool] = None
 
 
 class TenantUpdate(TenantUpdatePublic):

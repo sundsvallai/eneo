@@ -1,5 +1,112 @@
 # Changelog
 
+## [1.23.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.22.0...intric/intric.js@v1.23.0) (2025-04-30)
+
+
+### Features
+
+* **security classifications:** add impact analysis ([#203](https://github.com/inooLabs/intric-frontend/issues/203)) ([6ef714a](https://github.com/inooLabs/intric-frontend/commit/6ef714a1d950ceca3f448ee32026acf621632d90))
+
+## [1.22.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.21.0...intric/intric.js@v1.22.0) (2025-04-25)
+
+
+### Features
+
+* add security classifications ([#199](https://github.com/inooLabs/intric-frontend/issues/199)) ([84d9bf6](https://github.com/inooLabs/intric-frontend/commit/84d9bf65e041f4b54d584e36a651c5dfcac58d6e))
+
+## [1.21.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.20.0...intric/intric.js@v1.21.0) (2025-04-04)
+
+
+### Features
+
+* add improved insights ([#189](https://github.com/inooLabs/intric-frontend/issues/189)) ([277eb2b](https://github.com/inooLabs/intric-frontend/commit/277eb2b99491382770f6d2b856497a5885ee34e4))
+
+
+### Bug Fixes
+
+* fix loading of conversation preview ([936ee3a](https://github.com/inooLabs/intric-frontend/commit/936ee3add9f10961b5319fbbafb429f3001ab95a))
+* fix pagination in conversation explorer ([d9f3c86](https://github.com/inooLabs/intric-frontend/commit/d9f3c8651b4948f16b39a2d18284db64d74ac793))
+
+## [1.20.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.19.0...intric/intric.js@v1.20.0) (2025-03-28)
+
+
+### Features
+
+* add inline chat preview for user uploaded images ([172d447](https://github.com/inooLabs/intric-frontend/commit/172d4474286c53665ecf30ac9827454cf9fbfd32))
+* add new default assistant features: image generation and web search ([#181](https://github.com/inooLabs/intric-frontend/issues/181)) ([172d447](https://github.com/inooLabs/intric-frontend/commit/172d4474286c53665ecf30ac9827454cf9fbfd32))
+* add token usage overview in admin ([#185](https://github.com/inooLabs/intric-frontend/issues/185)) ([6650292](https://github.com/inooLabs/intric-frontend/commit/66502924d90692219ee2e50279320eb8268869c9))
+
+
+### Bug Fixes
+
+* bring back error reporting in chat view ([172d447](https://github.com/inooLabs/intric-frontend/commit/172d4474286c53665ecf30ac9827454cf9fbfd32))
+* cancel ongoing stream if conversation changed during assistant's answer ([172d447](https://github.com/inooLabs/intric-frontend/commit/172d4474286c53665ecf30ac9827454cf9fbfd32))
+* fix initial conversation loading based on url ([172d447](https://github.com/inooLabs/intric-frontend/commit/172d4474286c53665ecf30ac9827454cf9fbfd32))
+
+
+### Performance Improvements
+
+* add caching for attachment and favicon urls ([172d447](https://github.com/inooLabs/intric-frontend/commit/172d4474286c53665ecf30ac9827454cf9fbfd32))
+
+## [1.19.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.18.0...intric/intric.js@v1.19.0) (2025-03-24)
+
+
+### Features
+
+* add group chats ([#177](https://github.com/inooLabs/intric-frontend/issues/177)) ([c582ff7](https://github.com/inooLabs/intric-frontend/commit/c582ff76de763d335be85f0f579482f57daec668))
+* add sharepoint integration ([#174](https://github.com/inooLabs/intric-frontend/issues/174)) ([8336362](https://github.com/inooLabs/intric-frontend/commit/83363626050812067b6dde2ca1dee6a29d05635a))
+
+
+### Bug Fixes
+
+* fix auth popup not showing on safari ([8336362](https://github.com/inooLabs/intric-frontend/commit/83363626050812067b6dde2ca1dee6a29d05635a))
+
+## [1.18.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.17.0...intric/intric.js@v1.18.0) (2025-03-14)
+
+
+### Features
+
+* add transcription models ([#175](https://github.com/inooLabs/intric-frontend/issues/175)) ([3143b6e](https://github.com/inooLabs/intric-frontend/commit/3143b6e0ba30fbe2dca533c91ac758758c3d234c))
+* make full transcripts available ([3143b6e](https://github.com/inooLabs/intric-frontend/commit/3143b6e0ba30fbe2dca533c91ac758758c3d234c))
+
+## [1.17.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.16.0...intric/intric.js@v1.17.0) (2025-03-11)
+
+
+### Features
+
+* add assistant descriptions ([#171](https://github.com/inooLabs/intric-frontend/issues/171)) ([781038e](https://github.com/inooLabs/intric-frontend/commit/781038ee78bd3b8da40038786c6cc8001eafc4b2))
+
+## [1.16.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.15.0...intric/intric.js@v1.16.0) (2025-03-06)
+
+
+### Features
+
+* add confluence integration ([#166](https://github.com/inooLabs/intric-frontend/issues/166)) ([9d87bf7](https://github.com/inooLabs/intric-frontend/commit/9d87bf7f2c19c10bfab65db0f2ccb0ad5cb5875b))
+
+
+### Bug Fixes
+
+* add integration knowledge size to space storage overview ([#168](https://github.com/inooLabs/intric-frontend/issues/168)) ([5108ba2](https://github.com/inooLabs/intric-frontend/commit/5108ba2fb57cfbd20ab3c5f76a3209f61c3c5cf6))
+
+## [1.15.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.11.1...intric/intric.js@v1.15.0) (2025-02-20)
+
+
+### Features
+
+* add support for reasoning models in ui ([#164](https://github.com/inooLabs/intric-frontend/issues/164)) ([f4f32b3](https://github.com/inooLabs/intric-frontend/commit/f4f32b356f01224a20feb967a21a4e872d535e74))
+
+
+### Miscellaneous Chores
+
+* fix version number 1.15.0 ([e1ce725](https://github.com/inooLabs/intric-frontend/commit/e1ce725f9337f1a35c0a1e6b45cfe13b111d3f1d))
+
+## [1.11.1](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.11.0...intric/intric.js@v1.11.1) (2025-02-17)
+
+
+### Bug Fixes
+
+* add server-side user filter when adding member to space ([#162](https://github.com/inooLabs/intric-frontend/issues/162)) ([5284292](https://github.com/inooLabs/intric-frontend/commit/528429214a1d2eb5cbfe1104395b64cc6771501a))
+
 ## [1.11.0](https://github.com/inooLabs/intric-frontend/compare/intric/intric.js@v1.10.0...intric/intric.js@v1.11.0) (2025-02-05)
 
 

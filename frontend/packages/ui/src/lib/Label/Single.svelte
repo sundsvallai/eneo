@@ -1,22 +1,25 @@
 <script context="module" lang="ts">
-  export type LabelColor = "blue" | "green" | "yellow" | "orange" | "gray" | "gold";
-</script>
-
-<script lang="ts">
-  import Tooltip from "$lib/Tooltip/Root.svelte";
-  export let item: { label: string | number; color: LabelColor; tooltip?: string };
-  export let capitalize = true;
-  export let monospaced = false;
-
-  // Temporary fix for the color mapping to new classnames
-  const colorMap: Record<LabelColor, string> = {
+  const colorMap = {
     blue: "label-blue",
     green: "label-green",
     yellow: "label-yellow",
     orange: "label-yellow",
     gray: "label-grey",
-    gold: "label-grey"
-  };
+    moss: "label-moss",
+    pine: "label-pine",
+    amethyst: "label-amethyst"
+  } as const;
+  export type LabelColor = keyof typeof colorMap;
+  export type LabelItem = { label: string | number; color: LabelColor; tooltip?: string };
+</script>
+
+<script lang="ts">
+  import Tooltip from "$lib/Tooltip/Root.svelte";
+  export let item: LabelItem;
+  export let capitalize = true;
+  export let monospaced = false;
+
+  // Temporary fix for the color mapping to new classnames
 </script>
 
 {#if item.tooltip}
@@ -29,7 +32,7 @@
       class:font-mono={monospaced}
       class="{colorMap[
         item.color
-      ]} inline-block cursor-default rounded-md border border-label-default bg-label-dimmer px-2 py-1 text-sm text-label-stronger"
+      ]} border-label-default bg-label-dimmer text-label-stronger inline-block cursor-default rounded-md border px-2 py-1 text-sm"
     >
       {item.label}
     </div>
@@ -40,7 +43,7 @@
     class:font-mono={monospaced}
     class="{colorMap[
       item.color
-    ]} inline-block cursor-default rounded-md border border-label-default bg-label-dimmer px-2 py-1 text-sm text-label-stronger"
+    ]} border-label-default bg-label-dimmer text-label-stronger inline-block cursor-default rounded-md border px-2 py-1 text-sm"
   >
     {item.label}
   </div>

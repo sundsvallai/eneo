@@ -1,9 +1,17 @@
 from typing import Optional
 from uuid import UUID
 
-from pydantic import AliasChoices, AliasPath, BaseModel, Field, model_validator
+from pydantic import (
+    AliasChoices,
+    AliasPath,
+    BaseModel,
+    ConfigDict,
+    Field,
+    model_validator,
+)
 
 from intric.ai_models.completion_models.completion_model import CompletionModel
+from intric.completion_models.infrastructure.web_search import WebSearchResult
 from intric.files.file_models import File, FilePublic
 from intric.info_blobs.info_blob import InfoBlobInDB, InfoBlobPublicNoText
 from intric.logging.logging import (
@@ -11,14 +19,15 @@ from intric.logging.logging import (
     LoggingDetailsInDB,
     LoggingDetailsPublic,
 )
-from intric.main.models import InDB, ModelId
+from intric.main.models import InDB
 
 
 # SubModels
 class ToolAssistant(BaseModel):
     id: UUID
-    at_tag: str = Field(
-        validation_alias=AliasChoices("at-tag", "at_tag"), serialization_alias="at-tag"
+    handle: str = Field(
+        validation_alias=AliasChoices("handle", "at-tag", "at_tag"),
+        serialization_alias="handle",
     )
 
 
@@ -27,7 +36,20 @@ class Tools(BaseModel):
 
 
 class UseTools(BaseModel):
-    assistants: list[ModelId]
+    assistants: list[ToolAssistant]
+
+
+class QuestionsFiles(BaseModel):
+    type: str
+    file: File
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class WebSearchResultPublic(BaseModel):
+    id: UUID
+    title: str
+    url: str
 
 
 # Models
@@ -44,7 +66,7 @@ class QuestionAdd(QuestionBase):
     session_id: Optional[UUID] = None
     service_id: Optional[UUID] = None
     logging_details: Optional[LoggingDetails] = None
-    tool_assistant_id: Optional[UUID] = None
+    assistant_id: Optional[UUID] = None
 
     @model_validator(mode="after")
     def require_one_of_session_id_and_service_id(self) -> "QuestionAdd":
@@ -57,19 +79,39 @@ class QuestionAdd(QuestionBase):
 class Question(QuestionAdd, InDB):
     logging_details: Optional[LoggingDetailsInDB] = None
     info_blobs: list[InfoBlobInDB] = []
-    assistant_id: Optional[UUID] = Field(
-        validation_alias=AliasPath(["assistant", "id"]), default=None
-    )
     session_id: Optional[UUID] = None
     completion_model: Optional[CompletionModel] = None
     files: list[File] = []
+    generated_files: list[File] = []
+    assistant_name: Optional[str] = Field(
+        validation_alias=AliasPath("assistant", "name"), default=None
+    )
+    questions_files: list[QuestionsFiles] = []
+    web_search_results: list[WebSearchResult] = []
+
+    @model_validator(mode="after")
+    def process_files_from_db(self) -> "Question":
+        """
+        Process files from the database record.
+        User files have type="user", assistant files have type="assistant"
+        """
+        if self.questions_files:
+            self.files = [qf.file for qf in self.questions_files if qf.type == "user"]
+            self.generated_files = [
+                qf.file for qf in self.questions_files if qf.type == "assistant"
+            ]
+
+        return self
 
 
 class Message(QuestionBase, InDB):
+    id: Optional[UUID] = None
     completion_model: Optional[CompletionModel] = None
     references: list[InfoBlobPublicNoText]
     files: list[FilePublic]
     tools: UseTools
+    generated_files: list[FilePublic]
+    web_search_references: list[WebSearchResultPublic]
 
 
 class MessageLogging(Message):

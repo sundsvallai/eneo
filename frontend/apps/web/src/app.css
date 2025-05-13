@@ -1,8 +1,5 @@
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
-
-@import "@intric/ui/styles/css";
+@import "@intric/ui/styles";
+@source "../../../packages/ui/src/";
 
 @font-face {
   font-family: Inter;
@@ -54,10 +51,11 @@
 
 html {
   font-size: 15px;
+  color: var(--text-color-primary);
 }
 
-body {
-  @apply bg-secondary bg-cover bg-bottom bg-no-repeat text-primary;
+*::placeholder {
+  color: var(--text-color-muted) !important;
 }
 
 /* ------------------------------------------ */
@@ -69,6 +67,9 @@ body.print-mode > .printable-document {
 
 @media print {
   body.print-mode > :not(.printable-document) {
+    display: none !important;
+  }
+  body.print-mode .hidden-in-print {
     display: none !important;
   }
   body.print-mode > .printable-document {

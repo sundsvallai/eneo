@@ -36,9 +36,9 @@
   <div
     {...$content}
     use:content
-    class="z-[100] line-clamp-1 rounded-lg bg-overlay-stronger text-on-fill"
+    class="bg-overlay-stronger text-on-fill z-[100] line-clamp-1 rounded-lg"
   >
-    <p class="whitespace-pre-line px-4 py-1">{text}</p>
+    <p class="px-4 py-1 whitespace-pre-line">{text}</p>
   </div>
 {:else}
   <div {...$trigger} use:trigger class={cls} class:renderInline>
@@ -47,15 +47,25 @@
     <div
       {...$content}
       use:content
-      class="z-[100] line-clamp-1 rounded-lg bg-overlay-stronger text-on-fill"
+      class="bg-overlay-stronger text-on-fill z-[100] line-clamp-1 rounded-lg"
     >
-      <p class="whitespace-pre-line px-4 py-1">{text}</p>
+      <p class="px-4 py-1 whitespace-pre-line">{text}</p>
     </div>
   </div>
 {/if}
 
-<style lang="postcss">
+<style>
+  div {
+    margin: 0px;
+  }
+
   .renderInline {
-    @apply -mr-[0.2rem] ml-0.5 inline;
+    margin-left: 0.125rem;
+    display: inline;
+  }
+
+  :global(.renderInline + .renderInline) {
+    margin-left: -0.25rem;
+    display: inline;
   }
 </style>

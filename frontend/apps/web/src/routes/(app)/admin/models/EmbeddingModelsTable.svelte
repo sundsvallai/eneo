@@ -16,6 +16,7 @@
   import { modelOrgs } from "$lib/features/ai-models/components/ModelNameAndVendor.svelte";
   import ModelCardDialog from "$lib/features/ai-models/components/ModelCardDialog.svelte";
   import ModelActions from "./ModelActions.svelte";
+  import ModelClassificationPreview from "$lib/features/security-classifications/components/ModelClassificationPreview.svelte";
 
   export let embeddingModels: EmbeddingModel[];
   const table = Table.createWithResource(embeddingModels);
@@ -44,7 +45,7 @@
       accessor: (model) => model,
       header: "Enabled",
       cell: (item) => {
-        return createRender(ModelEnableSwitch, { model: item.value });
+        return createRender(ModelEnableSwitch, { model: item.value, type: "embeddingModel" });
       },
       plugins: {
         sort: {
@@ -75,9 +76,29 @@
       }
     }),
 
+    table.column({
+      accessor: (model) => model,
+      header: "Security",
+      cell: (item) => {
+        return createRender(ModelClassificationPreview, { model: item.value });
+      },
+      plugins: {
+        sort: {
+          getSortValue(value) {
+            return value.security_classification?.security_level ?? 0;
+          }
+        },
+        tableFilter: {
+          getFilterValue(value) {
+            return value.security_classification?.name ?? "";
+          }
+        }
+      }
+    }),
+
     table.columnActions({
       cell: (item) => {
-        return createRender(ModelActions, { model: item.value });
+        return createRender(ModelActions, { model: item.value, type: "embeddingModel" });
       }
     })
   ]);
@@ -92,7 +113,7 @@
 </script>
 
 <Table.Root {viewModel} resourceName="model" displayAs="list">
-  {#each Object.entries(modelOrgs) as [org]}
+  {#each Object.entries(modelOrgs) as [org] (org)}
     <Table.Group filterFn={createOrgFilter(org)} title={org} />
   {/each}
 </Table.Root>

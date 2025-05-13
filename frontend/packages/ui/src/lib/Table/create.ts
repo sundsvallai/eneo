@@ -14,9 +14,12 @@ import {
   type TableViewModel
 } from "svelte-headless-table";
 import {
+  addPagination,
   addSelectedRows,
   addSortBy,
   addTableFilter,
+  type NewTablePropSet,
+  type PaginationState,
   type SelectedRowsPropSet,
   type SelectedRowsState,
   type SortByColumnOptions,
@@ -46,10 +49,13 @@ export function getTableContext<T>(): TableContext<T> {
   return getContext(contextKey);
 }
 
-export function createWithResource<Resource extends Record<string, unknown>>(data: Resource[]) {
+export function createWithResource<Resource extends Record<string, unknown>>(
+  data: Resource[],
+  pageSize = 999999
+) {
   const resourceStore = writable(data);
 
-  const table = createWithStore(resourceStore);
+  const table = createWithStore(resourceStore, pageSize);
 
   return {
     ...table,
@@ -60,7 +66,8 @@ export function createWithResource<Resource extends Record<string, unknown>>(dat
 }
 
 export function createWithStore<Resource extends Record<string, unknown>>(
-  data: Readable<Resource[]>
+  data: Readable<Resource[]>,
+  pageSize = 999999
 ) {
   const table: Table<Resource, Plugins<Resource>> = createTable(data, {
     select: addSelectedRows(),
@@ -69,7 +76,8 @@ export function createWithStore<Resource extends Record<string, unknown>>(
         return value.toLowerCase().includes(filterValue.toLowerCase());
       }
     }),
-    sort: addSortBy({ disableMultiSort: true })
+    sort: addSortBy({ disableMultiSort: true }),
+    page: addPagination({ initialPageSize: pageSize })
   });
 
   return {
@@ -179,6 +187,7 @@ type Plugins<T> = {
   select: TablePlugin<T, SelectedRowsState<T>, Record<string, never>, SelectedRowsPropSet>;
   tableFilter: TablePlugin<T, TableFilterState<T>, TableFilterColumnOptions<T>, TableFilterPropSet>;
   sort: TablePlugin<T, SortByState<T>, SortByColumnOptions, SortByPropSet>;
+  page: TablePlugin<T, PaginationState, Record<string, never>, NewTablePropSet<never>>;
 };
 
 export type ResourceTableViewModel<T> = TableViewModel<T, Plugins<T>>;

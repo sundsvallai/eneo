@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Optional, Union
 
 from pydantic import BaseModel, ConfigDict
 
@@ -7,8 +8,9 @@ from intric.ai_models.completion_models.completion_model import (
     ModelKwargs,
 )
 from intric.files.file_models import FilePublic, FileRestrictions
-from intric.main.models import InDB, ModelId, ResourcePermissionsMixin, partial_model
+from intric.main.models import NOT_PROVIDED, InDB, ModelId, NotProvided, ResourcePermissionsMixin
 from intric.prompts.api.prompt_models import PromptCreate, PromptPublic
+from intric.transcription_models.presentation import TranscriptionModelPublic
 
 
 class InputFieldType(str, Enum):
@@ -50,14 +52,17 @@ class AppPublic(AppCreateRequest, InDB, ResourcePermissionsMixin):
     completion_model_kwargs: ModelKwargs
     allowed_attachments: FileRestrictions
     published: bool
+    transcription_model: TranscriptionModelPublic
+    data_retention_days: Optional[int] = None
 
 
-@partial_model
 class AppUpdateRequest(BaseModel):
-    name: str
-    description: str
-    input_fields: list[InputField]
-    attachments: list[ModelId]
-    prompt: PromptCreate
-    completion_model: ModelId
-    completion_model_kwargs: ModelKwargs
+    name: Optional[str] = None
+    description: Optional[str] = None
+    input_fields: Optional[list[InputField]] = None
+    attachments: Optional[list[ModelId]] = None
+    prompt: Optional[PromptCreate] = None
+    completion_model: Optional[ModelId] = None
+    completion_model_kwargs: Optional[ModelKwargs] = None
+    transcription_model: Optional[ModelId] = None
+    data_retention_days: Union[int, None, NotProvided] = NOT_PROVIDED

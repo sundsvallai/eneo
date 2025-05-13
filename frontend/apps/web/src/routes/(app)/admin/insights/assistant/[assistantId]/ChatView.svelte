@@ -63,11 +63,11 @@
 
 <div class="absolute inset-0 flex flex-col items-center justify-center transition-all">
   <form
-    class="sticky top-0 z-10 flex w-full flex-col items-center gap-4 bg-primary py-8 transition-all"
+    class="bg-primary sticky top-0 z-10 flex w-full flex-col items-center gap-4 py-8 transition-all"
     aria-labelledby="insights_description"
   >
     <div
-      class="flex w-full max-w-[62ch] items-end justify-center gap-1 overflow-clip rounded-lg border border-default bg-primary p-1 shadow-lg"
+      class="border-default bg-primary flex w-full max-w-[62ch] items-end justify-center gap-1 overflow-clip rounded-lg border p-1 shadow-lg"
     >
       <textarea
         aria-label="Ask a question about what this assistant has been asked previously"
@@ -92,14 +92,14 @@
         name="question"
         id="question"
         rows="1"
-        class="relative min-h-10 flex-grow resize-none overflow-y-auto rounded-md bg-primary px-4 py-2 text-lg ring-default placeholder:text-secondary hover:border-strongest hover:ring-2"
+        class="bg-primary ring-default placeholder:text-secondary hover:border-strongest relative min-h-10 flex-grow resize-none overflow-y-auto rounded-md px-4 py-2 text-lg hover:ring-2"
       ></textarea>
       <button
         disabled={loadingAnswer}
         type="submit"
         aria-label="Submit your question"
         on:click={askQuestion}
-        class="flex h-11 w-11 items-center justify-center rounded-lg bg-secondary p-2 text-lg hover:bg-hover-stronger"
+        class="bg-secondary hover:bg-hover-stronger flex h-11 w-11 items-center justify-center rounded-lg p-2 text-lg"
       >
         {#if loadingAnswer}
           <IconLoadingSpinner class="animate-spin" />
@@ -111,14 +111,14 @@
   </form>
 
   {#if message.answer === NOT_ANSWERED}
-    <p class="text-center text-secondary transition-all" id="insights_description">
+    <p class="text-secondary text-center transition-all" id="insights_description">
       Discover what users wanted to know from <span class="italic">{assistant.name}</span>.<br />Ask
       a question about the conversation history to get started.
     </p>
   {:else if message.answer !== ""}
     <div
       in:fade={{ duration: 300 }}
-      class="prose overflow-y-auto rounded-lg border border-default px-8 py-4 text-lg"
+      class="prose border-default overflow-y-auto rounded-lg border px-8 py-4 text-lg"
       aria-live="polite"
     >
       <Markdown source={message.answer} />

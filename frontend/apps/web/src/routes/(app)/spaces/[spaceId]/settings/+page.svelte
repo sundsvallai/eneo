@@ -12,17 +12,30 @@
   import SelectCompletionModels from "./SelectCompletionModels.svelte";
   import { Page, Settings } from "$lib/components/layout";
   import SpaceStorageOverview from "./SpaceStorageOverview.svelte";
+  import SelectTranscriptionModels from "./SelectTranscriptionModels.svelte";
+  import { writable } from "svelte/store";
+  import { getIntric } from "$lib/core/Intric.js";
+  import ChangeSecurityClassification from "./ChangeSecurityClassification.svelte";
 
-  export let data;
+  const intric = getIntric();
+
+  let { data } = $props();
+  let models = $state(data.models);
+  let completionModels = $derived(models.completionModels.filter((model) => model.is_org_enabled));
+  let embeddingModels = $derived(models.embeddingModels.filter((model) => model.is_org_enabled));
+  let transcriptionModels = $derived(
+    models.transcriptionModels.filter((model) => model.is_org_enabled)
+  );
 
   const spaces = getSpacesManager();
   const currentSpace = spaces.state.currentSpace;
 
-  let showDeleteDialog: Dialog.OpenState;
-  let deleteConfirmation = "";
-  let isDeleting = false;
-  let showStillDeletingMessage = false;
+  let showDeleteDialog = writable(false);
+  let deleteConfirmation = $state("");
+  let isDeleting = $state(false);
+  let showStillDeletingMessage = $state(false);
   let deletionMessageTimeout: ReturnType<typeof setTimeout>;
+
   async function deleteSpace() {
     if (deleteConfirmation === "") return;
     if (deleteConfirmation !== $currentSpace.name) {
@@ -61,20 +74,29 @@
         <SpaceStorageOverview></SpaceStorageOverview>
       </Settings.Group>
 
-      <Settings.Group title="AI Models">
-        <SelectCompletionModels
-          selectableModels={data.completionModels.filter((model) => model.is_org_enabled)}
-        ></SelectCompletionModels>
+      <Settings.Group title="Advanced settings">
+        {#if data.isSecurityEnabled}
+          <ChangeSecurityClassification
+            classifications={data.classifications}
+            onUpdateDone={async () => {
+              // If the classification was changed we update the models to get their availability
+              models = await intric.models.list({ space: $currentSpace });
+            }}
+          ></ChangeSecurityClassification>
+        {/if}
 
-        <SelectEmbeddingModels
-          selectableModels={data.embeddingModels.filter((model) => model.is_org_enabled)}
-        ></SelectEmbeddingModels>
+        <SelectCompletionModels selectableModels={completionModels}></SelectCompletionModels>
+
+        <SelectEmbeddingModels selectableModels={embeddingModels}></SelectEmbeddingModels>
+
+        <SelectTranscriptionModels selectableModels={transcriptionModels}
+        ></SelectTranscriptionModels>
       </Settings.Group>
 
       {#if $currentSpace.permissions?.includes("delete")}
         <Settings.Group title="Danger zone">
           <Settings.Row title="Delete space" description="Delete this space and all its resources.">
-            <Dialog.Root alert bind:isOpen={showDeleteDialog}>
+            <Dialog.Root alert openController={showDeleteDialog}>
               <Dialog.Trigger asFragment let:trigger>
                 <Button is={trigger} variant="destructive" class="flex-grow"
                   >Delete this space</Button
@@ -84,7 +106,7 @@
                 <Dialog.Title>Delete space</Dialog.Title>
 
                 <Dialog.Section>
-                  <p class="border-b border-default px-7 py-4 hover:bg-hover-dimmer">
+                  <p class="border-default hover:bg-hover-dimmer border-b px-7 py-4">
                     Do you really want to delete the space "<span class="italic"
                       >{$currentSpace.name}</span
                     >"? You will lose access to all applications and data in it. This cannot be
@@ -95,13 +117,13 @@
                     label="Enter the name of this space to confirm your deletion"
                     required
                     placeholder={$currentSpace.name}
-                    class=" border-default px-4 py-4 hover:bg-hover-dimmer"
+                    class=" border-default hover:bg-hover-dimmer px-4 py-4"
                   ></Input.Text>
                 </Dialog.Section>
 
                 {#if showStillDeletingMessage}
                   <p
-                    class="label-info mt-2 rounded-md border border-label-default bg-label-dimmer p-2 text-label-stronger"
+                    class="label-info border-label-default bg-label-dimmer text-label-stronger mt-2 rounded-md border p-2"
                   >
                     <span class="font-bold">Hint:</span>
                     Deleting a space and all its resources can take up to 30 seconds. Please do not leave

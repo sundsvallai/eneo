@@ -73,13 +73,13 @@
     <slot {showBlob}></slot>
   {:else}
     <Button
-      class={isTableView ? "-ml-1" : "bg-preview max-w-[30ch] border !border-default shadow-sm"}
+      class={isTableView ? "-ml-1" : "bg-preview !border-default max-w-[30ch] border shadow-sm"}
       on:click={showBlob}
       padding="icon-leading"
     >
       {#if index}
         <span
-          class="min-h-7 min-w-7 rounded-md border border-b-2 border-default bg-secondary text-center font-mono font-normal"
+          class="border-default bg-secondary min-h-7 min-w-7 rounded-md border border-b-2 text-center font-mono font-normal"
         >
           {index}
         </span>

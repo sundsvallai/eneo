@@ -33,7 +33,7 @@
         bind:value={newSpaceName}
         label="Name"
         required
-        class="px-4 py-4 hover:bg-hover-dimmer"
+        class="hover:bg-hover-dimmer px-4 py-4"
       ></Input.Text>
     </Dialog.Section>
 

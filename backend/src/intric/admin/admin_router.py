@@ -34,9 +34,7 @@ async def register_user(
     admin_service = container.admin_service()
     user, _, api_key = await admin_service.register_tenant_user(new_user)
 
-    user_admin_view = UserCreatedAdminView(
-        **user.model_dump(exclude={"api_key"}), api_key=api_key
-    )
+    user_admin_view = UserCreatedAdminView(**user.model_dump(exclude={"api_key"}), api_key=api_key)
 
     return user_admin_view
 
@@ -57,9 +55,7 @@ async def update_user(
 
 
 @router.delete("/users/{username}", response_model=DeleteResponse)
-async def delete_user(
-    username: str, container: Container = Depends(get_container(with_user=True))
-):
+async def delete_user(username: str, container: Container = Depends(get_container(with_user=True))):
     service = container.admin_service()
     success = await service.delete_tenant_user(username)
 

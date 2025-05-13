@@ -4,12 +4,43 @@ from enum import Enum
 from typing import Any, Generic, Optional, Tuple, Type, TypeVar, Union
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, computed_field, create_model
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    GetCoreSchemaHandler,
+    computed_field,
+    create_model,
+)
 from pydantic.fields import FieldInfo
+from pydantic_core import core_schema
 
 from intric.main.exceptions import ErrorCodes
 
 T = TypeVar("T")
+
+
+# Sentinel class to distinguish between "not provided" and "explicitly set to None"
+class NotProvided:
+    """Sentinel value to indicate a parameter was not provided in a request."""
+
+    def __repr__(self):
+        return "NOT_PROVIDED"
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source_type: Any, _: GetCoreSchemaHandler
+    ) -> core_schema.CoreSchema:
+        return core_schema.is_instance_schema(
+            cls=source_type,
+            serialization=core_schema.to_string_ser_schema(),
+        )
+
+    def __bool__(self):
+        return False
+
+
+NOT_PROVIDED = NotProvided()
 
 
 class ResourcePermission(Enum):
@@ -20,13 +51,13 @@ class ResourcePermission(Enum):
     ADD = "add"
     REMOVE = "remove"
     PUBLISH = "publish"
+    INSIGHT_VIEW = "insight_view"
+    INSIGHT_TOGGLE = "insight_toggle"
 
 
 # Taken from https://stackoverflow.com/questions/67699451/make-every-field-as-optional-with-pydantic
 def partial_model(model: Type[BaseModel]):
-    def make_field_optional(
-        field: FieldInfo, default: Any = None
-    ) -> Tuple[Any, FieldInfo]:
+    def make_field_optional(field: FieldInfo, default: Any = None) -> Tuple[Any, FieldInfo]:
         new = deepcopy(field)
         new.default = default
         new.annotation = Optional[field.annotation]  # type: ignore
@@ -52,7 +83,11 @@ class DateTimeModelMixin(BaseModel):
     updated_at: Optional[datetime] = None
 
 
-class InDB(ModelId, DateTimeModelMixin):
+class BaseResponse(ModelId, DateTimeModelMixin):
+    pass
+
+
+class InDB(BaseResponse):
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -112,6 +147,8 @@ class PublicReference(InDB):
 class ChannelType(str, Enum):
     APP_RUN_UPDATES = "app_run_updates"
     CRAWL_RUN_UPDATES = "crawl_run_updates"
+    PULL_CONFLUENCE_CONTENT = "pull_confluence_content"
+    PULL_SHAREPOINT_CONTENT = "pull_sharepoint_content"
 
 
 class Status(str, Enum):

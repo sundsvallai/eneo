@@ -134,11 +134,11 @@
         options={$moveTargets}
         bind:value={moveDestination}
         fitViewport={true}
-        class="rounded-t-md border-default px-4 pt-4 hover:bg-hover-dimmer"
+        class="border-default hover:bg-hover-dimmer rounded-t-md px-4 pt-4"
         >Destination</Select.Simple
       >
       <p
-        class="label-warning mx-4 mb-4 mt-1.5 rounded-md border border-label-default bg-label-dimmer px-2 py-1 text-sm text-label-stronger"
+        class="label-warning border-label-default bg-label-dimmer text-label-stronger mx-4 mt-1.5 mb-4 rounded-md border px-2 py-1 text-sm"
       >
         <span class="font-bold">Hint:</span>
         The assistants in this space will no longer have access to this collection.

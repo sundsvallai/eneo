@@ -13,17 +13,18 @@
 
   import InteractiveGraph from "./InteractiveGraph.svelte";
   import TenantAssistantTable from "./TenantAssistantTable.svelte";
+  import { writable } from "svelte/store";
 
   export let data;
 
-  let selectedTab: Page.ValueState;
+  let selectedTab = writable<string>();
 </script>
 
 <svelte:head>
   <title>Intric.ai – Admin – Insights</title>
 </svelte:head>
 
-<Page.Root bind:selectedTab>
+<Page.Root tabController={selectedTab}>
   <Page.Header>
     <Page.Title title="Insights"></Page.Title>
     <Page.Tabbar>
@@ -43,7 +44,7 @@
             >
               <div class="h-[600px]">
                 <div
-                  class="relativ flex h-full w-full items-stretch overflow-clip rounded-lg border border-stronger shadow"
+                  class="relativ border-stronger flex h-full w-full items-stretch overflow-clip rounded-lg border shadow"
                 >
                   {#await data.data}
                     <div class="flex h-full w-full items-center justify-center">
@@ -56,8 +57,8 @@
                     <InteractiveGraph data={loadedData} timeframe={data.timeframe}
                     ></InteractiveGraph>
 
-                    <div class="flex flex-grow flex-col border-l border-stronger bg-hover-dimmer">
-                      <div class="flex h-1/3 flex-col justify-between border-b border-stronger p-6">
+                    <div class="border-stronger bg-hover-dimmer flex flex-grow flex-col border-l">
+                      <div class="border-stronger flex h-1/3 flex-col justify-between border-b p-6">
                         <div class="flex gap-2">
                           <IconAssistants />
                           Assistants created
@@ -67,7 +68,7 @@
                         >
                       </div>
 
-                      <div class="flex h-1/3 flex-col justify-between border-b border-stronger p-6">
+                      <div class="border-stronger flex h-1/3 flex-col justify-between border-b p-6">
                         <div class="flex gap-2">
                           <IconSession />
                           Conversations started
@@ -77,7 +78,7 @@
                         >
                       </div>
 
-                      <div class="flex h-1/3 flex-col justify-between border-stronger p-6">
+                      <div class="border-stronger flex h-1/3 flex-col justify-between p-6">
                         <div class="flex gap-2">
                           <IconQuestionMark />
                           Questions asked

@@ -9,7 +9,8 @@ import sqlalchemy as sa
 from sqlalchemy.orm import selectinload
 
 from intric.database.database import AsyncSession
-from intric.database.tables.groups_table import Groups
+from intric.database.tables.collections_table import CollectionsTable
+from intric.database.tables.integration_table import IntegrationKnowledge
 from intric.database.tables.spaces_table import Spaces, SpacesUsers
 from intric.database.tables.tenant_table import Tenants
 from intric.database.tables.websites_table import Websites
@@ -24,9 +25,7 @@ if TYPE_CHECKING:
 
 
 class StorageInfoRepository:
-    def __init__(
-        self, user: UserInDB, session: AsyncSession, factory: StorageInfoFactory
-    ):
+    def __init__(self, user: UserInDB, session: AsyncSession, factory: StorageInfoFactory):
         self.user = user
         self.session = session
         self.factory = factory
@@ -36,9 +35,10 @@ class StorageInfoRepository:
         # Aliases for subqueries
         group_size_subquery = (
             sa.select(
-                Groups.space_id, sa.func.sum(Groups.size).label("total_groups_size")
+                CollectionsTable.space_id,
+                sa.func.sum(CollectionsTable.size).label("total_groups_size"),
             )
-            .group_by(Groups.space_id)
+            .group_by(CollectionsTable.space_id)
             .alias("group_size_subquery")
         )
 
@@ -51,6 +51,15 @@ class StorageInfoRepository:
             .alias("website_size_subquery")
         )
 
+        integration_knowledge_size_subquery = (
+            sa.select(
+                IntegrationKnowledge.space_id,
+                sa.func.sum(IntegrationKnowledge.size).label("total_integration_knowledge_size"),
+            )
+            .group_by(IntegrationKnowledge.space_id)
+            .alias("integration_knowledge_size_subquery")
+        )
+
         # Main query
         query = (
             sa.select(
@@ -61,11 +70,17 @@ class StorageInfoRepository:
                 sa.func.coalesce(website_size_subquery.c.total_website_size, 0).label(
                     "total_website_size"
                 ),
+                sa.func.coalesce(
+                    integration_knowledge_size_subquery.c.total_integration_knowledge_size,
+                    0,
+                ).label("total_integration_knowledge_size"),
                 Tenants.quota_limit,
             )
             .outerjoin(group_size_subquery, Spaces.id == group_size_subquery.c.space_id)
+            .outerjoin(website_size_subquery, Spaces.id == website_size_subquery.c.space_id)
             .outerjoin(
-                website_size_subquery, Spaces.id == website_size_subquery.c.space_id
+                integration_knowledge_size_subquery,
+                Spaces.id == integration_knowledge_size_subquery.c.space_id,
             )
             .join(Tenants, Spaces.tenant_id == Tenants.id)
             .where(Spaces.tenant_id == tenant_id)
@@ -75,7 +90,6 @@ class StorageInfoRepository:
         return await self.session.execute(query)
 
     async def get_storage_info(self) -> "StorageInfo":
-
         results = await self._get_spaces()
         result = results.mappings().all()
 
@@ -84,13 +98,14 @@ class StorageInfoRepository:
                 spaces=row["Spaces"],
                 group_size=row["total_groups_size"],
                 website_size=row["total_website_size"],
-                total_size=row["total_groups_size"] + row["total_website_size"],
+                integration_knowledge_size=row["total_integration_knowledge_size"],
+                total_size=row["total_groups_size"]
+                + row["total_website_size"]
+                + row["total_integration_knowledge_size"],
                 quota_limit=row["quota_limit"],
             )
             for row in result
         ]
 
-        storage_info = self.factory.create_storage_info_from_db(
-            query_result=storage_info_list
-        )
+        storage_info = self.factory.create_storage_info_from_db(query_result=storage_info_list)
         return storage_info

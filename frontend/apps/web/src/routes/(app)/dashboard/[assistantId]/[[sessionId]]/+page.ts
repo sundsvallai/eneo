@@ -18,8 +18,7 @@ export const load = async (event) => {
   ]);
 
   return {
-    assistant,
-    initialSession: session,
-    selectedAssistantId
+    chatPartner: assistant,
+    initialConversation: session
   };
 };

@@ -9,9 +9,13 @@ export const load = async (event) => {
 
   event.depends("admin:models:load");
 
-  const models = await intric.models.list();
+  const [securityClassifications, models] = await Promise.all([
+    intric.securityClassifications.list(),
+    intric.models.list()
+  ]);
 
   return {
+    securityClassifications,
     models
   };
 };

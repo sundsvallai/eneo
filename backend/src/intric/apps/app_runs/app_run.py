@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from intric.files.file_models import FileInfo
+from intric.files.file_models import FilePublic
 from intric.jobs.job_models import JobInDb
 from intric.users.user import UserSparse
 
@@ -16,13 +16,14 @@ class AppRun:
     app_id: UUID
     user_id: UUID
     tenant_id: UUID
-    input_files: list[FileInfo]
+    input_files: list[FilePublic]
     input_text: str | None
     output: str | None
     user: UserSparse | None
     num_tokens_input: int | None
     num_tokens_output: int | None
     job: JobInDb | None
+    completion_model_id: UUID
 
     def update(
         self,

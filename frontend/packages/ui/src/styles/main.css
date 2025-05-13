@@ -1,2 +1,93 @@
-@import url("./themes.css");
-@import url("./utilities.css");
+@import "tailwindcss";
+@import "./themes";
+@import "./utilities.css";
+@import "./prose.css";
+
+@theme inline {
+  /* Background colors */
+  --background-color-primary: var(--background-primary);
+  --background-color-secondary: var(--background-secondary);
+  --background-color-tertiary: var(--background-tertiary);
+  --background-color-overlay-stronger: var(--background-overlay-stronger);
+  --background-color-overlay-default: var(--background-overlay-default);
+  --background-color-overlay-dimmer: var(--background-overlay-dimmer);
+  --background-color-hover-stronger: var(--background-hover-stronger);
+  --background-color-hover-default: var(--background-hover-default);
+  --background-color-hover-dimmer: var(--background-hover-dimmer);
+  --background-color-hover-on-fill: var(--background-hover-on-fill);
+
+  /* Text colors */
+  --text-color-primary: var(--text-primary);
+  --text-color-secondary: var(--text-secondary);
+  --text-color-muted: var(--text-muted);
+  --text-color-on-fill: var(--text-on-fill);
+
+  /* Border colors */
+  --border-color-strongest: var(--border-strongest);
+  --border-color-stronger: var(--border-stronger);
+  --border-color-default: var(--border-default);
+  --border-color-dimmer: var(--border-dimmer);
+  --border-color-on-fill: var(--border-on-fill);
+
+  --ring-color-strongest: var(--border-strongest);
+  --ring-color-stronger: var(--border-stronger);
+  --ring-color-default: var(--border-default);
+  --ring-color-dimmer: var(--border-dimmer);
+
+  /* Brand colors */
+  --color-brand-intric: var(--brand-intric);
+
+  /* Accent colors */
+  --color-accent-stronger: var(--accent-stronger);
+  --color-accent-default: var(--accent-default);
+  --color-accent-dimmer: var(--accent-dimmer);
+
+  /* State colors */
+  --color-negative-stronger: var(--negative-stronger);
+  --color-negative-default: var(--negative-default);
+  --color-negative-dimmer: var(--negative-dimmer);
+  --color-warning-stronger: var(--warning-stronger);
+  --color-warning-default: var(--warning-default);
+  --color-warning-dimmer: var(--warning-dimmer);
+  --color-positive-stronger: var(--positive-stronger);
+  --color-positive-default: var(--positive-default);
+  --color-positive-dimmer: var(--positive-dimmer);
+  --color-label-stronger: var(--label-stronger);
+  --color-label-default: var(--label-default);
+  --color-label-dimmer: var(--label-dimmer);
+  --color-dynamic-stronger: var(--dynamic-stronger);
+  --color-dynamic-default: var(--dynamic-default);
+  --color-dynamic-dimmer: var(--dynamic-dimmer);
+
+  /* Shadow values */
+  --shadow-2xs: 0 1px var(--shadow-default);
+  --shadow-xs: 0 1px 2px 0 var(--shadow-default);
+  --shadow-sm: 0 1px 3px 0 var(--shadow-default), 0 1px 2px -1px var(--shadow-stronger);
+  --shadow-md: 0 4px 6px -1px var(--shadow-default), 0 2px 4px -2px var(--shadow-stronger);
+  --shadow-lg: 0 10px 15px -3px var(--shadow-stronger), 0 4px 6px -4px var(--shadow-stronger);
+  --shadow-xl: 0 20px 25px -5px var(--shadow-stronger), 0 8px 10px -6px var(--shadow-stronger);
+  --shadow-2xl: 0 25px 50px -12px var(--shadow-stronger);
+
+  /* Font family */
+  --font-sans:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* Animation configurations */
+  --animate-spin: spin 4s linear infinite;
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+/** Reset tw 3 behaviour */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}

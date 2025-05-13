@@ -74,25 +74,25 @@
   {...$trigger}
   {...aria}
   use:trigger
-  class="flex h-16 items-center justify-between border-b border-default px-4 hover:bg-hover-default"
+  class="border-default hover:bg-hover-default flex h-16 items-center justify-between border-b px-4"
 >
   <span class="capitalize">{$selected?.value ?? "No behaviour found"}</span>
   <IconChevronDown />
 </button>
 
 <div
-  class="z-20 flex flex-col overflow-y-auto rounded-lg border border-stronger bg-primary shadow-xl"
+  class="border-stronger bg-primary z-20 flex flex-col overflow-y-auto rounded-lg border shadow-xl"
   {...$menu}
   use:menu
 >
   <div
-    class="bg-frosted-glass-secondary sticky top-0 border-b border-default px-4 py-2 font-mono text-sm"
+    class="bg-frosted-glass-secondary border-default sticky top-0 border-b px-4 py-2 font-mono text-sm"
   >
     Select a model behaviour
   </div>
-  {#each behaviourList as behavior}
+  {#each behaviourList as behavior (behavior)}
     <div
-      class="flex min-h-16 items-center justify-between border-b border-default px-4 hover:cursor-pointer hover:bg-hover-stronger"
+      class="border-default hover:bg-hover-stronger flex min-h-16 items-center justify-between border-b px-4 hover:cursor-pointer"
       {...$option({ value: behavior })}
       use:option
     >
@@ -108,12 +108,12 @@
 
 {#if $selected?.value === "custom"}
   <div
-    class="flex h-[4.125rem] items-center justify-between gap-8 border-b border-default px-4 hover:bg-hover-stronger"
+    class="border-default hover:bg-hover-stronger flex h-[4.125rem] items-center justify-between gap-8 border-b px-4"
   >
     <div class="flex items-center gap-2">
       <p class="w-24" aria-label="Temperature setting" id="temperature_label">Temperature</p>
       <Tooltip
-        text={"Randomness: A value between 0 and 2 (Default: 1)\nHigher values will create more creative responses.\nLower values will be more deterministic."}
+        text="Randomness: A value between 0 and 2 (Default: 1)\nHigher values will create more creative responses.\nLower values will be more deterministic."
       >
         <IconQuestionMark class="text-muted hover:text-primary" />
       </Tooltip>
@@ -137,6 +137,7 @@
 {/if}
 
 <style lang="postcss">
+  @reference "@intric/ui/styles";
   div[data-highlighted] {
     @apply bg-hover-default;
   }

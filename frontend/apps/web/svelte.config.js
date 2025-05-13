@@ -28,6 +28,9 @@ const config = {
         "script-src-elem": ["self"],
         "script-src-attr": ["self"]
       }
+    },
+    files: {
+      params: "./src/lib/core/params"
     }
   }
 };

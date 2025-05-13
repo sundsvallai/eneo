@@ -9,6 +9,7 @@ from intric.roles.permissions import Permission
 if TYPE_CHECKING:
     from intric.apps.apps.app import App
     from intric.assistants.assistant import Assistant
+    from intric.group_chat.domain.entities.group_chat import GroupChat
     from intric.spaces.space import Space
     from intric.users.user import UserInDB
 
@@ -19,14 +20,18 @@ class SpaceAction(str, Enum):
     EDIT = "edit"
     DELETE = "delete"
     PUBLISH = "publish"
+    INSIGHT_VIEW = "insight_view"
+    INSIGHT_TOGGLE = "insight_toggle"
 
 
 class SpaceResourceType(str, Enum):
     ASSISTANT = "assistant"
+    GROUP_CHAT = "group_chat"
     APP = "app"
     SERVICE = "service"
-    GROUP = "group"
+    COLLECTION = "collection"
     WEBSITE = "website"
+    INTEGRATION_KNOWLEDGE = "integration_knowledge"
     INFO_BLOB = "info blob"
     SPACE = "space"
     MEMBER = "member"
@@ -43,6 +48,7 @@ class SpaceRole(str, Enum):
 SHARED_SPACE_PERMISSIONS = {
     SpaceRole.VIEWER: {
         SpaceResourceType.ASSISTANT: {SpaceAction.READ},
+        SpaceResourceType.GROUP_CHAT: {SpaceAction.READ},
         SpaceResourceType.APP: {SpaceAction.READ},
         # Only published resources are readable -- enforced in code
         SpaceResourceType.INFO_BLOB: {SpaceAction.READ},
@@ -50,6 +56,9 @@ SHARED_SPACE_PERMISSIONS = {
             SpaceAction.READ,
         },
         SpaceResourceType.DEFAULT_ASSISTANT: {
+            SpaceAction.READ,
+        },
+        SpaceResourceType.INTEGRATION_KNOWLEDGE: {
             SpaceAction.READ,
         },
     },
@@ -60,6 +69,15 @@ SHARED_SPACE_PERMISSIONS = {
             SpaceAction.EDIT,
             SpaceAction.DELETE,
             SpaceAction.PUBLISH,
+            SpaceAction.INSIGHT_VIEW,
+        },
+        SpaceResourceType.GROUP_CHAT: {
+            SpaceAction.READ,
+            SpaceAction.CREATE,
+            SpaceAction.EDIT,
+            SpaceAction.DELETE,
+            SpaceAction.PUBLISH,
+            SpaceAction.INSIGHT_VIEW,
         },
         SpaceResourceType.APP: {
             SpaceAction.READ,
@@ -75,7 +93,7 @@ SHARED_SPACE_PERMISSIONS = {
             SpaceAction.DELETE,
             SpaceAction.PUBLISH,
         },
-        SpaceResourceType.GROUP: {
+        SpaceResourceType.COLLECTION: {
             SpaceAction.READ,
             SpaceAction.CREATE,
             SpaceAction.EDIT,
@@ -83,6 +101,13 @@ SHARED_SPACE_PERMISSIONS = {
             # Note: No publish
         },
         SpaceResourceType.WEBSITE: {
+            SpaceAction.READ,
+            SpaceAction.CREATE,
+            SpaceAction.EDIT,
+            SpaceAction.DELETE,
+            # Note: No publish
+        },
+        SpaceResourceType.INTEGRATION_KNOWLEDGE: {
             SpaceAction.READ,
             SpaceAction.CREATE,
             SpaceAction.EDIT,
@@ -108,6 +133,17 @@ SHARED_SPACE_PERMISSIONS = {
             SpaceAction.EDIT,
             SpaceAction.DELETE,
             SpaceAction.PUBLISH,
+            SpaceAction.INSIGHT_TOGGLE,
+            SpaceAction.INSIGHT_VIEW,
+        },
+        SpaceResourceType.GROUP_CHAT: {
+            SpaceAction.READ,
+            SpaceAction.CREATE,
+            SpaceAction.EDIT,
+            SpaceAction.DELETE,
+            SpaceAction.PUBLISH,
+            SpaceAction.INSIGHT_TOGGLE,
+            SpaceAction.INSIGHT_VIEW,
         },
         SpaceResourceType.APP: {
             SpaceAction.READ,
@@ -123,7 +159,7 @@ SHARED_SPACE_PERMISSIONS = {
             SpaceAction.DELETE,
             SpaceAction.PUBLISH,
         },
-        SpaceResourceType.GROUP: {
+        SpaceResourceType.COLLECTION: {
             SpaceAction.READ,
             SpaceAction.CREATE,
             SpaceAction.EDIT,
@@ -131,6 +167,13 @@ SHARED_SPACE_PERMISSIONS = {
             # Note: No publish
         },
         SpaceResourceType.WEBSITE: {
+            SpaceAction.READ,
+            SpaceAction.CREATE,
+            SpaceAction.EDIT,
+            SpaceAction.DELETE,
+            # Note: No publish
+        },
+        SpaceResourceType.INTEGRATION_KNOWLEDGE: {
             SpaceAction.READ,
             SpaceAction.CREATE,
             SpaceAction.EDIT,
@@ -169,6 +212,13 @@ PERSONAL_SPACE_PERMISSIONS = {
             SpaceAction.DELETE,
             # Note: No publish
         },
+        SpaceResourceType.GROUP_CHAT: {
+            SpaceAction.READ,
+            SpaceAction.CREATE,
+            SpaceAction.EDIT,
+            SpaceAction.DELETE,
+            # Note: No publish
+        },
         SpaceResourceType.APP: {
             SpaceAction.READ,
             SpaceAction.CREATE,
@@ -183,7 +233,7 @@ PERSONAL_SPACE_PERMISSIONS = {
             SpaceAction.DELETE,
             # Note: No publish
         },
-        SpaceResourceType.GROUP: {
+        SpaceResourceType.COLLECTION: {
             SpaceAction.READ,
             SpaceAction.CREATE,
             SpaceAction.EDIT,
@@ -191,6 +241,13 @@ PERSONAL_SPACE_PERMISSIONS = {
             # Note: No publish
         },
         SpaceResourceType.WEBSITE: {
+            SpaceAction.READ,
+            SpaceAction.CREATE,
+            SpaceAction.EDIT,
+            SpaceAction.DELETE,
+            # Note: No publish
+        },
+        SpaceResourceType.INTEGRATION_KNOWLEDGE: {
             SpaceAction.READ,
             SpaceAction.CREATE,
             SpaceAction.EDIT,
@@ -215,16 +272,22 @@ PERSONAL_SPACE_PERMISSIONS = {
 PROPRIETARY_RESOURCES = {}
 PERMISSION_RESOURCES = {
     SpaceResourceType.ASSISTANT,
+    SpaceResourceType.GROUP_CHAT,
     SpaceResourceType.APP,
     SpaceResourceType.SERVICE,
-    SpaceResourceType.GROUP,
+    SpaceResourceType.COLLECTION,
     SpaceResourceType.WEBSITE,
+    SpaceResourceType.INTEGRATION_KNOWLEDGE,
 }
 PUBLISHABLE_RESOURCES = {
     SpaceResourceType.ASSISTANT,
+    SpaceResourceType.GROUP_CHAT,
     SpaceResourceType.APP,
 }
-
+INSIGHT_RESOURCES = {
+    SpaceResourceType.ASSISTANT,
+    SpaceResourceType.GROUP_CHAT,
+}
 AccessControlList = dict[SpaceRole, dict[SpaceResourceType, set[SpaceAction]]]
 
 
@@ -245,10 +308,12 @@ class SpaceActor:
     def _to_permisson(self, resource_type: SpaceResourceType):
         permission_map = {
             SpaceResourceType.ASSISTANT: Permission.ASSISTANTS,
+            SpaceResourceType.GROUP_CHAT: Permission.GROUP_CHATS,
             SpaceResourceType.APP: Permission.APPS,
             SpaceResourceType.SERVICE: Permission.SERVICES,
-            SpaceResourceType.GROUP: Permission.COLLECTIONS,
+            SpaceResourceType.COLLECTION: Permission.COLLECTIONS,
             SpaceResourceType.WEBSITE: Permission.WEBSITES,
+            SpaceResourceType.INTEGRATION_KNOWLEDGE: Permission.INTEGRATION_KNOWLEDGE_LIST,
         }
 
         return permission_map.get(resource_type)
@@ -273,25 +338,18 @@ class SpaceActor:
         self,
         action: SpaceAction,
         resource_type: SpaceResourceType,
-        resource: Union["Assistant", "App"] = None,
+        resource: Union["Assistant", "GroupChat", "App"] = None,
     ):
         role = self._get_role()
         permissions = self._get_permissions(role=role)
 
-        if (
-            not SETTINGS.using_intric_proprietary
-            and resource_type in PROPRIETARY_RESOURCES
-        ):
-            return False
-
-        if action == SpaceAction.PUBLISH and not SETTINGS.using_intric_proprietary:
+        if not SETTINGS.using_intric_proprietary and resource_type in PROPRIETARY_RESOURCES:
             return False
 
         if (
             self.space.is_personal()
             and resource_type in PERMISSION_RESOURCES
-            and self._to_permisson(resource_type=resource_type)
-            not in self.user.permissions
+            and self._to_permisson(resource_type=resource_type) not in self.user.permissions
         ):
             return False
 
@@ -303,6 +361,10 @@ class SpaceActor:
 
         if role == SpaceRole.VIEWER and resource_type in PUBLISHABLE_RESOURCES:
             if resource is not None and not resource.published:
+                return False
+
+        if resource_type in INSIGHT_RESOURCES and action == SpaceAction.INSIGHT_VIEW:
+            if resource is not None and not resource.insight_enabled:
                 return False
 
         allowed_actions = permissions.get(resource_type, set())
@@ -390,6 +452,45 @@ class SpaceActor:
             resource_type=SpaceResourceType.ASSISTANT,
         )
 
+    def can_create_group_chats(self):
+        return self.can_perform_action(
+            action=SpaceAction.CREATE,
+            resource_type=SpaceResourceType.GROUP_CHAT,
+        )
+
+    def can_edit_group_chats(self):
+        return self.can_perform_action(
+            action=SpaceAction.EDIT,
+            resource_type=SpaceResourceType.GROUP_CHAT,
+        )
+
+    def can_delete_group_chats(self):
+        return self.can_perform_action(
+            action=SpaceAction.DELETE,
+            resource_type=SpaceResourceType.GROUP_CHAT,
+        )
+
+    def can_read_group_chats(self):
+        return self.can_perform_action(
+            action=SpaceAction.READ,
+            resource_type=SpaceResourceType.GROUP_CHAT,
+        )
+
+    def can_read_group_chat(self, group_chat: "GroupChat"):
+        return self.can_perform_action(
+            action=SpaceAction.READ,
+            resource_type=SpaceResourceType.GROUP_CHAT,
+            resource=group_chat,
+        )
+
+    def can_publish_group_chats(self):
+        return self.can_perform_action(
+            action=SpaceAction.PUBLISH,
+            resource_type=SpaceResourceType.GROUP_CHAT,
+        )
+
+    # TODO: can_read?
+
     def can_read_apps(self):
         return self.can_perform_action(
             action=SpaceAction.READ,
@@ -436,28 +537,49 @@ class SpaceActor:
             resource_type=SpaceResourceType.APP,
         )
 
-    def can_read_groups(self):
+    def can_toggle_insight(self):
+        # NOTE: if user can toggle insight on assistants => true for group chats as well
+        return self.can_perform_action(
+            action=SpaceAction.INSIGHT_TOGGLE,
+            resource_type=SpaceResourceType.ASSISTANT,
+        )
+
+    def can_access_insight_group_chat(self, group_chat: "GroupChat"):
+        return self.can_perform_action(
+            action=SpaceAction.INSIGHT_VIEW,
+            resource_type=SpaceResourceType.GROUP_CHAT,
+            resource=group_chat,
+        )
+
+    def can_access_insight_assistant(self, assistant: "Assistant"):
+        return self.can_perform_action(
+            action=SpaceAction.INSIGHT_VIEW,
+            resource_type=SpaceResourceType.ASSISTANT,
+            resource=assistant,
+        )
+
+    def can_read_collections(self):
         return self.can_perform_action(
             action=SpaceAction.READ,
-            resource_type=SpaceResourceType.GROUP,
+            resource_type=SpaceResourceType.COLLECTION,
         )
 
-    def can_create_groups(self):
+    def can_create_collections(self):
         return self.can_perform_action(
             action=SpaceAction.CREATE,
-            resource_type=SpaceResourceType.GROUP,
+            resource_type=SpaceResourceType.COLLECTION,
         )
 
-    def can_edit_groups(self):
+    def can_edit_collections(self):
         return self.can_perform_action(
             action=SpaceAction.EDIT,
-            resource_type=SpaceResourceType.GROUP,
+            resource_type=SpaceResourceType.COLLECTION,
         )
 
-    def can_delete_groups(self):
+    def can_delete_collections(self):
         return self.can_perform_action(
             action=SpaceAction.DELETE,
-            resource_type=SpaceResourceType.GROUP,
+            resource_type=SpaceResourceType.COLLECTION,
         )
 
     def can_read_websites(self):
@@ -482,6 +604,24 @@ class SpaceActor:
         return self.can_perform_action(
             action=SpaceAction.DELETE,
             resource_type=SpaceResourceType.WEBSITE,
+        )
+
+    def can_read_integration_knowledge_list(self):
+        return self.can_perform_action(
+            action=SpaceAction.READ,
+            resource_type=SpaceResourceType.INTEGRATION_KNOWLEDGE,
+        )
+
+    def can_create_integration_knowledge_list(self):
+        return self.can_perform_action(
+            action=SpaceAction.CREATE,
+            resource_type=SpaceResourceType.INTEGRATION_KNOWLEDGE,
+        )
+
+    def can_delete_integration_knowledge_list(self):
+        return self.can_perform_action(
+            action=SpaceAction.DELETE,
+            resource_type=SpaceResourceType.INTEGRATION_KNOWLEDGE,
         )
 
     def can_read_info_blobs(self):
@@ -527,7 +667,12 @@ class SpaceActor:
         )
 
     def _get_resource_permissions(
-        self, can_edit: bool, can_delete: bool, can_publish: bool
+        self,
+        can_edit: bool,
+        can_delete: bool,
+        can_publish: bool,
+        can_access_insight: bool,
+        can_toggle_insight: bool,
     ):
         permissions = []
 
@@ -539,6 +684,12 @@ class SpaceActor:
 
         if can_publish:
             permissions.append(ResourcePermission.PUBLISH)
+
+        if can_access_insight:
+            permissions.append(ResourcePermission.INSIGHT_VIEW)
+
+        if can_toggle_insight:
+            permissions.append(ResourcePermission.INSIGHT_TOGGLE)
 
         return permissions
 
@@ -560,44 +711,71 @@ class SpaceActor:
             return permissions
 
         return self._get_resource_permissions(
-            self.can_edit_assistants(),
-            self.can_delete_assistants(),
-            self.can_publish_assistants(),
+            can_edit=self.can_edit_assistants(),
+            can_delete=self.can_delete_assistants(),
+            can_publish=self.can_publish_assistants(),
+            can_access_insight=self.can_access_insight_assistant(assistant=assistant),
+            can_toggle_insight=self.can_toggle_insight(),
+        )
+
+    def get_group_chat_permissions(self, group_chat: "GroupChat"):
+        return self._get_resource_permissions(
+            can_edit=self.can_edit_group_chats(),
+            can_delete=self.can_delete_group_chats(),
+            can_publish=self.can_publish_group_chats(),
+            can_access_insight=self.can_access_insight_group_chat(group_chat=group_chat),
+            can_toggle_insight=self.can_toggle_insight(),
         )
 
     def get_app_permissions(self):
         return self._get_resource_permissions(
-            self.can_edit_apps(),
-            self.can_delete_apps(),
-            self.can_publish_apps(),
+            can_edit=self.can_edit_apps(),
+            can_delete=self.can_delete_apps(),
+            can_publish=self.can_publish_apps(),
+            can_access_insight=False,
+            can_toggle_insight=False,
         )
 
-    def get_group_permissions(self):
+    def get_collection_permissions(self):
         return self._get_resource_permissions(
-            self.can_edit_groups(),
-            self.can_delete_groups(),
-            False,
+            can_edit=self.can_edit_collections(),
+            can_delete=self.can_delete_collections(),
+            can_publish=False,
+            can_access_insight=False,
+            can_toggle_insight=False,
         )
 
     def get_website_permissions(self):
         return self._get_resource_permissions(
-            self.can_edit_websites(),
-            self.can_delete_websites(),
-            False,
+            can_edit=self.can_edit_websites(),
+            can_delete=self.can_delete_websites(),
+            can_publish=False,
+            can_access_insight=False,
+            can_toggle_insight=False,
+        )
+
+    def get_integration_knowledge_list_permissions(self):
+        return self._get_resource_permissions(
+            can_edit=False,
+            can_delete=self.can_delete_integration_knowledge_list(),
+            can_publish=False,
+            can_access_insight=False,
+            can_toggle_insight=False,
         )
 
     def get_service_permissions(self):
         return self._get_resource_permissions(
-            self.can_edit_services(), self.can_delete_services(), False
+            can_edit=self.can_edit_services(),
+            can_delete=self.can_delete_services(),
+            can_publish=False,
+            can_access_insight=False,
+            can_toggle_insight=False,
         )
 
     def get_available_roles(self):
         if self.space.is_personal():
             return []
 
-        roles = [SpaceRole.ADMIN, SpaceRole.EDITOR]
-
-        if SETTINGS.using_intric_proprietary:
-            roles.append(SpaceRole.VIEWER)
+        roles = [SpaceRole.ADMIN, SpaceRole.EDITOR, SpaceRole.VIEWER]
 
         return roles

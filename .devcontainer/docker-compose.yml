@@ -5,7 +5,7 @@
 version: "3.8"
 services:
   intric:
-    image: mcr.microsoft.com/devcontainers/python:3.10-bullseye
+    image: mcr.microsoft.com/devcontainers/python:3.11-bookworm
     command: sleep infinity
     networks:
       - intric

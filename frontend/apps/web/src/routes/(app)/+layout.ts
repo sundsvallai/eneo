@@ -3,16 +3,19 @@ import { createIntric, createIntricSocket } from "@intric/intric-js";
 
 export const load = async (event) => {
   event.depends("global:state");
+
+  const { tokens, environment, featureFlags } = event.data;
+
   const intric = createIntric({
-    token: event.data.tokens.id_token,
-    baseUrl: event.data.baseUrl!,
+    token: tokens.id_token,
+    baseUrl: environment.baseUrl,
     fetch: event.fetch
   });
 
   let zitadelClient: ReturnType<typeof createZitadelClient> | null = null;
-  if (event.data.authUrl && event.data.tokens.access_token) {
+  if (environment.authUrl && event.data.tokens.access_token) {
     zitadelClient = createZitadelClient(
-      event.data.authUrl,
+      environment.authUrl,
       event.data.tokens.access_token,
       event.fetch
     );
@@ -21,7 +24,7 @@ export const load = async (event) => {
   const intricSocket = createIntricSocket(
     {
       token: event.data.tokens.id_token,
-      baseUrl: event.data.baseUrl!
+      baseUrl: environment.baseUrl
     },
     {
       defaultSubscriptions: ["app_run_updates"]
@@ -52,10 +55,10 @@ export const load = async (event) => {
   ]);
 
   const versions = {
-    frontend: event.data.frontendVersion,
+    frontend: environment.frontendVersion,
     backend: backendVersion,
     client: intric.client.version,
-    preview: event.data.previewEnv
+    gitInfo: environment.gitInfo
   };
 
   return {
@@ -72,8 +75,7 @@ export const load = async (event) => {
     tenant,
     versions,
     limits,
-    featureFlags: event.data.featureFlags,
-    feedbackFormUrl: event.data.feedbackFormUrl,
-    integrationRequestFormUrl: event.data.integrationRequestFormUrl
+    featureFlags,
+    environment
   };
 };

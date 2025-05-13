@@ -4,8 +4,8 @@ import sqlalchemy as sa
 from sqlalchemy.exc import IntegrityError
 
 from intric.ai_models.embedding_models.embedding_model import (
-    EmbeddingModel,
     EmbeddingModelCreate,
+    EmbeddingModelLegacy,
     EmbeddingModelUpdate,
 )
 from intric.database.database import AsyncSession
@@ -18,10 +18,10 @@ from intric.main.exceptions import UniqueException
 from intric.main.models import IdAndName
 
 
-class EmbeddingModelsRepository:
+class AdminEmbeddingModelsService:
     def __init__(self, session: AsyncSession):
         self.session = session
-        self.delegate = BaseRepositoryDelegate(session, EmbeddingModels, EmbeddingModel)
+        self.delegate = BaseRepositoryDelegate(session, EmbeddingModels, EmbeddingModelLegacy)
 
     async def _get_model_settings(self, id: UUID, tenant_id: UUID):
         query = sa.select(EmbeddingModelSettings).where(
@@ -37,7 +37,7 @@ class EmbeddingModelsRepository:
         settings = await self.session.scalars(query)
         return {s.embedding_model_id: s.is_org_enabled for s in settings}
 
-    async def get_model(self, id: UUID, tenant_id: UUID) -> EmbeddingModel:
+    async def get_model(self, id: UUID, tenant_id: UUID) -> EmbeddingModelLegacy:
         model = await self.delegate.get(id)
 
         settings = await self._get_model_settings(id, tenant_id)
@@ -45,29 +45,28 @@ class EmbeddingModelsRepository:
             model.is_org_enabled = settings.is_org_enabled
         return model
 
-    async def get_model_by_name(self, name: str) -> EmbeddingModel:
+    async def get_model_by_name(self, name: str) -> EmbeddingModelLegacy:
         return await self.delegate.get_by(conditions={EmbeddingModels.name: name})
 
-    async def create_model(self, model: EmbeddingModelCreate) -> EmbeddingModel:
+    async def create_model(self, model: EmbeddingModelCreate) -> EmbeddingModelLegacy:
         return await self.delegate.add(model)
 
-    async def update_model(self, model: EmbeddingModelUpdate) -> EmbeddingModel:
+    async def update_model(self, model: EmbeddingModelUpdate) -> EmbeddingModelLegacy:
         return await self.delegate.update(model)
 
-    async def delete_model(self, id: UUID) -> EmbeddingModel:
+    async def delete_model(self, id: UUID) -> EmbeddingModelLegacy:
         return await self.delegate.delete(id)
 
     async def get_models(
         self,
         tenant_id: UUID = None,
-        is_deprecated: bool = False,
+        with_deprecated: bool = False,
         id_list: list[UUID] = None,
     ):
-        stmt = (
-            sa.select(EmbeddingModels)
-            .where(EmbeddingModels.is_deprecated == is_deprecated)
-            .order_by(EmbeddingModels.created_at)
-        )
+        stmt = sa.select(EmbeddingModels).order_by(EmbeddingModels.created_at)
+
+        if not with_deprecated:
+            stmt = stmt.where(EmbeddingModels.is_deprecated == False)  # noqa
 
         if id_list is not None:
             stmt = stmt.where(EmbeddingModels.id.in_(id_list))

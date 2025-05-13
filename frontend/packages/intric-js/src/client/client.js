@@ -3,6 +3,7 @@
  * @property {import('../types/fetch').IntricFetchFunction} fetch Typed fetch function for the Intric backend.
  * @property {import('../types/fetch').IntricStreamFunction} stream Fetch function specifically for streaming answers from an assistant.
  * @property {import('../types/fetch').IntricXhrFunction} xhr
+ * @property {URL} baseUrl Base url this client uses
  * @property {string} version Version of the Api this client was created for
  */
 
@@ -21,7 +22,7 @@ import { xhr } from "./xhr";
  */
 
 export function createClient(args) {
-  const version = "1.78.1-dev"; // # Client version auto-updates when running the updater, do not edit this line.
+  const version = "DEV"; // # Client version auto-updates when running the updater, do not edit this line.
   const baseUrl = args.baseUrl;
   const _fetch = args.fetch ?? fetch;
 
@@ -113,7 +114,8 @@ export function createClient(args) {
       }
     },
 
-    version
+    version,
+    baseUrl: new URL(baseUrl)
   };
 }
 
@@ -125,26 +127,25 @@ export function createClient(args) {
  * @returns {string} Returns the fully expanded url
  */
 function parseUrl(baseUrl, endpoint, params) {
-  if (params) {
-    if (params.path) {
-      Object.entries(params.path).forEach(([param, value]) => {
-        endpoint = endpoint.replace(`{${param}}`, value);
-      });
-    }
+  const url = new URL(baseUrl);
 
-    if (params.query) {
-      const { query } = params;
-      Object.keys(query).forEach((key) => {
-        if (query[key] === undefined) {
-          delete query[key];
-        }
-      });
-      const searchParams = new URLSearchParams(params.query);
-      endpoint += `?${searchParams.toString()}`;
-    }
+  if (params?.path) {
+    Object.entries(params.path).forEach(([param, value]) => {
+      endpoint = endpoint.replace(`{${param}}`, value);
+    });
   }
 
-  return baseUrl + endpoint;
+  url.pathname = endpoint;
+
+  if (params?.query) {
+    Object.entries(params.query).forEach(([param, value]) => {
+      if (value !== undefined) {
+        url.searchParams.append(param, value);
+      }
+    });
+  }
+
+  return url.toString();
 }
 
 /**

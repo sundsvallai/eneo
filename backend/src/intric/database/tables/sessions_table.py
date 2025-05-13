@@ -6,6 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from intric.database.tables.assistant_table import Assistants
 from intric.database.tables.base_class import BasePublic
+from intric.database.tables.group_chats_table import GroupChatsTable
 from intric.database.tables.service_table import Services
 from intric.database.tables.users_table import Users
 
@@ -23,8 +24,9 @@ class Sessions(BasePublic):
     assistant_id: Mapped[Optional[UUID]] = mapped_column(
         ForeignKey(Assistants.id, ondelete="CASCADE")
     )
-    service_id: Mapped[Optional[UUID]] = mapped_column(
-        ForeignKey(Services.id, ondelete="CASCADE")
+    service_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey(Services.id, ondelete="CASCADE"))
+    group_chat_id: Mapped[Optional[UUID]] = mapped_column(
+        ForeignKey(GroupChatsTable.id, ondelete="CASCADE")
     )
 
     # Relationships
@@ -32,5 +34,6 @@ class Sessions(BasePublic):
     assistant: Mapped[Optional[Assistants]] = relationship(
         foreign_keys="Sessions.assistant_id", viewonly=True
     )
+    group_chat: Mapped[Optional[GroupChatsTable]] = relationship(viewonly=True)
 
     __table_args__ = (Index("created_at_idx", "created_at"),)

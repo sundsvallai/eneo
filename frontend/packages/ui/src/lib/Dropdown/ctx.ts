@@ -3,18 +3,24 @@ import { getContext, setContext } from "svelte";
 
 const ctxKey = "dropdown";
 
-export function createDropdown() {
+export function createDropdown(
+  placement: "bottom" | "bottom-start" | "bottom-end" = "bottom",
+  arrowSize = 12,
+  gutter = 5
+) {
   const ctx = createDropdownMenu({
     positioning: {
       fitViewport: true,
       flip: true,
-      placement: "bottom"
+      placement,
+      gutter
     },
     forceVisible: true,
     loop: true,
     preventScroll: true,
-    arrowSize: 12
+    arrowSize
   });
+
   setContext<typeof ctx>(ctxKey, ctx);
   return ctx;
 }

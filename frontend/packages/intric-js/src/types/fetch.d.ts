@@ -73,9 +73,9 @@ type IntricFetchFunction = <
 type IntricStreamingEndpoints =
   | "/api/v1/assistants/{id}/sessions/{session_id}/"
   | "/api/v1/assistants/{id}/sessions/"
-  | "/api/v1/widgets/{id}/sessions/{session_id}/"
-  | "/api/v1/widgets/{id}/sessions/"
-  | "/api/v1/analysis/assistants/{assistant_id}/";
+  | "/api/v1/analysis/assistants/{assistant_id}/"
+  | "/api/v1/conversations/"
+  | "/api/v1/analysis/conversation-insights/";
 
 type IntricStreamFunction = <Endpoint extends IntricStreamingEndpoints>(
   endpoint: Endpoint,

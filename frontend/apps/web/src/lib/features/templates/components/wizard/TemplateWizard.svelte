@@ -28,19 +28,19 @@
 
 {#if $selectedTemplate}
   <div class="relative flex flex-col">
-    <div class=" flex w-full flex-col border-default px-10 pb-10 pt-12">
+    <div class=" border-default flex w-full flex-col px-10 pt-12 pb-10">
       <div class="flex flex-col px-4">
         <span class="font-mono text-sm font-normal uppercase">Template setup</span>
         <h3 class="flex items-center gap-3 pb-1 text-2xl font-extrabold">
           {formatEmojiTitle($selectedTemplate.name)}
         </h3>
-        <p class="max-w-[45ch] text-secondary">
+        <p class="text-secondary max-w-[45ch]">
           Configure this template's additional settings to help the assistant provide more relevant
           answers.
         </p>
       </div>
 
-      <div class="mb-6 mt-10 border-t border-dimmer"></div>
+      <div class="border-dimmer mt-10 mb-6 border-t"></div>
 
       <div class="flex flex-col" in:fly|global={{ y: 5 }}>
         {#if $selectedTemplate.wizard.collections}
@@ -48,9 +48,9 @@
             <h4 class="flex items-center gap-4 text-lg font-medium">
               {$selectedTemplate.wizard.collections.title}
               {#if $selectedTemplate.wizard.collections.required}
-                <span class="text-base font-normal text-muted">(required)</span>{/if}
+                <span class="text-muted text-base font-normal">(required)</span>{/if}
             </h4>
-            <p class="max-w-[65ch] pb-2 pt-1 text-secondary">
+            <p class="text-secondary max-w-[65ch] pt-1 pb-2">
               {$selectedTemplate.wizard.collections.description}
             </p>
 
@@ -64,13 +64,13 @@
             <h4 class="flex items-center gap-4 text-lg font-medium">
               {$selectedTemplate.wizard.attachments.title}
               {#if $selectedTemplate.wizard.attachments.required}
-                <span class="text-base font-normal text-muted">(required)</span>{/if}
+                <span class="text-muted text-base font-normal">(required)</span>{/if}
             </h4>
-            <p class="max-w-[65ch] pt-1 text-secondary">
+            <p class="text-secondary max-w-[65ch] pt-1">
               {$selectedTemplate.wizard.attachments.description}
             </p>
             <div class="flex flex-col gap-2 pt-4">
-              {#each $attachments as attachment}
+              {#each $attachments as attachment (attachment.id)}
                 <AttachmentItem {attachment} borderOnLastItem></AttachmentItem>
               {/each}
               <AttachmentUploadTextButton></AttachmentUploadTextButton>
@@ -80,7 +80,7 @@
       </div>
     </div>
 
-    <div class="absolute right-0 top-0 h-52 w-72 overflow-hidden">
+    <div class="absolute top-0 right-0 h-52 w-72 overflow-hidden">
       <WizardBackdrop></WizardBackdrop>
     </div>
   </div>

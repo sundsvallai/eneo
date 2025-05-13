@@ -146,7 +146,7 @@
         ></Input.Text>
 
         {#if mode === "update"}
-          <p class="border-b border-default pb-4 pl-6 pr-4 text-sm text-secondary">
+          <p class="border-default text-secondary border-b pr-4 pb-4 pl-6 text-sm">
             Hint: Changing the username requires this user to logout and login again.
           </p>
         {/if}
@@ -157,7 +157,7 @@
         label="Email"
         type="email"
         required
-        class="border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+        class="border-default hover:bg-hover-dimmer border-b px-4 py-4"
       ></Input.Text>
 
       <Input.Text
@@ -169,7 +169,7 @@
         required={mode === "create"}
         type="password"
         autocomplete="off"
-        class="border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+        class="border-default hover:bg-hover-dimmer border-b px-4 py-4"
       ></Input.Text>
 
       <SelectRole {customRoles} {defaultRoles} bind:value={userRoles}></SelectRole>

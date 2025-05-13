@@ -3,14 +3,13 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from intric.templates.app_template.app_template import AppTemplate
 from intric.assistants.assistant_factory import AssistantFactory
+from intric.templates.app_template.app_template import AppTemplate
 
 
 @pytest.fixture
 def factory():
     return AssistantFactory(
-        container=MagicMock(),
         prompt_factory=MagicMock(),
         assistant_template_factory=MagicMock(),
     )

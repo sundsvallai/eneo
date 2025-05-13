@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 import sqlalchemy as sa
@@ -15,9 +16,15 @@ from intric.database.tables.questions_table import (
 )
 from intric.database.tables.sessions_table import Sessions
 from intric.database.tables.users_table import Users
+from intric.database.tables.web_search_results_table import (
+    WebSearchResult as WebSearchResultsTable,
+)
 from intric.files.file_models import File
 from intric.info_blobs.info_blob import InfoBlobChunkInDBWithScore
 from intric.questions.question import Question, QuestionAdd
+
+if TYPE_CHECKING:
+    from intric.completion_models.infrastructure.web_search import WebSearchResult
 
 
 class QuestionRepository:
@@ -39,10 +46,11 @@ class QuestionRepository:
             selectinload(Questions.logging_details),
             selectinload(Questions.assistant),
             selectinload(Questions.session),
-            selectinload(Questions.files),
+            selectinload(Questions.questions_files).selectinload(QuestionsFiles.file),
             selectinload(Questions.info_blob_references)
             .selectinload(InfoBlobReferences.info_blob)
             .selectinload(InfoBlobs.website),
+            selectinload(Questions.web_search_results),
         ]
 
     def _add_options(self, stmt: sa.Select | sa.Insert | sa.Update):
@@ -84,9 +92,33 @@ class QuestionRepository:
 
         return (await self.session.scalars(stmt)).all()
 
-    async def _add_files(self, question_id: int, files: list[File]):
+    async def _add_files(
+        self, question_id: int, files: list[File], file_type: str = "user"
+    ):
         stmt = sa.insert(QuestionsFiles).values(
-            [dict(question_id=question_id, file_id=file.id) for file in files]
+            [
+                dict(question_id=question_id, file_id=file.id, type=file_type)
+                for file in files
+            ]
+        )
+
+        await self.session.execute(stmt)
+
+    async def _add_web_search_results(
+        self, web_search_results: list["WebSearchResult"], question_id: UUID
+    ):
+        stmt = sa.insert(WebSearchResultsTable).values(
+            [
+                dict(
+                    id=web_search_result.id,
+                    title=web_search_result.title,
+                    url=web_search_result.url,
+                    content=web_search_result.content,
+                    score=web_search_result.score,
+                    question_id=question_id,
+                )
+                for web_search_result in web_search_results
+            ]
         )
 
         await self.session.execute(stmt)
@@ -99,6 +131,8 @@ class QuestionRepository:
         question: QuestionAdd,
         info_blob_chunks: list[InfoBlobChunkInDBWithScore] = [],
         files: list[File] = [],
+        generated_files: list[File] = [],
+        web_search_results: list["WebSearchResult"] = [],
     ):
         stmt = (
             sa.insert(Questions)
@@ -115,7 +149,21 @@ class QuestionRepository:
         )
 
         if files:
-            await self._add_files(question_id=question_record.id, files=files)
+            await self._add_files(
+                question_id=question_record.id, files=files, file_type="user"
+            )
+
+        if generated_files:
+            await self._add_files(
+                question_id=question_record.id,
+                files=generated_files,
+                file_type="assistant",
+            )
+
+        if web_search_results:
+            await self._add_web_search_results(
+                web_search_results=web_search_results, question_id=question_record.id
+            )
 
         if question.logging_details is not None:
             stmt = (

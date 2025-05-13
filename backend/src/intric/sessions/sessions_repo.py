@@ -9,7 +9,11 @@ from intric.database.database import AsyncSession
 from intric.database.repositories.base import BaseRepositoryDelegate
 from intric.database.tables.assistant_table import Assistants
 from intric.database.tables.info_blobs_table import InfoBlobs
-from intric.database.tables.questions_table import InfoBlobReferences, Questions
+from intric.database.tables.questions_table import (
+    InfoBlobReferences,
+    Questions,
+    QuestionsFiles,
+)
 from intric.database.tables.sessions_table import Sessions
 from intric.database.tables.users_table import Users
 from intric.sessions.session import (
@@ -41,7 +45,11 @@ class SessionRepository:
             selectinload(Sessions.questions).selectinload(Questions.logging_details),
             selectinload(Sessions.questions).selectinload(Questions.assistant),
             selectinload(Sessions.questions).selectinload(Questions.completion_model),
-            selectinload(Sessions.questions).selectinload(Questions.files),
+            selectinload(Sessions.questions)
+            .selectinload(Questions.questions_files)
+            .selectinload(QuestionsFiles.file),
+            selectinload(Sessions.questions).selectinload(Questions.questions_files),
+            selectinload(Sessions.questions).selectinload(Questions.web_search_results),
             selectinload(Sessions.assistant).selectinload(Assistants.user),
         ]
 
@@ -81,27 +89,40 @@ class SessionRepository:
 
     async def _get_total_count(
         self,
-        assistant_id: int,
+        assistant_id: UUID = None,
         user_id: UUID = None,
+        group_chat_id: UUID = None,
+        start_date: datetime = None,
+        end_date: datetime = None,
     ):
-        query = (
-            sa.select(sa.func.count())
-            .select_from(Sessions)
-            .where(Sessions.assistant_id == assistant_id)
-        )
+        query = sa.select(sa.func.count()).select_from(Sessions)
+
+        if assistant_id is not None:
+            query = query.where(Sessions.assistant_id == assistant_id)
+        if group_chat_id is not None:
+            query = query.where(Sessions.group_chat_id == group_chat_id)
 
         if user_id is not None:
             query = query.where(Sessions.user_id == user_id)
+
+        if start_date is not None:
+            query = query.where(Sessions.created_at >= start_date)
+
+        if end_date is not None:
+            query = query.where(Sessions.created_at <= end_date)
 
         return await self.session.scalar(query)
 
     async def get_by_assistant(
         self,
-        assistant_id: int,
+        assistant_id: UUID,
         user_id: UUID = None,
         limit: int = None,
         cursor: datetime = None,
         previous: bool = False,
+        name_filter: str = None,
+        start_date: datetime = None,
+        end_date: datetime = None,
     ):
         query = (
             sa.select(Sessions)
@@ -112,8 +133,20 @@ class SessionRepository:
         if user_id is not None:
             query = query.where(Sessions.user_id == user_id)
 
+        if name_filter is not None:
+            query = query.where(Sessions.name.ilike(f"%{name_filter}%"))
+
+        if start_date is not None:
+            query = query.where(Sessions.created_at >= start_date)
+
+        if end_date is not None:
+            query = query.where(Sessions.created_at <= end_date)
+
         total_count = await self._get_total_count(
-            assistant_id=assistant_id, user_id=user_id
+            assistant_id=assistant_id,
+            user_id=user_id,
+            start_date=start_date,
+            end_date=end_date,
         )
 
         if limit is not None:
@@ -132,7 +165,64 @@ class SessionRepository:
             else:
                 query = query.where(Sessions.created_at <= cursor)
 
-        return await self.delegate.get_models_from_query(query), total_count
+        sessions = await self.delegate.get_models_from_query(query)
+        return sessions, total_count
+
+    async def get_by_group_chat(
+        self,
+        group_chat_id: UUID,
+        user_id: UUID = None,
+        limit: int = None,
+        cursor: datetime = None,
+        previous: bool = False,
+        name_filter: str = None,
+        start_date: datetime = None,
+        end_date: datetime = None,
+    ):
+        query = (
+            sa.select(Sessions)
+            .where(Sessions.group_chat_id == group_chat_id)
+            .order_by(Sessions.created_at.desc())
+        )
+
+        if user_id is not None:
+            query = query.where(Sessions.user_id == user_id)
+
+        if name_filter is not None:
+            query = query.where(Sessions.name.ilike(f"%{name_filter}%"))
+
+        if start_date is not None:
+            query = query.where(Sessions.created_at >= start_date)
+
+        if end_date is not None:
+            query = query.where(Sessions.created_at <= end_date)
+
+        # don't include name filter to get the true total
+        total_count = await self._get_total_count(
+            group_chat_id=group_chat_id,
+            user_id=user_id,
+            start_date=start_date,
+            end_date=end_date,
+        )
+
+        if limit is not None:
+            query = query.limit(limit + 1)
+
+        if cursor is not None:
+            if previous:
+                query = query.order_by(Sessions.created_at.asc()).where(
+                    Sessions.created_at > cursor
+                )
+                items = await self.delegate.get_models_from_query(query)
+                return (
+                    sorted(items, key=lambda x: x.created_at, reverse=True),
+                    total_count,
+                )
+            else:
+                query = query.where(Sessions.created_at <= cursor)
+
+        sessions = await self.delegate.get_models_from_query(query)
+        return sessions, total_count
 
     async def get_by_tenant(
         self, tenant_id: UUID, start_date: datetime = None, end_date: datetime = None
@@ -145,7 +235,8 @@ class SessionRepository:
         if end_date is not None:
             query = query.filter(Sessions.created_at <= end_date)
 
-        return await self.delegate.get_models_from_query(query)
+        sessions = await self.delegate.get_models_from_query(query)
+        return sessions
 
     async def delete(self, id: int) -> SessionInDB:
         return await self.delegate.delete(id)

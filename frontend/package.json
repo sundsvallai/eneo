@@ -1,5 +1,5 @@
 {
-  "version": "1.13.3",
+  "version": "1.23.1",
   "private": true,
   "scripts": {
     "build": "NODE_ENV=production FORCE_COLOR=1 pnpm run --recursive --filter @intric/web... build",
@@ -13,5 +13,9 @@
   "packageManager": "pnpm@9.12.3",
   "engines": {
     "node": ">=18"
+  },
+  "resolutions": {
+    "cookie": "0.7.2",
+    "esbuild": ">0.25.0"
   }
 }

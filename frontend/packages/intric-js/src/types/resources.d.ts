@@ -3,13 +3,14 @@ import { components } from "./schema";
 export type Assistant =
   | components["schemas"]["AssistantPublic"]
   | components["schemas"]["DefaultAssistant"];
-export type AssistantSparse = components["schemas"]["AssistantSparse"];
+
+export type AssistantSparse = Omit<components["schemas"]["AssistantSparse"], "user_id">;
 export type AssistantResponse = Omit<
   components["schemas"]["AskResponse"],
   "session_id" | "references" | "tools"
 > & {
   session_id?: string | undefined;
-  id?: string | undefined;
+  id?: string | undefined | null;
   created_at?: string | null | undefined;
   tools?: components["schemas"]["UseTools"];
   references: Omit<components["schemas"]["InfoBlobAskAssistantPublic"], "score">[];
@@ -23,16 +24,19 @@ export type Group = Omit<
 > & {
   embedding_model?: components["schemas"]["EmbeddingModelSparse"] | null | undefined;
 };
-export type GroupSparse = components["schemas"]["GroupSparse"];
+export type GroupSparse = components["schemas"]["GroupPublicWithMetadata"];
 export type InfoBlob = Omit<components["schemas"]["InfoBlobPublic"], "text"> & {
   text?: string | undefined;
 };
 export type Widget = components["schemas"]["WidgetPublic"];
-export type CompletionModel = components["schemas"]["CompletionModel"];
-export type EmbeddingModel = components["schemas"]["EmbeddingModel"];
+export type CompletionModel = components["schemas"]["CompletionModelPublic"];
+export type EmbeddingModel = components["schemas"]["EmbeddingModelPublic"];
+export type TranscriptionModel = components["schemas"]["TranscriptionModelPublic"];
+export type SecurityClassification = components["schemas"]["SecurityClassificationPublic"];
 export type Job = components["schemas"]["JobPublic"];
-export type JobStatus = components["schemas"]["JobStatus"];
+export type JobStatus = components["schemas"]["Status"];
 export type Tenant = components["schemas"]["TenantPublic"];
+export type AnalyticsData = components["schemas"]["MetadataStatistics"];
 export type UserGroup = components["schemas"]["UserGroupPublic"];
 export type User = components["schemas"]["UserAdminView"];
 export type UserSparse = components["schemas"]["UserSparse"];
@@ -45,7 +49,6 @@ export type Limits = components["schemas"]["Limits"];
 export type UploadedFile = components["schemas"]["FilePublic"];
 export type Website = components["schemas"]["WebsitePublic"];
 export type WebsiteSparse = components["schemas"]["WebsiteSparse"];
-export type ModelCreatorOrg = components["schemas"]["Orgs"];
 export type Space = components["schemas"]["SpacePublic"];
 export type SpaceSparse = components["schemas"]["SpaceSparse"];
 export type Dashboard = components["schemas"]["Dashboard"];
@@ -61,7 +64,26 @@ export type AssistantTemplate = components["schemas"]["AssistantTemplatePublic"]
 export type AppTemplate = components["schemas"]["AppTemplatePublic"];
 export type TemplateAdditionalField = components["schemas"]["AdditionalField"];
 export type SpaceRole = components["schemas"]["SpaceRole"];
-export type StorageSpaceInfo = components["schemas"]["StorageSpaceInfoModel"];
+export type StorageSpaceList = components["schemas"]["StorageSpaceInfoModel"];
+export type StorageUsageSummary = components["schemas"]["StorageModel"];
+export type TokenUsageSummary = components["schemas"]["TokenUsageSummary"];
+export type Integration = components["schemas"]["Integration"];
+export type UserIntegration = components["schemas"]["UserIntegration"];
+export type TenantIntegration = components["schemas"]["TenantIntegration"];
+export type IntegrationKnowledge = components["schemas"]["IntegrationKnowledgePublic"];
+export type IntegrationKnowledgePreview = components["schemas"]["IntegrationPreviewData"];
+export type Conversation = components["schemas"]["SessionPublic"] & {
+  messages: ConversationMessage[];
+};
+export type ConversationSparse = components["schemas"]["SessionMetadataPublic"];
+export type ConversationMessage = components["schemas"]["Message"];
+export type ConversationTools = components["schemas"]["UseTools"];
+export type GroupChat = components["schemas"]["GroupChatPublic"];
+export type GroupChatSparse = Omit<components["schemas"]["GroupChatSparse"], "user_id">;
+export type ChatPartner =
+  | { id: string; type: "assistant" }
+  | { id: string; type: "group-chat" }
+  | { id: string; type: "default-assistant" };
 
 export type Paginated<T> = {
   items: T[];
@@ -72,20 +94,10 @@ export type Paginated<T> = {
   count: number;
 };
 
-export type AnalyticsData = {
-  assistants: {
-    id: string;
-    created_at: string;
-  }[];
-  sessions: {
-    id: string;
-    created_at: string;
-    assistant_id: string;
-  }[];
-  questions: {
-    id: string;
-    created_at: string;
-    assistant_id: string;
-    session_id: string;
-  }[];
-};
+export namespace SSE {
+  export type Text = Omit<components["schemas"]["SSEText"], "$defs">;
+  export type FirstChunk = Omit<components["schemas"]["SSEFirstChunk"], "$defs">;
+  export type Files = Omit<components["schemas"]["SSEFiles"], "$defs">;
+  export type Intric = Omit<components["schemas"]["SSEIntricEvent"], "$defs">;
+  export type Event = Text | FirstChunk | Files | Intric;
+}

@@ -95,8 +95,8 @@
           placeholder="Select a user group..."
           {...$input}
           use:input
-          class="h-10 w-full items-center justify-between overflow-hidden rounded-lg
-        border border-stronger bg-primary px-3 py-2 shadow ring-default placeholder:text-secondary focus-within:ring-2 hover:ring-2 focus-visible:ring-2 disabled:bg-secondary disabled:text-muted disabled:shadow-none disabled:hover:ring-0"
+          class="border-stronger bg-primary ring-default placeholder:text-secondary disabled:bg-secondary disabled:text-muted
+        h-10 w-full items-center justify-between overflow-hidden rounded-lg border px-3 py-2 shadow focus-within:ring-2 hover:ring-2 focus-visible:ring-2 disabled:shadow-none disabled:hover:ring-0"
         />
         <button
           on:click={() => {
@@ -104,7 +104,7 @@
             $open = true;
           }}
         >
-          <IconChevronDown class="absolute right-4 top-2 h-6 w-6" />
+          <IconChevronDown class="absolute top-2 right-4 h-6 w-6" />
         </button>
       </div>
       <Button variant="primary" disabled={$inputValue === ""} on:click={addToGroup}>Assign</Button>
@@ -112,10 +112,10 @@
   </div>
 
   {#if selectedGroups.length > 0}
-    <div class="overflow-clip rounded-md border border-stronger bg-secondary">
-      {#each selectedGroups as selectedGroup}
+    <div class="border-stronger bg-secondary overflow-clip rounded-md border">
+      {#each selectedGroups as selectedGroup (selectedGroup.id)}
         <div
-          class="flex w-full items-center justify-between border-b border-default py-2 pl-4 pr-2 last-of-type:border-b-0 hover:bg-primary"
+          class="border-default hover:bg-primary flex w-full items-center justify-between border-b py-2 pr-2 pl-4 last-of-type:border-b-0"
         >
           <div>
             {selectedGroup.name}
@@ -134,20 +134,20 @@
 
 {#if $open}
   <ul
-    class="shadow-bg-tertiary z-10 flex flex-col gap-1 overflow-y-auto rounded-lg border border-stronger bg-primary p-1 shadow-md focus:!ring-0"
+    class="shadow-bg-tertiary border-stronger bg-primary z-10 flex flex-col gap-1 overflow-y-auto rounded-lg border p-1 shadow-md focus:!ring-0"
     {...$menu}
     use:menu
   >
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
     <div
-      class="flex max-h-full flex-col gap-0 overflow-y-auto bg-primary text-primary"
+      class="bg-primary text-primary flex max-h-full flex-col gap-0 overflow-y-auto"
       tabindex="0"
     >
-      {#each filteredGroups as group, index (index)}
+      {#each filteredGroups as group (group.id)}
         <li
           {...$option({ value: group, label: group.name })}
           use:option
-          class="flex items-center gap-1 rounded-md px-2 hover:cursor-pointer hover:bg-tertiary"
+          class="hover:bg-tertiary flex items-center gap-1 rounded-md px-2 hover:cursor-pointer"
         >
           <IconSelectedItem class="{$isSelected(group) ? 'block' : 'hidden'} text-accent-default" />
           <div class="py-1">

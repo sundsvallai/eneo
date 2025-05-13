@@ -53,7 +53,7 @@
         label="Email"
         disabled
         type="email"
-        class="border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+        class="border-default hover:bg-hover-dimmer border-b px-4 py-4"
       ></Input.Text>
 
       <SelectRole availableRoles={defaultRoles} bind:value={userRole}></SelectRole>

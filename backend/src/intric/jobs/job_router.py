@@ -12,12 +12,11 @@ router = APIRouter()
 
 
 @router.get("/", response_model=PaginatedResponse[JobPublic])
-async def get_jobs(
-    include_completed: bool = False,
+async def get_running_jobs(
     container: Container = Depends(get_container(with_user=True)),
 ):
     job_service = container.job_service()
-    jobs = await job_service.get_jobs(include_completed)
+    jobs = await job_service.get_running_jobs()
 
     return protocol.to_paginated_response(jobs)
 

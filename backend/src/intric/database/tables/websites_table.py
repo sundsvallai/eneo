@@ -6,12 +6,12 @@ from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
 
 from intric.database.tables.ai_models_table import EmbeddingModels
 from intric.database.tables.base_class import BasePublic
-from intric.database.tables.groups_table import Groups
+from intric.database.tables.collections_table import CollectionsTable
 from intric.database.tables.job_table import Jobs
 from intric.database.tables.spaces_table import Spaces
 from intric.database.tables.tenant_table import Tenants
 from intric.database.tables.users_table import Users
-from intric.websites.crawl_dependencies.crawl_models import CrawlType
+from intric.websites.domain.crawl_run import CrawlType
 
 
 class CrawlRuns(BasePublic):
@@ -22,12 +22,8 @@ class CrawlRuns(BasePublic):
 
     # Foreign keys
     tenant_id: Mapped[UUID] = mapped_column(ForeignKey(Tenants.id, ondelete="CASCADE"))
-    website_id: Mapped[UUID] = mapped_column(
-        ForeignKey("websites.id", ondelete="CASCADE")
-    )
-    job_id: Mapped[Optional[UUID]] = mapped_column(
-        ForeignKey(Jobs.id, ondelete="SET NULL")
-    )
+    website_id: Mapped[UUID] = mapped_column(ForeignKey("websites.id", ondelete="CASCADE"))
+    job_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey(Jobs.id, ondelete="SET NULL"))
 
     # Relationships
     job: Mapped[Jobs] = relationship()
@@ -46,14 +42,12 @@ class Websites(BasePublic):
     user_id: Mapped[UUID] = mapped_column(ForeignKey(Users.id, ondelete="CASCADE"))
     embedding_model_id: Mapped[UUID] = mapped_column(ForeignKey(EmbeddingModels.id))
     group_id: Mapped[Optional[UUID]] = mapped_column(
-        ForeignKey(Groups.id, ondelete="SET NULL")
+        ForeignKey(CollectionsTable.id, ondelete="SET NULL")
     )
-    space_id: Mapped[Optional[UUID]] = mapped_column(
-        ForeignKey(Spaces.id, ondelete="CASCADE")
-    )
+    space_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey(Spaces.id, ondelete="CASCADE"))
 
     # Relationships
-    group: Mapped[Groups] = relationship()
+    group: Mapped[CollectionsTable] = relationship()
     embedding_model: Mapped[EmbeddingModels] = relationship()
 
     @declared_attr
@@ -69,9 +63,7 @@ class Websites(BasePublic):
 
         latest_crawl_relationship = relationship(
             CrawlRuns,
-            primaryjoin=and_(
-                CrawlRuns.id == most_recent_crawl, CrawlRuns.website_id == cls.id
-            ),
+            primaryjoin=and_(CrawlRuns.id == most_recent_crawl, CrawlRuns.website_id == cls.id),
             uselist=False,
             viewonly=True,
         )

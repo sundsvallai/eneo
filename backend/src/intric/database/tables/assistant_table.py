@@ -8,8 +8,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from intric.database.tables.ai_models_table import CompletionModels
 from intric.database.tables.assistant_template_table import AssistantTemplates
 from intric.database.tables.base_class import BaseCrossReference, BasePublic
+from intric.database.tables.collections_table import CollectionsTable
 from intric.database.tables.files_table import Files
-from intric.database.tables.groups_table import Groups
+from intric.database.tables.integration_table import IntegrationKnowledge
 from intric.database.tables.spaces_table import Spaces
 from intric.database.tables.users_table import Users
 from intric.database.tables.websites_table import Websites
@@ -22,6 +23,17 @@ class Assistants(BasePublic):
     logging_enabled: Mapped[bool] = mapped_column()
     is_default: Mapped[bool] = mapped_column()
     published: Mapped[bool] = mapped_column()
+    description: Mapped[Optional[str]] = mapped_column()
+    insight_enabled: Mapped[bool] = mapped_column(default=False)
+    data_retention_days: Mapped[Optional[int]] = mapped_column()
+    metadata_json: Mapped[Optional[dict]] = mapped_column(JSONB)
+    # TODO: refactor since this is a somewhat weird solution having a
+    # type column. The reason is bc front-end wants a non-nullable
+    # "type" field in a bunch of models. Thus a field with a default
+    # value cannot be used. Just adding it to all constructors and
+    # factories => issues with model validation.
+    # This was quickest, simplest solution.
+    type: Mapped[str] = mapped_column(default="assistant")
 
     # Foreign keys
     user_id: Mapped[UUID] = mapped_column(ForeignKey(Users.id, ondelete="CASCADE"))
@@ -36,18 +48,28 @@ class Assistants(BasePublic):
     )
 
     # relationships
-    groups: Mapped[list[Groups]] = relationship(
-        secondary="assistants_groups", order_by=Groups.created_at
+    groups: Mapped[list[CollectionsTable]] = relationship(
+        secondary="assistants_groups", order_by=CollectionsTable.created_at
     )
     websites: Mapped[list[Websites]] = relationship(
         secondary="assistants_websites", order_by=Websites.created_at
+    )
+    integration_knowledge_list: Mapped[list[IntegrationKnowledge]] = relationship(
+        secondary="assistant_integration_knowledge",
+        order_by=IntegrationKnowledge.created_at,
     )
     user: Mapped[Users] = relationship()
     completion_model: Mapped[Optional[CompletionModels]] = relationship()
     attachments: Mapped[list["AssistantsFiles"]] = relationship(
         order_by="AssistantsFiles.created_at", viewonly=True
     )
-    template: Mapped[Optional[AssistantTemplates]] = relationship()
+    template: Mapped[Optional[AssistantTemplates]] = relationship(viewonly=True)
+
+    assistant_groups: Mapped[list["AssistantsGroups"]] = relationship(viewonly=True)
+    assistant_integration_knowledge: Mapped[list["AssistantIntegrationKnowledge"]] = relationship(
+        viewonly=True
+    )
+    assistant_websites: Mapped[list["AssistantsWebsites"]] = relationship(viewonly=True)
 
     __table_args__ = {"extend_existing": True}  # Temporary
 
@@ -57,7 +79,7 @@ class AssistantsGroups(BaseCrossReference):
         ForeignKey(Assistants.id, ondelete="CASCADE"), primary_key=True
     )
     group_id: Mapped[UUID] = mapped_column(
-        ForeignKey(Groups.id, ondelete="CASCADE"), primary_key=True
+        ForeignKey(CollectionsTable.id, ondelete="CASCADE"), primary_key=True
     )
 
 
@@ -80,3 +102,12 @@ class AssistantsFiles(BaseCrossReference):
 
     # Relationships
     file: Mapped[Files] = relationship()
+
+
+class AssistantIntegrationKnowledge(BasePublic):
+    __tablename__ = "assistant_integration_knowledge"
+
+    assistant_id: Mapped[UUID] = mapped_column(ForeignKey(Assistants.id, ondelete="CASCADE"))
+    integration_knowledge_id: Mapped[UUID] = mapped_column(
+        ForeignKey(IntegrationKnowledge.id, ondelete="CASCADE")
+    )

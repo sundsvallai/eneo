@@ -54,7 +54,7 @@
         maxlength="200"
         type="text"
         required
-        class="justify-between border-b border-dimmer px-4 py-4 hover:bg-hover-dimmer"
+        class="border-dimmer hover:bg-hover-dimmer justify-between border-b px-4 py-4"
       ></Input.Text>
 
       <Input.Text
@@ -63,7 +63,7 @@
         required
         maxlength="200"
         type="text"
-        class="border-b border-dimmer px-4 py-4 hover:bg-hover-dimmer"
+        class="border-dimmer hover:bg-hover-dimmer border-b px-4 py-4"
       ></Input.Text>
 
       <Input.Text
@@ -73,7 +73,7 @@
         placeholder={displayNamePlaceholder}
         maxlength="200"
         type="text"
-        class="border-b border-dimmer px-4 py-4 hover:bg-hover-dimmer"
+        class="border-dimmer hover:bg-hover-dimmer border-b px-4 py-4"
       ></Input.Text>
     </Dialog.Section>
 

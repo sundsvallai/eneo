@@ -18,6 +18,10 @@
       goto("/activate");
       return;
     }
+    if (error.code === 9025) {
+      goto("/deactivated");
+      return;
+    }
     if (error.status === 401) {
       goto("/logout?message=expired");
       return;
@@ -43,7 +47,7 @@
 </script>
 
 {#if appError !== undefined}
-  <div class="absolute inset-0 flex flex-col items-center justify-center">
+  <div class="bg-secondary absolute inset-0 flex flex-col items-center justify-center">
     <div class="flex flex-col justify-center pb-12 text-center">
       <div class="pb-4 text-2xl">Error {appError.status}: {appError.message}</div>
       <p class="text-lg">We're experiencing some difficulties, please try again later.</p>
@@ -52,7 +56,7 @@
         <Button
           href="/login?clear_cookies=true"
           unstyled
-          class="hover:text-hover-on-fill underline hover:bg-accent-stronger"
+          class="hover:text-hover-on-fill hover:bg-accent-stronger underline"
           >delete your cookies.</Button
         >
       </div>

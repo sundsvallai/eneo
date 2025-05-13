@@ -16,7 +16,7 @@ from intric.crawler.spiders.crawl_spider import CrawlSpider
 from intric.crawler.spiders.sitemap_spider import SitemapSpider
 from intric.main.config import SETTINGS
 from intric.main.exceptions import CrawlerException
-from intric.websites.crawl_dependencies.crawl_models import CrawlType
+from intric.websites.domain.crawl_run import CrawlType
 
 
 @dataclass
@@ -57,9 +57,7 @@ class Crawler:
 
     @crochet.wait_for(SETTINGS.crawl_max_length)
     @staticmethod
-    def _run_sitemap_crawl(
-        sitemap_url: str, *, filepath: Path, files_dir: Optional[Path]
-    ):
+    def _run_sitemap_crawl(sitemap_url: str, *, filepath: Path, files_dir: Optional[Path]):
         runner = create_runner(filepath=filepath)
         return runner.crawl(SitemapSpider, sitemap_url=sitemap_url)
 
@@ -67,9 +65,7 @@ class Crawler:
     async def _crawl(self, func, **kwargs):
         with NamedTemporaryFile() as tmp_file:
             with TemporaryDirectory() as tmp_dir:
-                await asyncio.to_thread(
-                    func, filepath=tmp_file.name, files_dir=tmp_dir, **kwargs
-                )
+                await asyncio.to_thread(func, filepath=tmp_file.name, files_dir=tmp_dir, **kwargs)
 
                 # If the result file is empty
                 # (This will fail if the expected result is no pages but some files)
@@ -104,9 +100,7 @@ class Crawler:
                 yield crawl_result
 
         elif crawl_type == CrawlType.SITEMAP:
-            async with self._crawl(
-                self._run_sitemap_crawl, sitemap_url=url
-            ) as crawl_result:
+            async with self._crawl(self._run_sitemap_crawl, sitemap_url=url) as crawl_result:
                 yield crawl_result
 
         else:

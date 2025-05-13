@@ -42,24 +42,29 @@ export function initUser(client) {
     /**
      * Lists all users on this tenant.
      * @overload `{includeDetails: true}` requires super user privileges.
-     * @param {{includeDetails: true}} params
+     * @param {{includeDetails: true}} options
      * @return {Promise<User[]>}
      *
      * @overload
-     * @param {{includeDetails: false}} [params]
-     * @return {Promise<UserSparse[]>}
+     * @param {{includeDetails?: false, filter?: string, limit?: number, cursor?: string}} [options]
+     * @return {Promise<import('../types/resources').Paginated<UserSparse>> }
      *
-     * @param {{includeDetails: boolean}} [params]
+     * @param {{includeDetails: boolean, filter?: string, limit?: number, cursor?: string}} [options]
      * @throws {IntricError}
      * */
-    list: async (params) => {
-      if (params && params.includeDetails) {
+    list: async (options) => {
+      if (options && options.includeDetails) {
         const res = await client.fetch("/api/v1/admin/users/", { method: "get" });
         return res.items;
       }
 
-      const res = await client.fetch("/api/v1/users/", { method: "get" });
-      return res.items;
+      const res = await client.fetch("/api/v1/users/", {
+        method: "get",
+        params: {
+          query: { email: options?.filter, limit: options?.limit, cursor: options?.cursor }
+        }
+      });
+      return res;
     },
 
     /**

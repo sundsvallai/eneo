@@ -69,7 +69,7 @@
       {#await data.results}
         <!-- TODO: This has some delay on it as the underlying table is delayed in updating its rows, so we cover it up during that time. -->
         <div
-          class="absolute inset-0 z-[100] flex items-center justify-center bg-primary"
+          class="bg-primary absolute inset-0 z-[100] flex items-center justify-center"
           out:fade={{ delay: 250, duration: 100 }}
         >
           <IconLoadingSpinner class="animate-spin"></IconLoadingSpinner>

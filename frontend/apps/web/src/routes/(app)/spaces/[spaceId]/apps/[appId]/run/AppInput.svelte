@@ -15,7 +15,7 @@
   $: inputData.files = $attachments.map((a) => a.fileRef).filter((a) => a !== undefined);
 </script>
 
-{#each app.input_fields as input}
+{#each app.input_fields as input (input)}
   {#if input.type === "audio-recorder"}
     <InputAudioRecording description={input.description ?? undefined}></InputAudioRecording>
   {:else if input.type === "text-field"}

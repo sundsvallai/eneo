@@ -12,6 +12,9 @@ from intric.database.tables.app_table import Apps, AppsFiles, AppsPrompts, Input
 from intric.files.file_models import FileInfo
 from intric.prompts.prompt import Prompt
 from intric.prompts.prompt_repo import PromptRepository
+from intric.transcription_models.domain.transcription_model_repo import (
+    TranscriptionModelRepository,
+)
 
 
 class AppRepository:
@@ -20,10 +23,12 @@ class AppRepository:
         session: AsyncSession,
         factory: AppFactory,
         prompt_repo: PromptRepository,
+        transcription_model_repo: TranscriptionModelRepository,
     ):
         self.session = session
         self.factory = factory
         self.prompt_repo = prompt_repo
+        self.transcription_model_repo = transcription_model_repo
 
     def _options(self):
         return [
@@ -106,9 +111,7 @@ class AppRepository:
 
         # Add attachments
         if attachments:
-            attachments_dicts = [
-                dict(app_id=app_in_db.id, file_id=file.id) for file in attachments
-            ]
+            attachments_dicts = [dict(app_id=app_in_db.id, file_id=file.id) for file in attachments]
 
             stmt = sa.insert(AppsFiles).values(attachments_dicts)
             await self.session.execute(stmt)
@@ -120,6 +123,10 @@ class AppRepository:
             None
             if app.completion_model_kwargs is None
             else app.completion_model_kwargs.model_dump()
+        )
+
+        transcription_model_id = (
+            None if app.transcription_model is None else app.transcription_model.id
         )
 
         template_id = app.source_template.id if app.source_template else None
@@ -135,6 +142,7 @@ class AppRepository:
                 completion_model_id=app.completion_model.id,
                 published=app.published,
                 template_id=template_id,
+                transcription_model_id=transcription_model_id,
             )
             .returning(Apps)
         )
@@ -147,7 +155,9 @@ class AppRepository:
         await self._set_input_fields(entry_in_db, app.input_fields)
         await self._set_attachments(entry_in_db, app.attachments)
 
-        return self.factory.create_app_from_db(entry_in_db, prompt=app.prompt)
+        return self.factory.create_app_from_db(
+            entry_in_db, prompt=app.prompt, transcription_model=app.transcription_model
+        )
 
     async def get(self, id: UUID) -> App:
         stmt = sa.select(Apps).where(Apps.id == id)
@@ -159,13 +169,26 @@ class AppRepository:
 
         prompt = await self._get_selected_prompt(app_id=id)
 
-        return self.factory.create_app_from_db(entry_in_db, prompt=prompt)
+        # Get transcription model using the repo
+        transcription_model = None
+        if entry_in_db.transcription_model_id:
+            transcription_model = await self.transcription_model_repo.one(
+                entry_in_db.transcription_model_id
+            )
+
+        return self.factory.create_app_from_db(
+            entry_in_db, prompt=prompt, transcription_model=transcription_model
+        )
 
     async def update(self, app: App) -> App:
         model_kwargs = (
             None
             if app.completion_model_kwargs is None
             else app.completion_model_kwargs.model_dump()
+        )
+
+        transcription_model_id = (
+            None if app.transcription_model is None else app.transcription_model.id
         )
 
         stmt = (
@@ -178,7 +201,9 @@ class AppRepository:
                 user_id=app.user_id,
                 space_id=app.space_id,
                 completion_model_id=app.completion_model.id,
+                transcription_model_id=transcription_model_id,
                 published=app.published,
+                data_retention_days=app.data_retention_days,
             )
             .where(Apps.id == app.id)
             .returning(Apps)
@@ -192,16 +217,16 @@ class AppRepository:
         await self._set_input_fields(entry_in_db, app.input_fields)
         await self._set_attachments(entry_in_db, app.attachments)
 
-        return self.factory.create_app_from_db(entry_in_db, app.prompt)
+        return self.factory.create_app_from_db(
+            entry_in_db, prompt=app.prompt, transcription_model=app.transcription_model
+        )
 
     async def delete(self, id: UUID):
         stmt = sa.delete(Apps).where(Apps.id == id)
         await self.session.execute(stmt)
 
     async def get_by_space(self, space_id: UUID):
-        stmt = (
-            sa.select(Apps).where(Apps.space_id == space_id).order_by(Apps.created_at)
-        )
+        stmt = sa.select(Apps).where(Apps.space_id == space_id).order_by(Apps.created_at)
 
         for option in self._options():
             stmt = stmt.options(option)
@@ -211,7 +236,17 @@ class AppRepository:
         apps = []
         for record in records:
             prompt = await self._get_selected_prompt(record.id)
-            app = self.factory.create_app_from_db(app_in_db=record, prompt=prompt)
+
+            # Get transcription model using the repo
+            transcription_model = None
+            if record.transcription_model_id:
+                transcription_model = await self.transcription_model_repo.one(
+                    record.transcription_model_id
+                )
+
+            app = self.factory.create_app_from_db(
+                app_in_db=record, prompt=prompt, transcription_model=transcription_model
+            )
             apps.append(app)
 
         return apps

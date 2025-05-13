@@ -1,16 +1,22 @@
 <script lang="ts">
   import { Page, Settings } from "$lib/components/layout";
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager.js";
-  import { Button } from "@intric/ui";
+
+  import { Button, Input, Tooltip } from "@intric/ui";
   import { afterNavigate, beforeNavigate } from "$app/navigation";
+
   import { initAssistantEditor } from "$lib/features/assistants/AssistantEditor.js";
   import { fade } from "svelte/transition";
+
   import AssistantSettingsAttachments from "./AssistantSettingsAttachments.svelte";
-  import SelectCompletionModelV2 from "$lib/features/ai-models/components/SelectCompletionModelV2.svelte";
+  import SelectAIModelV2 from "$lib/features/ai-models/components/SelectAIModelV2.svelte";
   import SelectBehaviourV2 from "$lib/features/ai-models/components/SelectBehaviourV2.svelte";
   import SelectKnowledgeV2 from "$lib/features/knowledge/components/SelectKnowledgeV2.svelte";
   import PromptVersionDialog from "$lib/features/prompts/components/PromptVersionDialog.svelte";
   import dayjs from "dayjs";
+  import PublishingSetting from "$lib/features/publishing/components/PublishingSetting.svelte";
+  import { page } from "$app/state";
+  import { getChatQueryParams } from "$lib/features/chat/getChatQueryParams.js";
 
   export let data;
 
@@ -48,8 +54,9 @@
 
   let showSavesChangedNotice = false;
 
-  let previousRoute = `/spaces/${$currentSpace.routeId}/assistants/${data.assistant.id}`;
+  let previousRoute = `/spaces/${$currentSpace.routeId}/chat/?${getChatQueryParams({ chatPartner: data.assistant, tab: "chat" })}`;
   afterNavigate(({ from }) => {
+    if (page.url.searchParams.get("next") === "default") return;
     if (from) previousRoute = from.url.toString();
   });
 </script>
@@ -65,7 +72,7 @@
     <Page.Title
       parent={{
         title: $resource.name,
-        href: `/spaces/${$currentSpace.routeId}/assistants/${data.assistant.id}`
+        href: `/spaces/${$currentSpace.routeId}/chat/?${getChatQueryParams({ chatPartner: data.assistant, tab: "chat" })}`
       }}
       title="Edit"
     ></Page.Title>
@@ -95,7 +102,7 @@
         >
       {:else}
         {#if showSavesChangedNotice}
-          <p class="px-4 text-positive-stronger" transition:fade>All changes saved!</p>
+          <p class="text-positive-stronger px-4" transition:fade>All changes saved!</p>
         {/if}
         <Button variant="primary" class="w-32" href={previousRoute}>Done</Button>
       {/if}
@@ -118,8 +125,25 @@
             type="text"
             {...aria}
             bind:value={$update.name}
-            class="rounded-lg border border-default bg-primary px-3 py-2 shadow ring-default focus-within:ring-2 hover:ring-2 focus-visible:ring-2"
+            class="border-default bg-primary ring-default rounded-lg border px-3 py-2 shadow focus-within:ring-2 hover:ring-2 focus-visible:ring-2"
           />
+        </Settings.Row>
+
+        <Settings.Row
+          title="Description"
+          description="A brief introducion to this assistant that will be shown when starting a new session."
+          hasChanges={$currentChanges.diff.description !== undefined}
+          revertFn={() => {
+            discardChanges("description");
+          }}
+          let:aria
+        >
+          <textarea
+            placeholder={`Hi, I'm ${$update.name}!\nAsk me anything to get started.`}
+            {...aria}
+            bind:value={$update.description}
+            class="border-default bg-primary ring-default placeholder:text-muted min-h-24 rounded-lg border px-3 py-2 shadow focus-within:ring-2 hover:ring-2 focus-visible:ring-2"
+          ></textarea>
         </Settings.Row>
       </Settings.Group>
 
@@ -154,7 +178,7 @@
             on:change={() => {
               $update.prompt.description = "";
             }}
-            class="min-h-24 rounded-lg border border-default bg-primary px-6 py-4 text-lg shadow ring-default focus-within:ring-2 hover:ring-2 focus-visible:ring-2"
+            class="border-default bg-primary ring-default min-h-24 rounded-lg border px-6 py-4 text-lg shadow focus-within:ring-2 hover:ring-2 focus-visible:ring-2"
           ></textarea>
         </Settings.Row>
 
@@ -175,15 +199,18 @@
           title="Knowledge"
           description="Select additional knowledge sources that this assistant will be able to search for relevant answers."
           hasChanges={$currentChanges.diff.groups !== undefined ||
-            $currentChanges.diff.websites !== undefined}
+            $currentChanges.diff.websites !== undefined ||
+            $currentChanges.diff.integration_knowledge_list !== undefined}
           revertFn={() => {
             discardChanges("groups");
             discardChanges("websites");
+            discardChanges("integration_knowledge_list");
           }}
         >
           <SelectKnowledgeV2
             bind:selectedWebsites={$update.websites}
             bind:selectedCollections={$update.groups}
+            bind:selectedIntegrationKnowledge={$update.integration_knowledge_list}
           ></SelectKnowledgeV2>
         </Settings.Row>
       </Settings.Group>
@@ -198,11 +225,11 @@
           }}
           let:aria
         >
-          <SelectCompletionModelV2
+          <SelectAIModelV2
             bind:selectedModel={$update.completion_model}
             availableModels={$currentSpace.completion_models}
             {aria}
-          ></SelectCompletionModelV2>
+          ></SelectAIModelV2>
         </Settings.Row>
 
         <Settings.Row
@@ -218,6 +245,48 @@
           ></SelectBehaviourV2>
         </Settings.Row>
       </Settings.Group>
+
+      {#if data.assistant.permissions?.some((permission) => permission === "insight_toggle" || permission === "publish")}
+        <Settings.Group title="Publishing">
+          {#if data.assistant.permissions?.includes("publish")}
+            <Settings.Row
+              title="Status"
+              description="Publishing your assistant will make it available to all users of this space, including viewers."
+            >
+              <PublishingSetting
+                endpoints={data.intric.assistants}
+                resource={data.assistant}
+                hasUnsavedChanges={$currentChanges.hasUnsavedChanges}
+              />
+            </Settings.Row>
+          {/if}
+
+          <Settings.Row
+            hasChanges={$currentChanges.diff.insight_enabled !== undefined}
+            revertFn={() => {
+              discardChanges("insight_enabled");
+            }}
+            title="Insights"
+            description="Collect insights about this assistant's usage and allow space editors and admins to access the full history of user questions."
+          >
+            <div class="border-default flex h-14 border-b py-2">
+              <Tooltip
+                text={data.assistant.permissions?.includes("insight_toggle")
+                  ? undefined
+                  : "Only space admins can toggle insights."}
+                class="w-full"
+              >
+                <Input.RadioSwitch
+                  bind:value={$update.insight_enabled}
+                  labelTrue="Enable insights"
+                  labelFalse="Disable insights"
+                  disabled={!data.assistant.permissions?.includes("insight_toggle")}
+                ></Input.RadioSwitch>
+              </Tooltip>
+            </div>
+          </Settings.Row>
+        </Settings.Group>
+      {/if}
 
       <div class="min-h-24"></div>
     </Settings.Page>

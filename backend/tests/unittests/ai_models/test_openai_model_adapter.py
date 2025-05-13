@@ -1,5 +1,5 @@
 from intric.ai_models.completion_models.completion_model import Context, Message
-from intric.ai_models.completion_models.completion_model_adapters.openai_model_adapter import (
+from intric.completion_models.infrastructure.adapters.openai_model_adapter import (
     OpenAIModelAdapter,
 )
 from tests.fixtures import TEST_MODEL_GPT4

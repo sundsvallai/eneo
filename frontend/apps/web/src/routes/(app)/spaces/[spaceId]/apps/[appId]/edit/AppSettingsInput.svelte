@@ -8,7 +8,7 @@
   } = getAppEditor();
 </script>
 
-{#each $update.input_fields as input, currentIndex}
+{#each $update.input_fields as input, currentIndex (input)}
   <Settings.Row
     title="Input description"
     description="A label telling this app's users what data to provide via this input."
@@ -24,7 +24,7 @@
       type="text"
       {...aria}
       bind:value={input.description}
-      class="rounded-lg border border-stronger bg-primary px-3 py-2 shadow ring-default focus-within:ring-2 hover:ring-2 focus-visible:ring-2"
+      class="border-stronger bg-primary ring-default rounded-lg border px-3 py-2 shadow focus-within:ring-2 hover:ring-2 focus-visible:ring-2"
     />
   </Settings.Row>
 

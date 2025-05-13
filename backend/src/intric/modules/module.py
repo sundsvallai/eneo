@@ -12,6 +12,7 @@ class Modules(str, Enum):
 
     EU_HOSTING = "eu_hosting"
     INTRIC_APPLICATIONS = "intric-applications"
+    SWE_HOSTING = "SWE Models"
 
 
 class ModuleBase(BaseModel):

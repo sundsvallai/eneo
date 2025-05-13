@@ -21,19 +21,17 @@
   }>;
 
   export let actionPadding: "regular" | "tight" | undefined = undefined;
-
-  $: sort = $props.sort;
 </script>
 
-{#if !sort.disabled}
-  <Button on:click={sort.toggle}>
+{#if !$props.sort.disabled}
+  <Button on:click={$props.sort.toggle}>
     <slot />
-    {#if sort.order === "desc"}
+    {#if $props.sort.order === "desc"}
       <IconSortDesc size="sm" />
-    {:else if sort.order === "asc"}
+    {:else if $props.sort.order === "asc"}
       <IconSortAsc size="sm" />
     {:else}
-      <IconSortAscDesc size="sm" class="text-transparent group-hover:text-primary" />
+      <IconSortAscDesc size="sm" class="group-hover:text-primary text-transparent" />
     {/if}
   </Button>
 {:else}

@@ -10,12 +10,12 @@ from intric.ai_models.completion_models.completion_models_repo import (
     CompletionModelsRepository,
 )
 from intric.ai_models.embedding_models.embedding_model import (
-    EmbeddingModel,
-    EmbeddingModelPublic,
+    EmbeddingModelLegacy,
+    EmbeddingModelPublicLegacy,
     EmbeddingModelUpdateFlags,
 )
 from intric.ai_models.embedding_models.embedding_models_repo import (
-    EmbeddingModelsRepository,
+    AdminEmbeddingModelsService,
 )
 from intric.main.config import get_settings
 from intric.main.exceptions import BadRequestException, UnauthorizedException
@@ -29,7 +29,7 @@ class AIModelsService:
     def __init__(
         self,
         user: UserInDB,
-        embedding_model_repo: EmbeddingModelsRepository,
+        embedding_model_repo: AdminEmbeddingModelsService,
         completion_model_repo: CompletionModelsRepository,
         tenant_repo: TenantRepository,
     ):
@@ -40,7 +40,7 @@ class AIModelsService:
 
     def _is_locked(
         self,
-        model: CompletionModel | EmbeddingModel,
+        model: CompletionModel | EmbeddingModelLegacy,
     ):
         if model.hosting == ModelHostingLocation.EU:
             if Modules.EU_HOSTING not in self.user.modules:
@@ -49,20 +49,16 @@ class AIModelsService:
 
     def _can_access(
         self,
-        model: CompletionModel | EmbeddingModel,
+        model: CompletionModel | EmbeddingModelLegacy,
     ):
-        if (
-            not self._is_locked(model)
-            and not model.is_deprecated
-            and model.is_org_enabled
-        ):
+        if not self._is_locked(model) and not model.is_deprecated and model.is_org_enabled:
             return True
 
         return False
 
     def _get_latest_available_model(
-        self, models: list[CompletionModelPublic | EmbeddingModelPublic]
-    ):
+        self, models: list[CompletionModelPublic | EmbeddingModelPublicLegacy]
+    ) -> CompletionModelPublic | EmbeddingModelPublicLegacy:
         sorted_models = sorted(models, key=lambda model: model.created_at, reverse=True)
 
         for model in sorted_models:
@@ -71,15 +67,15 @@ class AIModelsService:
 
     async def get_embedding_models(
         self, id_list: list[UUID] = None
-    ) -> list[EmbeddingModelPublic]:
+    ) -> list[EmbeddingModelPublicLegacy]:
         embedding_models = await self.embedding_model_repo.get_models(
-            tenant_id=self.user.tenant_id, is_deprecated=False, id_list=id_list
+            tenant_id=self.user.tenant_id, with_deprecated=False, id_list=id_list
         )
 
         models = []
         for model in embedding_models:
             models.append(
-                EmbeddingModelPublic(
+                EmbeddingModelPublicLegacy(
                     **model.model_dump(),
                     is_locked=self._is_locked(model),
                     can_access=self._can_access(model),
@@ -89,22 +85,16 @@ class AIModelsService:
         return models
 
     async def get_embedding_model(self, id: UUID):
-        model = await self.embedding_model_repo.get_model(
-            id, tenant_id=self.user.tenant_id
-        )
+        model = await self.embedding_model_repo.get_model(id, tenant_id=self.user.tenant_id)
 
         if model.is_deprecated:
-            raise BadRequestException(
-                f"EmbeddingModel {model.name} not supported anymore."
-            )
+            raise BadRequestException(f"EmbeddingModel {model.name} not supported anymore.")
 
         can_access = self._can_access(model)
         if not can_access:
-            raise UnauthorizedException(
-                "Unauthorized. User has no permissions to access."
-            )
+            raise UnauthorizedException("Unauthorized. User has no permissions to access.")
 
-        return EmbeddingModelPublic(
+        return EmbeddingModelPublicLegacy(
             **model.model_dump(),
             is_locked=self._is_locked(model),
             can_access=can_access,
@@ -155,7 +145,7 @@ class AIModelsService:
         model = await self.embedding_model_repo.get_model(
             embedding_model_id, tenant_id=self.user.tenant_id
         )
-        return EmbeddingModelPublic(
+        return EmbeddingModelPublicLegacy(
             **model.model_dump(),
             is_locked=self._is_locked(model),
             can_access=self._can_access(model),

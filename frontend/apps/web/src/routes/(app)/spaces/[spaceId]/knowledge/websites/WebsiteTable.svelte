@@ -123,7 +123,7 @@
 
 <Table.Root {viewModel} resourceName="website">
   {#if $embeddingModels.length > 1 || $currentSpace.embedding_models.length > 1 || $disabledModelInUse}
-    {#each $embeddingModels as embeddingModel}
+    {#each $embeddingModels as embeddingModel (embeddingModel.id)}
       <Table.Group
         title={embeddingModel.inSpace ? embeddingModel.name : embeddingModel.name + " (disabled)"}
         filterFn={createModelFilter(embeddingModel)}

@@ -26,7 +26,7 @@
     class="{icon ? '-ml-1' : '-ml-2'} max-w-full"
   >
     {#if icon}
-      <svelte:component this={icon} size="base" class="min-w-6 text-muted group-hover:text-primary"
+      <svelte:component this={icon} size="base" class="text-muted group-hover:text-primary min-w-6"
       ></svelte:component>
     {/if}
     <span class="truncate overflow-ellipsis">

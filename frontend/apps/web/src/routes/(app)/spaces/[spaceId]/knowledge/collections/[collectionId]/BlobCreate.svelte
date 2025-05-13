@@ -50,7 +50,7 @@
         bind:value={title}
         label="Title"
         required
-        class="border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+        class="border-default hover:bg-hover-dimmer border-b px-4 py-4"
       ></Input.Text>
 
       <Input.TextArea
@@ -58,7 +58,7 @@
         label="Content"
         required
         rows={15}
-        class="border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+        class="border-default hover:bg-hover-dimmer border-b px-4 py-4"
       ></Input.TextArea>
     </Dialog.Section>
 

@@ -26,8 +26,9 @@
 
 <div
   bind:this={div}
+  id="global-page-container"
   style="container-type: size;"
-  class="duration-400 relative flex flex-grow flex-col overflow-y-auto pl-6 text-primary transition-colors"
+  class="text-primary relative flex flex-grow flex-col overflow-y-auto pl-6 transition-colors duration-400"
   on:scroll={() => {
     scrollPositions[$value] = div.scrollTop;
   }}

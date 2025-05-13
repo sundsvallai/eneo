@@ -14,7 +14,7 @@
       download_files: undefined,
       embedding_model: undefined,
       update_interval: "never"
-    } as Website;
+    } as unknown as Website;
   };
 
   const intric = getIntric();
@@ -101,13 +101,13 @@
     <Dialog.Section>
       {#if $currentSpace.embedding_models.length < 1 && mode === "create"}
         <p
-          class="label-warning m-4 rounded-md border border-label-default bg-label-dimmer px-2 py-1 text-sm text-label-stronger"
+          class="label-warning border-label-default bg-label-dimmer text-label-stronger m-4 rounded-md border px-2 py-1 text-sm"
         >
           <span class="font-bold">Warning:</span>
           This space does currently not have any embedding models enabled. Enable at least one embedding
           model to be able to connect to a website.
         </p>
-        <div class="border-t border-default"></div>
+        <div class="border-default border-t"></div>
       {/if}
 
       <Input.Text
@@ -121,13 +121,13 @@
         placeholder={editableWebsite.crawl_type === "sitemap"
           ? "https://example.com/sitemap.xml"
           : "https://example.com"}
-        class="border-b border-default p-4 hover:bg-hover-dimmer"
+        class="border-default hover:bg-hover-dimmer border-b p-4"
         bind:isValid={validUrl}
       ></Input.Text>
 
       <Input.Text
         label="Display name"
-        class="border-b border-default p-4 hover:bg-hover-dimmer"
+        class="border-default hover:bg-hover-dimmer border-b p-4"
         description="Optional, will default to the website's URL"
         bind:value={websiteName}
         placeholder={editableWebsite.url.split("//")[1] ?? editableWebsite.url}
@@ -135,13 +135,13 @@
 
       <div class="flex">
         <Select.Simple
-          class="w-1/2 border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+          class="border-default hover:bg-hover-dimmer w-1/2 border-b px-4 py-4"
           options={crawlOptions}
           bind:value={editableWebsite.crawl_type}>Crawl type</Select.Simple
         >
 
         <Select.Simple
-          class="w-1/2 border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+          class="border-default hover:bg-hover-dimmer w-1/2 border-b px-4 py-4"
           options={updateOptions}
           bind:value={editableWebsite.update_interval}>Automatic updates</Select.Simple
         >
@@ -150,7 +150,7 @@
       {#if editableWebsite.crawl_type !== "sitemap"}
         <Input.Switch
           bind:value={editableWebsite.download_files}
-          class="border-default p-4 px-6 hover:bg-hover-dimmer"
+          class="border-default hover:bg-hover-dimmer p-4 px-6"
         >
           Download and analyse compatible files
         </Input.Switch>
@@ -159,7 +159,7 @@
           <Input.Switch
             disabled
             bind:value={editableWebsite.download_files}
-            class="border-default p-4 px-6 opacity-40 hover:bg-hover-dimmer"
+            class="border-default hover:bg-hover-dimmer p-4 px-6 opacity-40"
           >
             Download and analyse compatible files
           </Input.Switch>
@@ -167,7 +167,7 @@
       {/if}
 
       {#if mode === "create"}
-        <div class="border-t border-default"></div>
+        <div class="border-default border-t"></div>
         <SelectEmbeddingModel
           hideWhenNoOptions
           bind:value={editableWebsite.embedding_model}

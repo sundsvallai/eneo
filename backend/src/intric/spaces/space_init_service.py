@@ -24,10 +24,8 @@ class SpaceInitService:
         self.space_repo = space_repo
 
     async def _update_space_with_default_assistant(self, space: "Space"):
-        default_assistant = await self.assistant_service.create_default_assistant(
-            "Default", space
-        )
-        space.default_assistant = default_assistant
+        default_assistant = await self.assistant_service.create_default_assistant("Default", space)
+        space.add_assistant(default_assistant)
         return await self.space_repo.update(space)
 
     async def _create_personal_space(self):
@@ -47,9 +45,7 @@ class SpaceInitService:
 
         if personal_space.default_assistant is None:
             # Create default assistant if it does not exist
-            personal_space = await self._update_space_with_default_assistant(
-                personal_space
-            )
+            personal_space = await self._update_space_with_default_assistant(personal_space)
 
         return personal_space
 

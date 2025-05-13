@@ -4,6 +4,7 @@
   import { page } from "$app/stores";
   import type { ComponentType } from "svelte";
   import { Navigation } from "$lib/components/layout";
+  // import { IconIntegrations } from "@intric/icons/integrations";
 
   let currentRoute = "";
   $: currentRoute = $page.url.pathname;
@@ -18,6 +19,11 @@
       label: "My account",
       url: "/account"
     },
+    // {
+    //   icon: IconIntegrations,
+    //   label: "My integrations",
+    //   url: "/account/integrations"
+    // },
     {
       icon: IconKey,
       label: "API keys",
@@ -27,7 +33,7 @@
 </script>
 
 <Navigation.Menu>
-  {#each menuItems as item}
+  {#each menuItems as item (item.url)}
     <Navigation.Link
       href={item.url}
       icon={item.icon}

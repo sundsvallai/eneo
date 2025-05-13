@@ -14,8 +14,8 @@
 <button
   class="flex h-10 items-center justify-between
 overflow-hidden rounded-lg border {error
-    ? 'border-2 border-negative-default'
-    : 'border-stronger'} bg-primary px-3 py-2 shadow ring-default focus-within:ring-2 hover:ring-2 focus-visible:ring-2"
+    ? 'border-negative-default border-2'
+    : 'border-stronger'} bg-primary ring-default px-3 py-2 shadow focus-within:ring-2 hover:ring-2 focus-visible:ring-2"
   {...$trigger}
   use:trigger
 >

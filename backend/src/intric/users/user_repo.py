@@ -93,13 +93,15 @@ class UsersRepository:
     async def get_total_count(
         self, tenant_id: Optional[UUID] = None, filters: Optional[str] = None
     ):
-        query = sa.select(sa.func.count(Users.id))
+        query = sa.select(sa.func.count(Users.id)).where(Users.deleted_at.is_(None))
 
         if tenant_id is not None:
             query = query.where(Users.tenant_id == tenant_id)
 
         if filters is not None:
-            query = query.filter(Users.email.like(f"%{filters}%"))
+            query = query.filter(
+                sa.func.lower(Users.email).like(f"%{filters.lower()}%")
+            )
 
         return await self.session.scalar(query)
 
@@ -121,21 +123,24 @@ class UsersRepository:
             query = query.where(Users.tenant_id == tenant_id)
 
         if filters:
-            query = query.filter(Users.email.like(f"%{filters}%"))
+            query = query.filter(
+                sa.func.lower(Users.email).like(f"%{filters.lower()}%")
+            )
 
         if cursor is not None:
             if previous:
-
-                query = query.where(Users.email <= cursor)
-                query = query.order_by(Users.email.desc())
+                query = query.where(sa.func.lower(Users.email) <= cursor.lower())
+                query = query.order_by(sa.func.lower(Users.email).desc())
                 query = query.limit(limit + 1)
-                users = await self.delegate.get_models_from_query(query=query)
+                users = await self._get_models_from_query(
+                    query=query, with_deleted=False
+                )
 
                 return list(reversed(users))
             else:
-                query = query.where(Users.email > cursor)
+                query = query.where(sa.func.lower(Users.email) > cursor.lower())
 
-        query = query.order_by(Users.email.asc())
+        query = query.order_by(sa.func.lower(Users.email).asc())
 
         if limit is not None:
             query = query.limit(limit)

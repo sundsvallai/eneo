@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from intric.database.tables.ai_models_table import CompletionModels
 from intric.database.tables.base_class import BaseCrossReference, BasePublic
-from intric.database.tables.groups_table import Groups
+from intric.database.tables.collections_table import CollectionsTable
 from intric.database.tables.spaces_table import Spaces
 from intric.database.tables.users_table import Users
 
@@ -29,11 +29,12 @@ class Services(BasePublic):
     )
 
     # relationships
-    groups: Mapped[list[Groups]] = relationship(
-        secondary="services_groups", order_by=Groups.created_at
+    groups: Mapped[list[CollectionsTable]] = relationship(
+        secondary="services_groups", order_by=CollectionsTable.created_at
     )
     user: Mapped[Users] = relationship()
     completion_model: Mapped[CompletionModels] = relationship()
+    service_groups: Mapped[list["ServicesGroups"]] = relationship(viewonly=True)
 
 
 class ServicesGroups(BaseCrossReference):
@@ -41,5 +42,5 @@ class ServicesGroups(BaseCrossReference):
         ForeignKey(Services.id, ondelete="CASCADE"), primary_key=True
     )
     group_id: Mapped[UUID] = mapped_column(
-        ForeignKey(Groups.id, ondelete="CASCADE"), primary_key=True
+        ForeignKey(CollectionsTable.id, ondelete="CASCADE"), primary_key=True
     )

@@ -11,7 +11,7 @@
     <div class=" pl-0.5 font-medium"><slot /></div>
   {/if}
   <div class="flex flex-wrap items-center gap-1">
-    {#each content as item}
+    {#each content as item (item)}
       <Label {item} {capitalize} {monospaced}></Label>
     {/each}
   </div>

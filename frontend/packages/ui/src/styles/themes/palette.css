@@ -1,0 +1,99 @@
+/* Intric color palette */
+@layer base {
+  :root {
+    --color-white: oklch(100% 0 0);
+    --color-black: oklch(0% 0 0);
+
+    /* color-ui-red */
+    --color-ui-red-50: oklch(96.34% 0.015 12.42);
+    --color-ui-red-100: oklch(85.97% 0.05 24.38);
+    --color-ui-red-300: oklch(64.02% 0.141 26.5);
+    --color-ui-red-500: oklch(55.99% 0.205 26.35);
+    --color-ui-red-700: oklch(47.49% 0.19 29.9);
+    --color-ui-red-900: oklch(19.95% 0.051 30.45);
+
+    /* color-ui-orange */
+    --color-ui-orange-50: oklch(95.5% 0.03 70.15);
+    --color-ui-orange-100: oklch(82.5% 0.125 70.15);
+    --color-ui-orange-300: oklch(76.5% 0.155 70.15);
+    --color-ui-orange-500: oklch(51.5% 0.105 70.15);
+    --color-ui-orange-700: oklch(34% 0.05 70.15);
+    --color-ui-orange-900: oklch(22% 0.02 70.15);
+
+    /* color-ui-yellow */
+    --color-ui-yellow-50: oklch(98.02% 0.041 101.07);
+    --color-ui-yellow-100: oklch(82.52% 0.065 91.49);
+    --color-ui-yellow-300: oklch(70.5% 0.095 86.43);
+    --color-ui-yellow-500: oklch(53.59% 0.11 78.05);
+    --color-ui-yellow-700: oklch(46.42% 0.096 58.54);
+    --color-ui-yellow-900: oklch(22.06% 0.033 35.51);
+
+    /* color-moss */
+    --color-moss-50: oklch(96.42% 0 89.88);
+    --color-moss-100: oklch(94.08% 0.03 104.94);
+    --color-moss-300: oklch(54.11% 0.051 105.21);
+    --color-moss-500: oklch(44.08% 0.07 105.78);
+    --color-moss-700: oklch(30.04% 0.04 104.52);
+    --color-moss-900: oklch(24.14% 0.011 107.2);
+
+    /* color-ui-green */
+    --color-ui-green-50: oklch(97.75% 0.021 134.08);
+    --color-ui-green-100: oklch(75% 0.115 143.65);
+    --color-ui-green-300: oklch(50.5% 0.14 144.01);
+    --color-ui-green-500: oklch(42.91% 0.125 144.03);
+    --color-ui-green-700: oklch(35.54% 0.095 143.84);
+    --color-ui-green-900: oklch(24.69% 0.05 144.75);
+
+    /* color-pine */
+    --color-pine-50: oklch(96.01% 0.002 145.56);
+    --color-pine-100: oklch(93.92% 0.033 156.53);
+    --color-pine-300: oklch(55.08% 0.07 165.58);
+    --color-pine-500: oklch(40.79% 0.059 166.98);
+    --color-pine-700: oklch(28.52% 0.03 167.11);
+    --color-pine-900: oklch(24.05% 0.01 163.95);
+
+    /* color-ui-blue */
+    --color-ui-blue-50: oklch(95.43% 0.014 264.5);
+    --color-ui-blue-100: oklch(70.58% 0.105 260.18);
+    --color-ui-blue-300: oklch(49.52% 0.179 265.04);
+    --color-ui-blue-500: oklch(46.98% 0.225 266.04);
+    --color-ui-blue-700: oklch(41.56% 0.215 264.51);
+    --color-ui-blue-900: oklch(24.08% 0.03 267.33);
+
+    /* color-intric */
+    --color-intric-50: oklch(95.93% 0.005 286.3);
+    --color-intric-100: oklch(94.1% 0.028 279.36);
+    --color-intric-300: oklch(64.5% 0.12 279.17);
+    --color-intric-500: oklch(32.5% 0.17 278.12);
+    --color-intric-700: oklch(27.06% 0.099 278.31);
+    --color-intric-900: oklch(23.11% 0.019 284.8);
+
+    /* color-amethyst */
+    --color-amethyst-50: oklch(96.41% 0.014 304.14);
+    --color-amethyst-100: oklch(94.03% 0.032 299.67);
+    --color-amethyst-300: oklch(50.11% 0.17 290.79);
+    --color-amethyst-500: oklch(39.98% 0.201 290.82);
+    --color-amethyst-700: oklch(27.48% 0.091 290.66);
+    --color-amethyst-900: oklch(24.08% 0.03 289.64);
+
+    /* color-ui-grey */
+    --color-ui-grey-50: oklch(98% 0.005 78.3);
+    --color-ui-grey-100: oklch(93% 0.005 78.3);
+    --color-ui-grey-200: oklch(70% 0.005 78.29);
+    --color-ui-grey-300: oklch(61.87% 0.005 56.33);
+    --color-ui-grey-500: oklch(50.05% 0.005 78.28);
+    --color-ui-grey-700: oklch(29.85% 0.005 67.65);
+    --color-ui-grey-900: oklch(20.02% 0 89.88);
+
+    /* color-soil */
+    --color-soil-50: oklch(95.06% 0.005 67.76);
+    --color-soil-100: oklch(85.06% 0.01 72.65);
+    --color-soil-300: oklch(75.05% 0.02 67.52);
+    --color-soil-500: oklch(19.9% 0 89.88);
+    --color-soil-700: oklch(16% 0 89.88);
+    --color-soil-900: oklch(10.67% 0 89.88);
+  }
+}
+/*
+?palette=N4IgdghgtgpiBcICSYAuAnAlgYxAGhAAsBXGAZwQG1RJYERsB7AG0fQFpjN30YATfAxZsK8SiADEAMz4wpUgAyDpC7AFZsARmV8ALADZ9agQQl8ATOYDs5iMogwFAIwXbT5gJzOFVkAF0AXzwaaDhEJlYOLnY2CDAAczgCCJEqSSkYfj4nZSkPJysjXIUPKWtlAA4%2BNSdNN0ldCoBmJs0PZXM6j00lQODwUPoUqO4ATxhmVgB3QWHRcWk5CGydDTUPfWUnCA91X1MvfV0FNUqFXQg2jorNNR7-IJC6cOEOKEYyCmTX%2BfSmqX%2BTWUmSym1MViaVk0uiSkjUFTUanMQNMrXMUk0YMk5gUOM0dj6TzCQkinG48V4MDAsx%2BaWk6Kc-DOWissIk5l0VgqnmUt30rhyplujU0%2B0kPWsdQe-VoxOG7AADpgwLC5nSMWUMToIGUYOZlJyrFJ9BUOkZdLoUeKnOjykKbXU4ISBs8SWwyewnMxSDTIr8JDAnIopHZTBUpAU8h0YGorNgsezzro%2BAnVE0amy2ppddKiUNXuxlRgcL7UmJ0tns6dTDBWTqpMojQjqh1uhUKmKJJoYJpqtXxVpsOZNs7ZfnSaFUIRRmRUKX0P6pGoNYLJCCjWz9FYLk5VxJdBjtqb3N11EohRiLAJR4MXqTohSYKN54ujcv9aYICUYPlKu34VaEhGPoTT8h0ZQWHumLQSOjwunKBZkIwmDMC%2B6rdpke4WNgfDYJ2BQQNgly8lCpHKAowYUeRxw0Q8fgEKgjAqr8ajniAPRsU0ChsaxbFWNxgheL0ARAA
+*/

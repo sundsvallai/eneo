@@ -1,11 +1,10 @@
 <script lang="ts">
   import { Page } from "$lib/components/layout";
-  import { IconFile } from "@intric/icons/file";
   import { IconCopy } from "@intric/icons/copy";
   import { IconDownload } from "@intric/icons/download";
   import { IconLoadingSpinner } from "@intric/icons/loading-spinner";
   import { IconPrint } from "@intric/icons/print";
-  import { Button, Markdown } from "@intric/ui";
+  import { Button, Markdown, Tooltip } from "@intric/ui";
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
   import dayjs from "dayjs";
   import utc from "dayjs/plugin/utc";
@@ -13,25 +12,36 @@
   import AppResultStatus from "$lib/features/apps/components/AppResultStatus.svelte";
   import { onMount } from "svelte";
   import { getIntricSocket } from "$lib/core/IntricSocket.js";
+  import Tabbar from "$lib/components/layout/Page/Tabbar.svelte";
+  import TabTrigger from "$lib/components/layout/Page/TabTrigger.svelte";
+  import Tab from "$lib/components/layout/Page/Tab.svelte";
+  import UploadedFileIcon from "$lib/features/attachments/components/UploadedFileIcon.svelte";
+  import type { UploadedFile } from "@intric/intric-js";
+  import { getAttachmentUrlService } from "$lib/features/attachments/AttachmentUrlService.svelte.js";
+  import { getIntric } from "$lib/core/Intric.js";
+  import { browser } from "$app/environment";
   dayjs.extend(utc);
 
-  export let data;
+  const { data } = $props();
 
   const {
     state: { currentSpace }
   } = getSpacesManager();
 
   const { subscribe } = getIntricSocket();
+  const intric = getIntric();
 
-  let result = data.result;
-  const resultTitle = getResultTitle(result);
+  const attachmentUrlService = getAttachmentUrlService();
 
-  async function downloadAsText() {
-    if (!result.output) {
+  let result = $state(data.result);
+  const resultTitle = $derived(getResultTitle(result));
+
+  async function downloadAsText(text?: string | null) {
+    if (!text) {
       alert("Not output to save!");
       return;
     }
-    const file = new Blob([result.output], { type: "application/octet-stream;charset=utf-8" });
+    const file = new Blob([text], { type: "application/octet-stream;charset=utf-8" });
     const suggestedName =
       data.app.name + dayjs(result.created_at).format(" YYYY-MM-DD HH:mm") + ".txt";
     if (window.showSaveFilePicker) {
@@ -52,8 +62,9 @@
 
   // We should subscribe to this specific app here somewhere
 
-  let printElement: HTMLDivElement;
+  let printElement = $state<HTMLDivElement>();
   function print() {
+    if (!printElement) return;
     const printNode = printElement.cloneNode(true);
     document.body.appendChild(printNode);
     document.body.classList.add("print-mode");
@@ -62,20 +73,25 @@
     document.body.removeChild(printNode);
   }
 
-  let copyButtonText = "Copy response";
-  function copyText() {
-    if (result.output) {
-      navigator.clipboard.writeText(result.output);
-      copyButtonText = "Copied!";
-      setTimeout(() => {
-        copyButtonText = "Copy response";
-      }, 2000);
+  function copyText(text?: string | null) {
+    if (text) {
+      navigator.clipboard.writeText(text);
+      setTimeout(() => {}, 2000);
     } else {
       alert("This run did not generate any copyable output.");
     }
   }
 
-  $: isRunComplete = !(result.status === "in progress" || result.status === "queued");
+  const isRunComplete = $derived(!(result.status === "in progress" || result.status === "queued"));
+
+  function isTranscribedFile(file: UploadedFile): file is UploadedFile & { transcription: string } {
+    return file.transcription !== null && file.transcription !== undefined;
+  }
+
+  let transcribedFiles = $derived.by(() => {
+    if (!result.output) return [];
+    return result.input.files.filter((file) => isTranscribedFile(file));
+  });
 
   onMount(() => {
     if (isRunComplete) return;
@@ -106,6 +122,37 @@
   >
 </svelte:head>
 
+{#snippet formattedResult()}
+  {#if result.output}
+    {@render downloadButtons("output", result.output)}
+    <Markdown source={result.output}></Markdown>
+  {:else}
+    <div class="flex items-center justify-center gap-2">
+      <span class="text-secondary"> This run did not generate any output.</span>
+    </div>
+  {/if}
+{/snippet}
+
+{#snippet downloadButtons(type: "output" | "transcription", text?: string)}
+  <div
+    class="hidden-in-print border-default bg-primary absolute -right-[5.5rem] z-10 flex flex-col gap-1 rounded-lg border p-1 shadow"
+  >
+    <Tooltip text="Print / Save {type} as PDF" placement="left">
+      <Button on:click={print} padding="icon">
+        <IconPrint size="md" />
+      </Button>
+    </Tooltip>
+
+    <Tooltip text="Download {type} as raw text" placement="left">
+      <Button on:click={() => downloadAsText(text)} padding="icon"><IconDownload /></Button>
+    </Tooltip>
+
+    <Tooltip text="Copy {type}" placement="left">
+      <Button on:click={() => copyText(text)} padding="icon"><IconCopy /></Button>
+    </Tooltip>
+  </div>
+{/snippet}
+
 <Page.Root>
   <Page.Header>
     <Page.Title
@@ -129,17 +176,77 @@
   </Page.Header>
 
   <Page.Main>
-    <div class="flex items-start justify-center gap-8 p-8">
+    <div class="flex items-start justify-center gap-16 p-8">
       <div
-        class=" prose relative w-full max-w-[100ch] rounded-sm border border-default bg-primary px-20 py-10 text-lg shadow-lg"
+        class=" prose border-default bg-primary relative min-h-72 w-full max-w-[90ch] rounded-sm border px-16 py-8 text-lg shadow-lg"
       >
-        <div class="printable-document py-4" bind:this={printElement}>
+        <div class="printable-document relative flex flex-col py-4" bind:this={printElement}>
           {#if isRunComplete}
-            {#if result.output}
-              <Markdown source={result.output}></Markdown>
+            {#if transcribedFiles.length > 0}
+              <div class="hidden-in-print -mt-2 h-20">
+                <Tabbar>
+                  <TabTrigger tab="results">Results</TabTrigger>
+                  <TabTrigger tab="transcription">Transcription</TabTrigger>
+                </Tabbar>
+              </div>
+              <Tab id="results">
+                {@render formattedResult()}
+              </Tab>
+              <Tab id="transcription">
+                <div class="flex flex-col gap-8">
+                  {#each transcribedFiles as file (file.id)}
+                    {@const url = attachmentUrlService.getUrl(file)}
+                    {@render downloadButtons("transcription", file.transcription)}
+
+                    <div class="border-stronger bg-secondary rounded-xl border print:border-none">
+                      {#if url}
+                        <div
+                          class="hidden-in-print border-stronger bg-primary -m-[1px] rounded-xl border p-2 shadow"
+                        >
+                          <div class="flex items-center justify-between gap-4 px-1 pb-2">
+                            <div class="flex gap-2">
+                              <UploadedFileIcon {file}></UploadedFileIcon>
+                              {file.name}
+                            </div>
+                            <Button href={url}>
+                              <IconDownload></IconDownload>
+                              Download</Button
+                            >
+                          </div>
+                          <audio
+                            controls
+                            src={url}
+                            class="border-stronger h-8 w-full rounded-full border shadow-sm"
+                          ></audio>
+                        </div>
+                      {/if}
+                      <div class="p-4">
+                        <Markdown source={file.transcription}></Markdown>
+                      </div>
+                    </div>
+                  {/each}
+                </div>
+              </Tab>
+            {:else if result.output}
+              {@render formattedResult()}
+              <!-- Need to check for browser as we make a fetch request in the await -->
+            {:else if browser && result.status === "failed" && result.input.files.length > 0}
+              <div class="flex flex-grow flex-col items-center justify-center gap-2">
+                <span class="py-2">
+                  This app run failed. Here is a list of the files you uploaded:
+                </span>
+
+                {#each result.input.files as file (file.id)}
+                  {#await intric.files.url({ id: file.id, download: true }) then fileUrl}
+                    <Button href={fileUrl} class="outlined no-underline"
+                      ><IconDownload></IconDownload>Download "{file.name}"</Button
+                    >
+                  {/await}
+                {/each}
+              </div>
             {:else}
-              <div class="flex h-[50vh] items-center justify-center gap-2">
-                <span class="text-secondary"> This run did not generate any output.</span>
+              <div class="flex flex-grow flex-col items-center justify-center gap-2">
+                <span class="py-2"> This app run did not generate any outputs. </span>
               </div>
             {/if}
           {:else}
@@ -151,14 +258,14 @@
         </div>
       </div>
       <div class="sticky top-8 flex min-w-[26ch] flex-col gap-4">
-        <div class="flex flex-col gap-3 rounded-lg border border-default bg-primary p-4 shadow-lg">
-          <div class="flex items-center justify-between border-b border-dimmer">
+        <div class="flex flex-col gap-3 pt-2">
+          <div class="border-dimmer flex items-center justify-between border-b">
             <span>Started:</span><span class="font-mono text-sm"
               >{dayjs(result.created_at).format("YYYY-MM-DD HH:mm")}</span
             >
           </div>
           {#if isRunComplete}
-            <div class="flex items-center justify-between border-b border-dimmer">
+            <div class="border-dimmer flex items-center justify-between border-b">
               <span>Finished:</span><span class="font-mono text-sm"
                 >{dayjs(result.finished_at).format("YYYY-MM-DD HH:mm")}</span
               >
@@ -166,29 +273,19 @@
           {/if}
           <AppResultStatus run={result} variant="full"></AppResultStatus>
 
-          {#each result.input.files as file}
+          {#each result.input.files as file (file.id)}
             <div
-              class="flex items-center gap-2 rounded-lg border border-default bg-primary px-4 py-3 shadow"
+              class="border-default bg-primary flex items-center gap-2 rounded-lg border px-4 py-3 shadow"
             >
-              <IconFile class="min-w-6" />
+              <UploadedFileIcon class="min-w-6" {file} />
               <span
-                class="line-clamp-1 overflow-hidden overflow-ellipsis break-words hover:line-clamp-5"
+                class="line-clamp-1 overflow-hidden break-words overflow-ellipsis hover:line-clamp-5"
               >
                 {file.name}
               </span>
             </div>
           {/each}
         </div>
-        {#if isRunComplete && result.output}
-          <div class="flex flex-col gap-2 px-4">
-            <Button variant="primary" on:click={copyText}><IconCopy />{copyButtonText}</Button>
-            <Button on:click={downloadAsText}><IconDownload />Download raw text</Button>
-            <Button on:click={print}>
-              <IconPrint size="md" />
-              Print / Save as PDF</Button
-            >
-          </div>
-        {/if}
       </div>
     </div>
   </Page.Main>

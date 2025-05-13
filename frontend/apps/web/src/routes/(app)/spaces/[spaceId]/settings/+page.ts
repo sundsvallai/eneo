@@ -5,9 +5,16 @@
 */
 
 export const load = async (event) => {
-  const { intric } = await event.parent();
+  const { intric, currentSpace } = await event.parent();
 
-  const models = await intric.models.list();
+  const [models, security] = await Promise.all([
+    intric.models.list({ space: currentSpace }),
+    intric.securityClassifications.list()
+  ]);
 
-  return models;
+  return {
+    models,
+    classifications: security.security_classifications,
+    isSecurityEnabled: security.security_enabled
+  };
 };

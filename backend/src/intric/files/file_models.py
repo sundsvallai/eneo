@@ -7,6 +7,11 @@ from pydantic import BaseModel, model_validator
 from intric.main.models import InDB
 
 
+class ContentDisposition(str, Enum):
+    ATTACHMENT = "attachment"
+    INLINE = "inline"
+
+
 class FileType(str, Enum):
     TEXT = "text"
     IMAGE = "image"
@@ -25,6 +30,7 @@ class FileBase(BaseModel):
 class FileBaseWithContent(FileBase):
     text: Optional[str] = None
     blob: Optional[bytes] = None
+    transcription: Optional[str] = None
 
     @model_validator(mode="after")
     def require_one_of_text_or_image(self) -> "FileBaseWithContent":
@@ -52,6 +58,7 @@ class FilePublic(InDB):
     name: str
     mimetype: str
     size: int
+    transcription: Optional[str] = None
 
 
 class AcceptedFileType(BaseModel):
@@ -67,3 +74,13 @@ class Limit(BaseModel):
 class FileRestrictions(BaseModel):
     accepted_file_types: list[AcceptedFileType]
     limit: Limit
+
+
+class SignedURLRequest(BaseModel):
+    expires_in: int = 3600  # Default expiration time in seconds (1 hour)
+    content_disposition: ContentDisposition = ContentDisposition.ATTACHMENT
+
+
+class SignedURLResponse(BaseModel):
+    url: str
+    expires_at: int  # Unix timestamp when the URL will expire

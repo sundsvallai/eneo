@@ -1,19 +1,36 @@
 <script lang="ts">
-  import type { Token } from "marked";
-  import { isSupportedToken, renderers } from ".";
-  import type { IntricToken } from "../CustomComponents";
+  import type { Tokens } from "marked";
+  import { hasChildTokens, isSupportedToken, renderers, type SupportedToken } from ".";
+  import Generic from "./Generic.svelte";
+  import Self from "./RenderToken.svelte";
+  import type { Component, Snippet } from "svelte";
 
-  export let token: (Token | IntricToken) & { tokens?: Token[] };
+  type Props = { token: SupportedToken | SupportedToken[] | Tokens.Generic | Tokens.Generic[] };
+
+  const { token }: Props = $props();
+  const tokens = $derived(Array.isArray(token) ? token : [token]);
+
+  function getRenderer(
+    token: SupportedToken | Tokens.Generic
+  ): [
+    Component<{ token: typeof token; children?: Snippet }>,
+    { token: typeof token; children?: SupportedToken[] }
+  ] {
+    if (isSupportedToken(token)) {
+      const renderer = renderers[token.type] as Component;
+      return [renderer, { token, children: hasChildTokens(token) ? token.tokens : undefined }];
+    }
+    return [Generic, { token }];
+  }
 </script>
 
-{#if isSupportedToken(token.type)}
-  {#if token.tokens && token.tokens.length > 0}
-    <svelte:component this={renderers[token.type]} {token}>
-      {#each token.tokens as children}
-        <svelte:self token={children}></svelte:self>
-      {/each}
-    </svelte:component>
+{#each tokens as token (token)}
+  {@const [Component, props] = getRenderer(token)}
+  {#if props.children}
+    <Component token={props.token}>
+      <Self token={props.children}></Self>
+    </Component>
   {:else}
-    <svelte:component this={renderers[token.type]} {token}></svelte:component>
+    <Component token={props.token}></Component>
   {/if}
-{/if}
+{/each}

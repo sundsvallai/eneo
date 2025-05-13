@@ -44,12 +44,12 @@
     <Dialog.Section>
       <Input.DateRange
         bind:value={dateRange}
-        class="border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+        class="border-default hover:bg-hover-dimmer border-b px-4 py-4"
         >Included timeframe</Input.DateRange
       >
       <Input.Switch
         bind:value={includeFollowups}
-        class="border-b border-default px-4 py-4 hover:bg-hover-dimmer"
+        class="border-default hover:bg-hover-dimmer border-b px-4 py-4"
         >Include follow-up questions</Input.Switch
       >
     </Dialog.Section>
