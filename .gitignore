@@ -14,3 +14,8 @@
 
 # .env
 .env
+*/**/.env
+
+# docker
+docker-compose.yml
+setup.sh
