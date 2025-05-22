@@ -41,6 +41,8 @@ class Settings(BaseSettings):
     vllm_api_key: Optional[str] = None
     intric_marketplace_api_key: Optional[str] = None
     intric_marketplace_url: Optional[str] = None
+    intric_super_api_key: Optional[str] = None
+    intric_super_duper_api_key: Optional[str] = None
 
     # Infrastructure dependencies
     postgres_user: str
@@ -72,8 +74,6 @@ class Settings(BaseSettings):
 
     # Feature flags
     using_access_management: bool = True
-    using_intric_proprietary: bool = False
-    hosting_intric_proprietary: bool = False
     using_iam: bool = False
     using_image_generation: bool = False
 

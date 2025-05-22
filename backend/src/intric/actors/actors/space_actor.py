@@ -343,9 +343,6 @@ class SpaceActor:
         role = self._get_role()
         permissions = self._get_permissions(role=role)
 
-        if not SETTINGS.using_intric_proprietary and resource_type in PROPRIETARY_RESOURCES:
-            return False
-
         if (
             self.space.is_personal()
             and resource_type in PERMISSION_RESOURCES

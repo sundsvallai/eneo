@@ -35,13 +35,6 @@ class CompletionModelCRUDService:
             if model.family == ModelFamily.AZURE and not SETTINGS.using_azure_models:
                 continue
 
-            if (
-                model.hosting == ModelHostingLocation.SWE
-                and not model.family == ModelFamily.AZURE
-                and not SETTINGS.using_intric_proprietary
-            ):
-                continue
-
             available_models.append(model)
 
         return available_models

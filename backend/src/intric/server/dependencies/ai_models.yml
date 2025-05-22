@@ -255,20 +255,6 @@ completion_models:
     reasoning: false
     open_source: false
 
-  - name: 'unsloth/gemma-3-27b-it-bnb-4bit'
-    nickname: 'Gemma 3'
-    family: 'vllm'
-    token_limit: 30000
-    stability: 'experimental'
-    is_deprecated: false
-    hosting: 'swe'
-    description: "Google's powerful instruct-tuned 27B parameter model from the Gemma 3 family, 4-bit quantized, hosted on Intric's servers"
-    org: Google
-    vision: false
-    open_source: true
-    base_url: https://gpu4.intric.ai/v1
-    reasoning: false
-
   - name: 'google/gemma-3-27b-it'
     nickname: 'Gemma 3'
     family: 'vllm'
