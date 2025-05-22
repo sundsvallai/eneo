@@ -13,7 +13,6 @@
   import { IconBulb } from "@intric/icons/bulb";
   import { page } from "$app/stores";
   import { Navigation } from "$lib/components/layout";
-  // import { IconIntegrations } from "@intric/icons/integrations";
   import { IconUsage } from "@intric/icons/usage";
   import { IconKey } from "@intric/icons/key";
   let currentRoute = "";
@@ -85,10 +84,4 @@
     icon={IconThumb}
     label="Roles"
   />
-  <!-- <Navigation.Link
-    href="/admin/integrations"
-    isActive={isSelected("/admin/integrations", currentRoute)}
-    icon={IconIntegrations}
-    label="Integrations"
-  /> -->
 </Navigation.Menu>

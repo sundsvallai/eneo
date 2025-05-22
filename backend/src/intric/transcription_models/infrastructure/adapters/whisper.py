@@ -62,10 +62,12 @@ class OpenAISTTModelAdapter:
         reraise=True,
     )
     async def _get_text_from_file(self, file: Path):
+        language = "sv" if self.model.name == "KBLab/kb-whisper-large" else openai.NOT_GIVEN
         try:
             transcription = await self.client.audio.transcriptions.create(
                 model=self.model.name,
                 file=file,
+                language=language,
             )
         except openai.BadRequestError as e:
             logger.exception("Bad request error:")
