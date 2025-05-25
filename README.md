@@ -16,6 +16,6 @@ The development of this project has been partially funded by the following entit
   - Website: [utveckling.sundsvall.se](http://utveckling.sundsvall.se)
   - Contact Email: [digitalisering@sundsvall.se](mailto:digitalisering@sundsvall.se)
 
-The parts that each of the entities hold copyright to is marked within the respective files. For all code where there is no marking, the copyright should be attributed to **inooLabs AB**.
+The parts that each of the entities hold copyright to is marked within the respective files. For all code where there is no marking, the copyright should be attributed to **intric AB**.
 
-For any inquiries regarding usage rights, please contact **jonatan.cerwall@inoolabs.com**.
+For any inquiries regarding usage rights, please contact **jonatan.cerwall@intric.ai**.
