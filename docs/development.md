@@ -158,7 +158,7 @@ We use a [dependency injection framework](https://python-dependency-injector.ets
 
 ### Connecting it together
 
-Add the router [in the main router](https://github.com/inooLabs/intric-release/blob/main/backend/src/intric/server/routers/__init__.py) in order to connect the endpoints to the application.
+Add the router [in the main router](https://github.com/inooLabs/intric-community/blob/main/backend/src/intric/server/routers/__init__.py) in order to connect the endpoints to the application.
 
 ### Final considerations
 

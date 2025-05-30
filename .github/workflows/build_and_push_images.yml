@@ -6,8 +6,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  BACKEND_IMAGE_NAME: inoolabs/intric-release-backend
-  FRONTEND_IMAGE_NAME: inoolabs/intric-release-frontend
+  BACKEND_IMAGE_NAME: inoolabs/intric-community-backend
+  FRONTEND_IMAGE_NAME: inoolabs/intric-community-frontend
 
 jobs:
   build-and-push-images:

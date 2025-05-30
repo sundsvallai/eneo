@@ -18,7 +18,6 @@
 
 # docker
 docker-compose.yml
-setup.sh
 
 # venv
-venv/
+.venv/

@@ -66,7 +66,11 @@ async def get_assistants(
 
     assistants = await service.get_assistants(name, for_tenant)
 
-    assistants = [assembler.from_assistant_to_model(assistant) for assistant in assistants]
+    assistants = [
+        assembler.from_assistant_to_model(assistant)
+        for assistant in assistants
+        if assistant.completion_model is not None
+    ]
 
     return protocol.to_paginated_response(assistants)
 

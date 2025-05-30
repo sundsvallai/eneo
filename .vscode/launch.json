@@ -5,6 +5,37 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python Debugger: FastAPI",
+            "envFile": "${workspaceFolder}/.env",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "src.intric.server.main:app",
+                "--reload",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8123"
+            ],
+            "cwd": "${workspaceFolder}/backend",
+            "jinja": true
+        },
+        {
+            "name": "Python Debugger: ARQ Worker",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "arq",
+            "args": [
+                "src.intric.worker.arq.WorkerSettings"
+            ],
+            "env": {
+                "LOGLEVEL": "DEBUG"
+            },
+            "cwd": "${workspaceFolder}/backend",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Backend: Debug",
             "consoleName": "Backend: Debug",
             "type": "debugpy",
