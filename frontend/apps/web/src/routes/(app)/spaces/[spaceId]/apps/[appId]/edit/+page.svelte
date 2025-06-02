@@ -15,6 +15,7 @@
   import dayjs from "dayjs";
   import PublishingSetting from "$lib/features/publishing/components/PublishingSetting.svelte";
   import { page } from "$app/state";
+  import { supportsTemperature } from "$lib/features/ai-models/supportsTemperature.js";
 
   export let data;
   const {
@@ -250,7 +251,10 @@
           }}
           let:aria
         >
-          <SelectBehaviourV2 bind:kwArgs={$update.completion_model_kwargs} {aria}
+          <SelectBehaviourV2
+            bind:kwArgs={$update.completion_model_kwargs}
+            isDisabled={!supportsTemperature($update.completion_model.name)}
+            {aria}
           ></SelectBehaviourV2>
         </Settings.Row>
       </Settings.Group>

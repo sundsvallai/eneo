@@ -17,3 +17,4 @@ vite.config.*.timestamp-*
 
 # Ignore auto-generated changelog
 CHANGELOG.md
+README.md

@@ -13,7 +13,7 @@
   import { Input, Tooltip } from "@intric/ui";
 
   export let kwArgs: ModelKwArgs;
-
+  export let isDisabled: boolean;
   export let aria: AriaProps = { "aria-label": "Select model behaviour" };
 
   const {
@@ -52,6 +52,11 @@
   }
 
   function watchChanges(currentKwArgs: ModelKwArgs) {
+    if (isDisabled) {
+      $selected = { value: "default" };
+      return;
+    }
+
     const behaviour = getBehaviour(currentKwArgs);
 
     if ($selected?.value !== behaviour) {
@@ -74,6 +79,9 @@
   {...$trigger}
   {...aria}
   use:trigger
+  disabled={isDisabled}
+  class:hover:cursor-default={isDisabled}
+  class:text-secondary={isDisabled}
   class="border-default hover:bg-hover-default flex h-16 items-center justify-between border-b px-4"
 >
   <span class="capitalize">{$selected?.value ?? "No behaviour found"}</span>
@@ -134,6 +142,14 @@
       hiddenLabel={true}
     ></Input.Number>
   </div>
+{/if}
+
+{#if isDisabled}
+  <p
+    class="label-warning border-label-default bg-label-dimmer text-label-stronger mt-2.5 rounded-md border px-2 py-1 text-sm"
+  >
+    <span class="font-bold">Warning:&nbsp;</span>Temperature settings not available for this model.
+  </p>
 {/if}
 
 <style lang="postcss">

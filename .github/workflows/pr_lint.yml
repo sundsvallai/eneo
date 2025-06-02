@@ -1,0 +1,50 @@
+name: Pull request actions
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+permissions:
+  pull-requests: read
+
+jobs:
+  validate-pr-title:
+    runs-on: ubuntu-latest
+    name: Validate semantic PR title
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  run-check-and-lint:
+    runs-on: ubuntu-latest
+    name: Typecheck, linting and formatting
+    defaults:
+      run:
+        working-directory: frontend
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache-dependency-path: frontend/pnpm-lock.yaml 
+          node-version: 20
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm run setup:github
+      - name: Run svelte-check
+        run: pnpm run check
+      - name: Run eslint
+        run: pnpm run lint
