@@ -19,7 +19,7 @@ python -m poetry install
 # Install Node.js dependencies
 cd /workspace/frontend
 
-npm install -g pnpm@8.9.0
+npm install -g pnpm@9.12.3
 # Set pnpm store directory
 pnpm config set store-dir $HOME/.pnpm-store
 pnpm run setup
