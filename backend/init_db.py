@@ -117,7 +117,7 @@ def add_tenant_user(conn, tenant_name, quota_limit, user_name, user_email, user_
             )
             cur.execute(assign_role_to_user_query, (user_id, predefined_role_id))
 
-        # Add completion model if it doesn't exist
+        # Add completion model if it doesn't exist - FIXED: Added reasoning column
         check_model_query = sql.SQL("SELECT id FROM completion_models WHERE name = %s")
         cur.execute(check_model_query, ("gpt-4o",))
         model = cur.fetchone()
@@ -125,8 +125,8 @@ def add_tenant_user(conn, tenant_name, quota_limit, user_name, user_email, user_
         if model is None:
             add_model_query = sql.SQL(
                 """INSERT INTO completion_models 
-                (name, nickname, family, token_limit, stability, hosting, description, org, vision) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id"""
+                (name, nickname, family, token_limit, stability, hosting, description, org, vision, reasoning) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id"""
             )
             cur.execute(
                 add_model_query,
@@ -139,7 +139,8 @@ def add_tenant_user(conn, tenant_name, quota_limit, user_name, user_email, user_
                     "usa",
                     "OpenAI's latest and greatest model, trained on both text and images.",
                     "OpenAI",
-                    True,
+                    True,   # vision
+                    False,  # reasoning - gpt-4o is not a reasoning model
                 ),
             )
             model_id = cur.fetchone()[0]
