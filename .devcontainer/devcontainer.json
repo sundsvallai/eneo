@@ -23,7 +23,8 @@
 		"vscode": {
 			"extensions": [
 				"charliermarsh.ruff",
-				"svelte.svelte-vscode"
+				"svelte.svelte-vscode",
+				"bradlc.vscode-tailwindcss"
 			],
 			"settings": {
 				"python.defaultInterpreterPath": "/workspace/backend/.venv/bin/python",

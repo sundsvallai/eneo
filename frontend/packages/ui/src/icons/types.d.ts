@@ -84,6 +84,9 @@ declare module "@intric/icons/edit" {
 declare module "@intric/icons/ellipsis" {
   export { Icon as IconEllipsis } from "@intric/icons/*";
 }
+declare module "@intric/icons/eneo" {
+  export { Icon as IconEneo } from "@intric/icons/*";
+}
 declare module "@intric/icons/enter" {
   export { Icon as IconEnter } from "@intric/icons/*";
 }

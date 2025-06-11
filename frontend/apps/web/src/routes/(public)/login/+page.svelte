@@ -31,7 +31,7 @@
   <div class="relative flex h-[100vh] w-[100vw] items-center justify-center">
     <div class="box w-[400px] justify-center">
       <h1 class="flex justify-center">
-        <IntricWordMark class="text-brand-intric h-16 w-20" />
+        <IntricWordMark class="text-brand-intric h-16 w-24" />
         <span class="sr-only">Eneo</span>
       </h1>
 

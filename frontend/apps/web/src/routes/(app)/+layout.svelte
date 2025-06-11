@@ -12,7 +12,7 @@
   import { browser } from "$app/environment";
   import { onDestroy } from "svelte";
   import IntricWordMark from "$lib/assets/IntricWordMark.svelte";
-  import { IconIntric } from "@intric/icons/intric";
+  import { IconEneo } from "@intric/icons/eneo";
   import { initAttachmentUrlService } from "$lib/features/attachments/AttachmentUrlService.svelte.js";
   import { initFaviconUrlService } from "$lib/features/knowledge/FaviconUrlService.svelte.js";
 
@@ -71,12 +71,13 @@
     class="border-stronger bg-secondary z-10 box-border flex items-start overflow-clip rounded-t-sm transition-all duration-500 ease-in-out"
   >
     <div
-      class="border-default hover:bg-accent-dimmer group flex h-[3.25rem] min-w-[3.85rem] items-center justify-between border-r-[0.5px] pr-3 pl-6 md:w-[17rem] md:min-w-[17rem]"
+      class="border-default hover:bg-accent-dimmer group flex h-[3.25rem] min-w-[3.85rem] items-center justify-between border-r-[0.5px] pl-6 pr-3 md:w-[17rem] md:min-w-[17rem]"
     >
       <a href="/">
-        <IntricWordMark class="text-brand-intric hidden h-[3rem] w-[3.5rem] md:block"
+        <IntricWordMark class="text-brand-intric hidden h-[3rem] w-[4.5rem] md:block"
         ></IntricWordMark>
-        <IconIntric class="text-brand-intric -ml-0.5 block md:hidden"></IconIntric>
+        <IconEneo class="text-brand-intric -ml-0.5 block md:hidden" viewBox="0 0 330 330"
+        ></IconEneo>
       </a>
       <Button
         unstyled
