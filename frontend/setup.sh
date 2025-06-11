@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "Intric Frontend\nRunning first setup..."
+echo "Eneo Frontend\nRunning first setup..."
 echo "\nRunning pnpm install..."
 pnpm install
 

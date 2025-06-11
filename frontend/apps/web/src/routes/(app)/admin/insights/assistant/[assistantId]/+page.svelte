@@ -31,7 +31,7 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – Admin – {data.assistant.name} – Insights</title>
+  <title>Eneo.ai – Admin – {data.assistant.name} – Insights</title>
 </svelte:head>
 
 <Page.Root>

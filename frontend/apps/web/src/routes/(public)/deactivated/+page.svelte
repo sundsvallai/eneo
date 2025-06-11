@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – Deactivated</title>
+  <title>Eneo.ai – Deactivated</title>
 </svelte:head>
 
 <div class="absolute inset-0 flex flex-col items-center justify-center gap-4">
@@ -15,7 +15,7 @@
     <div class="h-14"></div>
     <h2 class="mb-2 text-2xl font-bold">Organisation deactivated</h2>
     <p class="text-secondary max-w-[60ch]">
-      Your access to Intric has been temporarily disabled, most likely because your trial period has
+      Your access to Eneo has been temporarily disabled, most likely because your trial period has
       ended. Please contact
       <a
         href="mailto:{data.salesEmail}"

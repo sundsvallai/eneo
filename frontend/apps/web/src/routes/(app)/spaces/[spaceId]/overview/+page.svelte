@@ -20,7 +20,7 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – {$currentSpace.personal ? "Personal" : $currentSpace.name} – Overview</title>
+  <title>Eneo.ai – {$currentSpace.personal ? "Personal" : $currentSpace.name} – Overview</title>
 </svelte:head>
 
 {#snippet tile(params: { title: string; count: number; link: string })}
@@ -44,7 +44,7 @@
   </Page.Header>
 
   <Page.Main>
-    <div class="flex flex-grow flex-col overflow-y-auto pt-4 pr-4 pl-2">
+    <div class="flex flex-grow flex-col overflow-y-auto pl-2 pr-4 pt-4">
       <div class="flex items-center justify-start gap-4 pb-4">
         <h1 class="text-primary text-[2rem] font-extrabold">
           {$currentSpace.personal ? `Hi, ${$userInfo.firstName}!` : $currentSpace.name}
@@ -59,7 +59,7 @@
       {/if}
       <!-- <div class="flex-grow"></div> -->
 
-      <div class="grid gap-4 pt-4 pb-4 md:grid-cols-3">
+      <div class="grid gap-4 pb-4 pt-4 md:grid-cols-3">
         {#if $currentSpace.hasPermission("read", "assistant")}
           {@render tile({
             title: "Assistants",

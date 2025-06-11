@@ -59,7 +59,7 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – {$currentSpace.name} – Settings</title>
+  <title>Eneo.ai – {$currentSpace.name} – Settings</title>
 </svelte:head>
 
 <Page.Root>

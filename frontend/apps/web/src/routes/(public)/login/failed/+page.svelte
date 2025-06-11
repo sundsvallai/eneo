@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – Login failed</title>
+  <title>Eneo.ai – Login failed</title>
 </svelte:head>
 
 <div class="relative flex h-[100vh] w-[100vw] items-center justify-center">

@@ -25,14 +25,14 @@
 </script>
 
 <svelte:head>
-  <title>intric.ai – {data.currentSpace.personal ? "Personal" : data.currentSpace.name}</title>
+  <title>Eneo.ai – {data.currentSpace.personal ? "Personal" : data.currentSpace.name}</title>
 </svelte:head>
 
 <div
   {...dynamicColour({ basedOn: $currentSpace.personal ? user.id : $currentSpace.id })}
   class="absolute inset-0 flex flex-grow justify-stretch"
 >
-  <div class="border-default flex flex-col border-r-[0.5px] md:max-w-[17rem] md:min-w-[17rem]">
+  <div class="border-default flex flex-col border-r-[0.5px] md:min-w-[17rem] md:max-w-[17rem]">
     <SpaceSelector></SpaceSelector>
     <SpaceMenu></SpaceMenu>
   </div>

@@ -3,9 +3,9 @@
 // Licensed under the MIT License.
 
 {
-	"name": "Intric Devcontainer",
+	"name": "Eneo Devcontainer",
 	"dockerComposeFile": "docker-compose.yml",
-	"service": "intric",
+	"service": "eneo",
 	"workspaceFolder": "/workspace",
 	"forwardPorts": [
 		3000, // Frontend
@@ -22,7 +22,8 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"charliermarsh.ruff"
+				"charliermarsh.ruff",
+				"svelte.svelte-vscode"
 			],
 			"settings": {
 				"python.defaultInterpreterPath": "/workspace/backend/.venv/bin/python",

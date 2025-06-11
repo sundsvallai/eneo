@@ -21,7 +21,7 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – Account – {$userInfo.firstName}</title>
+  <title>Eneo.ai – Account – {$userInfo.firstName}</title>
 </svelte:head>
 
 <Page.Root>
@@ -30,7 +30,7 @@
   </Page.Header>
   <Page.Main>
     <div
-      class="border-default hover:bg-hover-dimmer flex items-center gap-1 border-b py-4 pr-4 pl-2"
+      class="border-default hover:bg-hover-dimmer flex items-center gap-1 border-b py-4 pl-2 pr-4"
     >
       <div class="flex flex-grow flex-col gap-1">
         <h3 class="font-medium">Api Key</h3>

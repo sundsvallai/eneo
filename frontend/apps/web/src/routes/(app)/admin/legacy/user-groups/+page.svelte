@@ -13,7 +13,7 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – Admin – User Groups</title>
+  <title>Eneo.ai – Admin – User Groups</title>
 </svelte:head>
 
 <Page.Root>

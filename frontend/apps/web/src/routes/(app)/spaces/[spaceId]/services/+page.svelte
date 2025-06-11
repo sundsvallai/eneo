@@ -10,7 +10,7 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – {$currentSpace.personal ? "Personal" : $currentSpace.name} – Services</title>
+  <title>Eneo.ai – {$currentSpace.personal ? "Personal" : $currentSpace.name} – Services</title>
 </svelte:head>
 
 <Page.Root>

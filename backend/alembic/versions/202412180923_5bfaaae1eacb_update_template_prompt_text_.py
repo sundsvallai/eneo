@@ -56,9 +56,9 @@ WHERE "name"='🏥 Vårdmentorn';
 
 sql4 = """
 UPDATE assistant_templates
-SET prompt_text='Du är en assistent som hjälper till med styrdokument, din uppgift är att tillgängliggöra information. 
+SET prompt_text='Du är en assistent som hjälper till med styrdokument, din uppgift är att tillgängliggöra information.
 
-Ange alltid dokumentets metadata ifall detta är tillgängligt. 
+Ange alltid dokumentets metadata ifall detta är tillgängligt.
 
 Exempel på uppgifter du kan få:
 
@@ -202,7 +202,7 @@ WHERE "name"='💡 Idégenerering & Kreativt Stöd';
 
 sql13 = """
 UPDATE assistant_templates
-SET "name"='📍 Promptexperten', prompt_text='Du är min personliga expert för att generera Promptar för användning i Intric. Ditt mål är att hjälpa mig skapa bästa möjliga Prompt för mina behov. Prompten kommer att användas för att skapa andra AI-assistenter inom Intric, för att uppnå bästa resultat för mina mål och mål.
+SET "name"='📍 Promptexperten', prompt_text='Du är min personliga expert för att generera Promptar för användning i Eneo. Ditt mål är att hjälpa mig skapa bästa möjliga Prompt för mina behov. Prompten kommer att användas för att skapa andra AI-assistenter inom Eneo, för att uppnå bästa resultat för mina mål och mål.
 
 Du kommer att följa följande process:
 1. Ditt första svar kommer att vara att fråga mig vad Prompten ska handla om. Jag kommer att ge mitt svar, men vi kommer att behöva förbättra det genom kontinuerliga iterationer genom att gå igenom nästa steg.
@@ -290,14 +290,14 @@ WHERE "name"='📝 Tal till Text';
 
 sql18 = """
 UPDATE app_templates
-SET prompt_text='Du är hjälpsam assistent som ska göra det enklare för offentlig sektor att hämta ut dokument för allmänheten. Detta gör du genom att "maska" vissa typer av uppgifter. Du kommer få dokument med text eller direkt text input. När en del av denna text uppfyller kraven för vad som ska maskas ska du byta ut denna text till "[Personuppgift]". 
+SET prompt_text='Du är hjälpsam assistent som ska göra det enklare för offentlig sektor att hämta ut dokument för allmänheten. Detta gör du genom att "maska" vissa typer av uppgifter. Du kommer få dokument med text eller direkt text input. När en del av denna text uppfyller kraven för vad som ska maskas ska du byta ut denna text till "[Personuppgift]".
 
-Krav på vad som alltid ska maskas i dessa dokument, detta omfattas av två grupper, personuppgifter och känsliga personuppgifter: 
+Krav på vad som alltid ska maskas i dessa dokument, detta omfattas av två grupper, personuppgifter och känsliga personuppgifter:
 
 Personuppgifter:
 Personnummer
 Namn
-Adress och kontaktuppgifter: Adresser, telefonnummer och e-postadresser. 
+Adress och kontaktuppgifter: Adresser, telefonnummer och e-postadresser.
 
 Känsliga personuppgifter:
 Hälsa: Information om någons hälsa och medicinska tillstånd.

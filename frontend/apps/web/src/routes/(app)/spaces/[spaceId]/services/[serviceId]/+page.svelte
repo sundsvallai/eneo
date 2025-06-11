@@ -36,7 +36,7 @@
 
 <svelte:head>
   <title
-    >Intric.ai – {$currentSpace.personal ? "Personal" : $currentSpace.name} - {data.service
+    >Eneo.ai – {$currentSpace.personal ? "Personal" : $currentSpace.name} - {data.service
       .name}</title
   >
 </svelte:head>

@@ -30,7 +30,7 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – {$currentSpace.name} – Members</title>
+  <title>Eneo.ai – {$currentSpace.name} – Members</title>
 </svelte:head>
 
 <Page.Root>
@@ -50,7 +50,7 @@
           <div class="flex flex-grow flex-col">
             {#each editors as member (member.id)}
               <div
-                class="border-default hover:bg-hover-dimmer flex items-center justify-between gap-4 border-b py-4 pr-4 pl-4"
+                class="border-default hover:bg-hover-dimmer flex items-center justify-between gap-4 border-b py-4 pl-4 pr-4"
               >
                 <MemberChip {member}></MemberChip>
                 {#if user.id === member.id}
@@ -78,7 +78,7 @@
               {#if viewers.length > 0}
                 {#each viewers as member (member.id)}
                   <div
-                    class="border-default hover:bg-hover-dimmer flex items-center justify-between gap-4 border-b py-4 pr-4 pl-4"
+                    class="border-default hover:bg-hover-dimmer flex items-center justify-between gap-4 border-b py-4 pl-4 pr-4"
                   >
                     <MemberChip {member}></MemberChip>
                     {#if user.id === member.id}
@@ -96,7 +96,7 @@
                 {/each}
               {:else}
                 <div
-                  class="border-default text-muted hover:bg-hover-dimmer flex items-center justify-between gap-4 border-b py-4 pr-4 pl-4"
+                  class="border-default text-muted hover:bg-hover-dimmer flex items-center justify-between gap-4 border-b py-4 pl-4 pr-4"
                 >
                   There are currently no viewers in this space
                 </div>

@@ -22,7 +22,7 @@
 
 <svelte:head>
   <title
-    >Intric.ai – {data.currentSpace.personal ? "Personal" : data.currentSpace.name} – Knowledge</title
+    >Eneo.ai – {data.currentSpace.personal ? "Personal" : data.currentSpace.name} – Knowledge</title
   >
 </svelte:head>
 

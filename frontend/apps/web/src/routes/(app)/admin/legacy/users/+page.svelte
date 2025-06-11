@@ -18,7 +18,7 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – Admin – Users</title>
+  <title>Eneo.ai – Admin – Users</title>
 </svelte:head>
 
 <Page.Root>

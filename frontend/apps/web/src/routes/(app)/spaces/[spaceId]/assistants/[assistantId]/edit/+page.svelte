@@ -64,7 +64,7 @@
 
 <svelte:head>
   <title
-    >Intric.ai – {data.currentSpace.personal ? "Personal" : data.currentSpace.name} – {$resource.name}</title
+    >Eneo.ai – {data.currentSpace.personal ? "Personal" : data.currentSpace.name} – {$resource.name}</title
   >
 </svelte:head>
 

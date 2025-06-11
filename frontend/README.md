@@ -1,7 +1,7 @@
-# Intric.ai Frontend
+# Eneo Frontend
 
 Multirepo containing:
-- The Intric Web GUI, a SvelteKit app in `/apps/web`
+- The Eneo Web GUI, a SvelteKit app in `/apps/web`
 - The Intric.js API client, a plain JS client wrapping all Intric endpoints used in the Web GUI in `packages/intric.js`
 - The Intric UI Library, offering reusable Svelte components for our frontend applications in `packages/ui`
 

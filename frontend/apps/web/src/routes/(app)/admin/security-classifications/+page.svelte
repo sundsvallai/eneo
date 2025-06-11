@@ -20,7 +20,7 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – Admin – Security classifications</title>
+  <title>Eneo.ai – Admin – Security classifications</title>
 </svelte:head>
 
 <Page.Root>

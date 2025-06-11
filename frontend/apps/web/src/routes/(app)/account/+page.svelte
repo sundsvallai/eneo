@@ -12,7 +12,7 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – Account – {$userInfo.firstName}</title>
+  <title>Eneo.ai – Account – {$userInfo.firstName}</title>
 </svelte:head>
 
 <Page.Root>
@@ -22,7 +22,7 @@
   <Page.Main>
     {#if featureFlags.newAuth}
       <div
-        class="border-dimmer hover:bg-hover-dimmer flex items-center gap-12 border-b py-4 pr-4 pl-2"
+        class="border-dimmer hover:bg-hover-dimmer flex items-center gap-12 border-b py-4 pl-2 pr-4"
       >
         <div class="flex flex-col gap-1">
           <h3 class="font-medium">First Name</h3>
@@ -47,28 +47,28 @@
         {/if}
       </div>
     {:else}
-      <div class="border-dimmer hover:bg-hover-dimmer flex flex-col gap-1 border-b py-4 pr-4 pl-2">
+      <div class="border-dimmer hover:bg-hover-dimmer flex flex-col gap-1 border-b py-4 pl-2 pr-4">
         <h3 class="font-medium">Username</h3>
         <pre class="">{user.username}</pre>
       </div>
     {/if}
-    <div class="border-dimmer hover:bg-hover-dimmer flex flex-col gap-1 border-b py-4 pr-4 pl-2">
+    <div class="border-dimmer hover:bg-hover-dimmer flex flex-col gap-1 border-b py-4 pl-2 pr-4">
       <h3 class="font-medium">Email</h3>
       <pre class="">{user.email}</pre>
     </div>
     <div
-      class="border-dimmer hover:bg-hover-dimmer flex flex-col gap-2 border-b pt-4 pr-4 pb-2 pl-2"
+      class="border-dimmer hover:bg-hover-dimmer flex flex-col gap-2 border-b pb-2 pl-2 pr-4 pt-4"
     >
       <span class="font-medium" aria-hidden="true">Colour scheme</span>
       <SelectTheme></SelectTheme>
     </div>
-    <div class="border-dimmer hover:bg-hover-dimmer flex flex-col gap-1 border-b py-4 pr-4 pl-2">
+    <div class="border-dimmer hover:bg-hover-dimmer flex flex-col gap-1 border-b py-4 pl-2 pr-4">
       <h3 class="font-medium">Versions</h3>
       <pre
         class="">Frontend: {versions.frontend} · Client: {versions.client} · Backend: {versions.backend}</pre>
     </div>
     {#if versions.preview}
-      <div class="border-dimmer hover:bg-hover-dimmer flex flex-col gap-1 border-b py-4 pr-4 pl-2">
+      <div class="border-dimmer hover:bg-hover-dimmer flex flex-col gap-1 border-b py-4 pl-2 pr-4">
         <h3 class="font-medium">Preview</h3>
         <pre class="">Branch: {versions.preview.branch}<br />Commit: {versions.preview.commit}</pre>
       </div>

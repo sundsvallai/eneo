@@ -21,7 +21,7 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – Admin – Insights</title>
+  <title>Eneo.ai – Admin – Insights</title>
 </svelte:head>
 
 <Page.Root tabController={selectedTab}>

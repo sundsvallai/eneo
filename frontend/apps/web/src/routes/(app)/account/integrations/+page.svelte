@@ -47,7 +47,7 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – Account – My integrations</title>
+  <title>Eneo.ai – Account – My integrations</title>
 </svelte:head>
 
 <Page.Root>

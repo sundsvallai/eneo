@@ -16,7 +16,7 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – Logout</title>
+  <title>Eneo.ai – Logout</title>
 </svelte:head>
 
 <div class="relative flex h-[100vh] w-[100vw] items-center justify-center">

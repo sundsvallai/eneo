@@ -17,7 +17,7 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – Dashboard – {chat.partner.name}</title>
+  <title>Eneo.ai – Dashboard – {chat.partner.name}</title>
 </svelte:head>
 
 <div class="outer bg-primary flex w-full flex-col">

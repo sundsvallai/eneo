@@ -36,7 +36,7 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – Dashboard</title>
+  <title>Eneo.ai – Dashboard</title>
 </svelte:head>
 
 <div

@@ -1,4 +1,4 @@
-TITLE = "Intric"
+TITLE = "Eneo"
 
 SUMMARY = "General AI framework"
 

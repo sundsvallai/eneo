@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – Activate</title>
+  <title>Eneo.ai – Activate</title>
 </svelte:head>
 
 <div class="absolute inset-0 flex flex-col items-center justify-center gap-4">

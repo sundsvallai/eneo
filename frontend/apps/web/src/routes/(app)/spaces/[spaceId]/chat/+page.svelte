@@ -51,15 +51,15 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – {data.currentSpace.personal ? "Personal" : data.currentSpace.name}</title>
+  <title>Eneo.ai – {data.currentSpace.personal ? "Personal" : data.currentSpace.name}</title>
 </svelte:head>
 
 {#snippet defaultAssistantWelcomeMessage()}
   <div class="max-w-[640px]">
     <div class="relative">
       <h3 class="b-1 text-2xl font-extrabold">Hi, {$userInfo.firstName}!</h3>
-      <p class="text-secondary max-w-[50ch] pt-2 pr-20">
-        Welcome to intric. I'm your personal assistant and ready to help. Ask me a question to get
+      <p class="text-secondary max-w-[50ch] pr-20 pt-2">
+        Welcome to Eneo. I'm your personal assistant and ready to help. Ask me a question to get
         started.
       </p>
     </div>
@@ -152,7 +152,7 @@
         }}
       />
 
-      <div class="text-secondary flex-col pt-8 pb-12">
+      <div class="text-secondary flex-col pb-12 pt-8">
         <div class="flex flex-col items-center justify-center gap-2">
           {#if chat.hasMoreConversations}
             <Button

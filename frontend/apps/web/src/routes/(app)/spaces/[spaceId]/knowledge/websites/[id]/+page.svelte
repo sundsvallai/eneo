@@ -26,7 +26,7 @@
 
 <svelte:head>
   <title
-    >Intric.ai – {data.currentSpace.personal ? "Personal" : data.currentSpace.name} – Crawls for {formatWebsiteName(
+    >Eneo.ai – {data.currentSpace.personal ? "Personal" : data.currentSpace.name} – Crawls for {formatWebsiteName(
       data.website
     )}</title
   >
