@@ -1,0 +1,6 @@
+# Database Environment Configuration for Eneo
+
+# IMPORTANT: Change the password for production!
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=
+POSTGRES_DB=eneo

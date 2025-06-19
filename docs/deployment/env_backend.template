@@ -1,0 +1,101 @@
+# Backend Environment Configuration for Eneo
+
+###############
+# REQUIRED: AI Model API Keys - Add at least ONE
+###############
+# OpenAI Configuration
+OPENAI_API_KEY=
+
+# Anthropic Claude Configuration  
+ANTHROPIC_API_KEY=
+
+# Google Gemini Configuration
+GEMINI_API_KEY=
+
+# Azure OpenAI Configuration (if using Azure)
+AZURE_API_KEY=
+AZURE_ENDPOINT=
+AZURE_API_VERSION=2024-02-15-preview
+AZURE_MODEL_DEPLOYMENT=gpt-4
+
+###############
+# REQUIRED: Security Settings - MUST BE CHANGED!
+###############
+# Generate with: openssl rand -hex 32
+JWT_SECRET=
+URL_SIGNING_KEY=
+
+###############
+# Database Configuration (Default for Docker Compose)
+###############
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=changeme
+POSTGRES_DB=eneo
+
+###############
+# Redis Configuration (Default for Docker Compose)
+###############
+REDIS_HOST=redis
+REDIS_PORT=6379
+
+###############
+# API Configuration
+###############
+API_PREFIX=/api/v1
+JWT_AUDIENCE=*
+JWT_ISSUER=ENEO
+JWT_EXPIRY_TIME=86400
+JWT_ALGORITHM=HS256
+
+###############
+# Feature Flags
+###############
+USING_ACCESS_MANAGEMENT=True
+USING_CRAWL=True
+USING_AZURE_MODELS=False
+
+###############
+# Upload Limits (in bytes)
+###############
+UPLOAD_MAX_FILE_SIZE=10485760          # 10MB
+TRANSCRIPTION_MAX_FILE_SIZE=10485760   # 10MB
+MAX_IN_QUESTION=1
+
+###############
+# Logging
+###############
+LOGLEVEL=INFO
+
+###############
+# Environment
+###############
+NODE_ENV=production
+
+###############
+# Optional: Advanced Configuration
+###############
+# Admin API Keys (for system administration)
+# INTRIC_SUPER_API_KEY=
+# INTRIC_SUPER_DUPER_API_KEY=
+
+# SSO Authentication (if using MobilityGuard)
+# MOBILITYGUARD_DISCOVERY_ENDPOINT=
+# MOBILITYGUARD_CLIENT_ID=
+# MOBILITYGUARD_CLIENT_SECRET=
+
+# Error Tracking (if using Sentry)
+# SENTRY_DSN=
+# SENTRY_ENVIRONMENT=production
+
+# Additional AI Providers
+# MISTRAL_API_KEY=
+# VLLM_API_KEY=
+# VLLM_MODEL_URL=
+
+# Web Search
+# TAVILY_API_KEY=
+
+# Worker Configuration
+# NUM_WORKERS=3

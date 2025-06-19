@@ -1,0 +1,52 @@
+# Frontend Environment Configuration for Eneo
+
+###############
+# REQUIRED: Public URL Configuration
+###############
+# The public URL where Eneo will be accessible
+ORIGIN=https://your-domain.com
+
+# Backend URL as seen from the browser (public URL)
+INTRIC_BACKEND_URL=https://your-domain.com
+
+# Backend URL for server-side rendering (internal container communication)
+INTRIC_BACKEND_SERVER_URL=http://backend:8000
+
+###############
+# REQUIRED: Security Settings - MUST match backend!
+###############
+# Must be the same as JWT_SECRET in backend configuration
+JWT_SECRET=
+
+###############
+# Feature Flags
+###############
+# Show template assistants
+SHOW_TEMPLATES=true
+
+# Enable web search functionality
+SHOW_WEB_SEARCH=true
+
+###############
+# Environment Settings
+###############
+NODE_ENV=production
+LOGLEVEL=INFO
+
+###############
+# Optional: Authentication Configuration
+###############
+# MobilityGuard SSO (if using)
+# MOBILITY_GUARD_AUTH=
+
+# Force legacy authentication
+# FORCE_LEGACY_AUTH=false
+
+###############
+# Optional: Support Configuration
+###############
+# External feedback form URL
+# FEEDBACK_FORM_URL=
+
+# Support contact email
+# SUPPORT_EMAIL=support@your-domain.com

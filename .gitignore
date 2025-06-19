@@ -17,7 +17,6 @@
 */**/.env
 
 # docker
-docker-compose.yml
 
 # venv
 .venv/
