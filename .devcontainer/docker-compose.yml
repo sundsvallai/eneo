@@ -4,11 +4,11 @@
 
 version: "3.8"
 services:
-  intric:
+  eneo:
     image: mcr.microsoft.com/devcontainers/python:3.11-bookworm
     command: sleep infinity
     networks:
-      - intric
+      - eneo
     environment:
       - POSTGRES_HOST=db
       - REDIS_HOST=redis
@@ -18,7 +18,7 @@ services:
   db:
     image: pgvector/pgvector:pg13
     networks:
-      - intric
+      - eneo
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
@@ -27,7 +27,7 @@ services:
   redis:
     image: redis
     networks:
-      - intric
+      - eneo
     volumes:
       - redis_data:/data
 
@@ -36,5 +36,5 @@ volumes:
   redis_data:
 
 networks:
-  intric:
-    name: intric
+  eneo:
+    name: eneo
