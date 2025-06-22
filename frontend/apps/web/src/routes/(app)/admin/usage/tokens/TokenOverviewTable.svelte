@@ -10,6 +10,7 @@
   import { Button, Table } from "@intric/ui";
   import ModelNameAndVendor from "$lib/features/ai-models/components/ModelNameAndVendor.svelte";
   import { formatNumber } from "$lib/core/formatting/formatNumber";
+  import { m } from "$lib/paraglide/messages";
 
   export let tokenStats: TokenUsageSummary;
   $: models = tokenStats.models.toSorted((a, b) =>
@@ -24,7 +25,7 @@
 
   const viewModel = table.createViewModel([
     table.column({
-      header: "Name",
+      header: m.name(),
       accessor: (item) => item,
       cell: (item) => {
         return createRender(ModelNameAndVendor, {
@@ -46,19 +47,19 @@
     }),
 
     table.column({
-      header: "Input tokens",
+      header: m.input_tokens(),
       accessor: "input_token_usage",
       cell: (item) => formatNumber(item.value)
     }),
 
     table.column({
-      header: "Output tokens",
+      header: m.output_tokens(),
       accessor: "output_token_usage",
       cell: (item) => formatNumber(item.value)
     }),
 
     table.column({
-      header: "Total tokens",
+      header: m.total_tokens(),
       accessor: "total_token_usage",
       cell: (item) => formatNumber(item.value)
     })
@@ -74,6 +75,6 @@
     class="h-12"
     on:click={() => {
       showAllItems = !showAllItems;
-    }}>{showAllItems ? "Show only 10 models" : `Show all ${models.length} models`}</Button
+    }}>{showAllItems ? m.show_only_10_models() : m.show_all_models({ count: models.length })}</Button
   >
 {/if}

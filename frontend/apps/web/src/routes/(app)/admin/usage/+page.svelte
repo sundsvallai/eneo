@@ -8,20 +8,21 @@
   import { Page } from "$lib/components/layout";
   import StorageSummary from "./storage/StorageSummary.svelte";
   import TokenSummary from "./tokens/TokenSummary.svelte";
+  import { m } from "$lib/paraglide/messages";
 
   const { data } = $props();
 </script>
 
 <svelte:head>
-  <title>Eneo.ai – Admin – Usage</title>
+  <title>Eneo.ai – {m.admin()} – {m.usage()}</title>
 </svelte:head>
 
 <Page.Root>
   <Page.Header>
-    <Page.Title title="Usage"></Page.Title>
+    <Page.Title title={m.usage()}></Page.Title>
     <Page.Tabbar>
-      <Page.TabTrigger tab="storage">Storage</Page.TabTrigger>
-      <Page.TabTrigger tab="tokens">Tokens</Page.TabTrigger>
+      <Page.TabTrigger tab="storage">{m.storage()}</Page.TabTrigger>
+      <Page.TabTrigger tab="tokens">{m.tokens()}</Page.TabTrigger>
     </Page.Tabbar>
   </Page.Header>
   <Page.Main>
