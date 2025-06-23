@@ -9,6 +9,7 @@
   import { slide } from "svelte/transition";
   import { onMount } from "svelte";
   import IntricWordMark from "$lib/assets/IntricWordMark.svelte";
+  import { m } from "$lib/paraglide/messages";
 
   export let data;
   const { user } = getAppContext();
@@ -36,7 +37,7 @@
 </script>
 
 <svelte:head>
-  <title>Eneo.ai – Dashboard</title>
+  <title>Eneo.ai – {m.dashboard()}</title>
 </svelte:head>
 
 <div
@@ -58,12 +59,12 @@
       </Dropdown.Trigger>
       <Dropdown.Menu let:item>
         <div class="p-2">
-          Logged in as:<br /><span class="font-mono text-sm">{user.email}</span>
+          {m.logged_in_as()}<br /><span class="font-mono text-sm">{user.email}</span>
         </div>
         <div class="border-default my-1 border-b"></div>
         <Button is={item} variant="destructive" href="/logout" padding="icon-leading">
           <IconLogout />
-          Logout</Button
+          {m.logout()}</Button
         >
       </Dropdown.Menu>
     </Dropdown.Root>

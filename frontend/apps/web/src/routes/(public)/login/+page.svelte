@@ -6,6 +6,7 @@
   import { browser } from "$app/environment";
   import { LoadingScreen } from "$lib/components/layout";
   import IntricWordMark from "$lib/assets/IntricWordMark.svelte";
+  import { m } from "$lib/paraglide/messages";
 
   const { data } = $props();
 
@@ -22,7 +23,7 @@
 </script>
 
 <svelte:head>
-  <title>Eneo.ai – Login</title>
+  <title>Eneo.ai – {m.login()}</title>
 </svelte:head>
 
 {#if data.zitadelLink}
@@ -32,7 +33,7 @@
     <div class="box w-[400px] justify-center">
       <h1 class="flex justify-center">
         <IntricWordMark class="text-brand-intric h-16 w-24" />
-        <span class="sr-only">Eneo</span>
+        <span class="sr-only">{m.app_name()}</span>
       </h1>
 
       <div aria-live="polite">
@@ -40,20 +41,19 @@
           <div
             class="bg-positive-dimmer text-positive-default mb-2 flex flex-col gap-3 p-4 shadow-lg"
           >
-            Successfully logged out!
+            {m.logout_success()}
           </div>{/if}
         {#if message === "expired"}
           <div
             class="bg-warning-dimmer text-warning-default mb-2 flex flex-col gap-3 p-4 shadow-lg"
           >
-            Session expired. Please login again.
+            {m.session_expired_please_login_again()}
           </div>{/if}
         {#if message === "mobilityguard_login_error"}
           <div
             class="bg-negative-dimmer text-negative-default mb-2 flex flex-col gap-3 p-4 shadow-lg"
           >
-            The selected login method was not successful. Please use a different login method or try
-            again later.
+            {m.login_method_failed()}
           </div>{/if}
       </div>
 
@@ -108,13 +108,13 @@
 
           <Button type="submit" disabled={isAwaitingLoginResponse} variant="primary">
             {#if isAwaitingLoginResponse}
-              Logging in...
+              {m.logging_in()}
             {:else}
-              Login
+              {m.login()}
             {/if}
           </Button>
         {:else}
-          <Button variant="primary" href={data.mobilityguardLink}>Login</Button>
+          <Button variant="primary" href={data.mobilityguardLink}>{m.login()}</Button>
         {/if}
       </form>
     </div>

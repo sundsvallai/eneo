@@ -20,3 +20,5 @@
 
 # venv
 .venv/
+
+.CLAUDE.md

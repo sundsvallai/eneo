@@ -1,30 +1,31 @@
 <script lang="ts">
   import { Button } from "@intric/ui";
   import IntricWordMark from "$lib/assets/IntricWordMark.svelte";
+  import { m } from "$lib/paraglide/messages";
 
   export let data;
 </script>
 
 <svelte:head>
-  <title>Eneo.ai – Login failed</title>
+  <title>Eneo.ai – {m.login_failed()}</title>
 </svelte:head>
 
 <div class="relative flex h-[100vh] w-[100vw] items-center justify-center">
   <div class="box w-[400px] justify-center">
     <h1 class="flex justify-center">
       <IntricWordMark class="text-brand-intric h-16 w-20"></IntricWordMark>
-      <span class="hidden">Intric</span>
+      <span class="hidden">{m.intric()}</span>
     </h1>
 
     <div aria-live="polite">
       <div class="bg-warning-dimmer text-warning-default mb-2 flex flex-col gap-3 p-4 shadow-lg">
-        Failed to login to intric.
+        {m.failed_to_login()}
         {data.message}
       </div>
     </div>
 
     <div class="shadowed border-default bg-primary flex flex-col gap-3 p-4">
-      <Button href="/login" variant="primary">Try logging in again</Button>
+      <Button href="/login" variant="primary">{m.try_logging_in_again()}</Button>
     </div>
   </div>
 </div>
