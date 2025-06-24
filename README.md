@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/eneo_logo.png" alt="Eneo Logo" width="400"/>
+<img src="docs/assets/Eneo-logo-svg.svg" alt="Eneo Logo" width="400"/> 
 
 # Eneo
 
@@ -17,7 +17,7 @@
 
 ---
 
-## 🎯 What is Eneo?
+## 🏛️ What is Eneo?
 
 Eneo is an open-source AI platform specifically designed for Swedish public sector organizations to deploy and manage AI assistants while maintaining complete control over data, security, and algorithms. Originally developed by Sundsvall Municipality and Ånge Municipality, Eneo embodies the principle that **"Generative AI must not be a technology for the few, but a technology for everyone."**
 
@@ -40,7 +40,7 @@ Eneo is an open-source AI platform specifically designed for Swedish public sect
 - System prompts and behavior customization
 - Assistant-specific API access for integrations
 
-### 👥 Collaborative Spaces
+### 🏢 Collaborative Spaces
 - **Shared Workspaces**: Team collaboration within organizations
 - **Role-based Access**: Admin, Editor, Viewer roles with granular permissions
 - **Cross-organizational Sharing**: (**TBA** - planned feature)
@@ -52,7 +52,7 @@ Eneo is an open-source AI platform specifically designed for Swedish public sect
 - **Vector Search**: Semantic search using PostgreSQL with pgvector
 - **Real-time Processing**: Background task system for file processing
 
-### 🔄 Real-time Capabilities
+### ⚡ Real-time Capabilities
 - **Streaming Chat**: Server-Sent Events for real-time AI responses
 - **WebSocket Updates**: Live status updates for background tasks
 - **Background Processing**: Async document processing and web crawling with the worker service
@@ -217,7 +217,7 @@ Eneo follows a modern microservices architecture with clean separation of concer
 
 ---
 
-## 🤝 Contributing
+## 🔧 Contributing
 
 Eneo is developed by the Swedish public sector for the global community. Contributions are welcome from municipalities, organizations, and individuals who share our vision of democratic AI.
 
@@ -241,16 +241,10 @@ For detailed guidelines, see our [Contributing Guide](docs/CONTRIBUTING.md).
 
 ---
 
-## 🌍 Community & Governance
+## 🤝 Community & Governance
 
 ### Democratic Control
 Eneo is governed by a user association of public sector organizations, ensuring that development priorities align with public interest rather than commercial goals.
-
-### Success Stories
-> *"Eneo has transformed how we handle citizen inquiries, providing 24/7 support while maintaining complete data control within our municipal boundaries."*  
-> — **Municipal IT Department**
-
-*Want to share your Eneo success story? [Contact us](mailto:digitalisering@sundsvall.se)*
 
 ### User Association
 - **Digital Collaboration**: Join our collaboration space for municipalities
