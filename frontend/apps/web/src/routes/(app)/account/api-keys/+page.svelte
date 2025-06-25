@@ -30,7 +30,7 @@
   </Page.Header>
   <Page.Main>
     <div
-      class="border-default hover:bg-hover-dimmer flex items-center gap-1 border-b py-4 pl-2 pr-4"
+      class="border-default hover:bg-hover-dimmer flex items-center gap-1 border-b py-4 pr-4 pl-2"
     >
       <div class="flex flex-grow flex-col gap-1">
         <h3 class="font-medium">Api Key</h3>

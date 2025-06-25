@@ -18,7 +18,7 @@
 </svelte:head>
 
 <div data-dynamic-colour="blue" class="absolute inset-0 flex flex-grow justify-stretch">
-  <div class="border-default flex flex-col border-r-[0.5px] md:min-w-[17rem] md:max-w-[17rem]">
+  <div class="border-default flex flex-col border-r-[0.5px] md:max-w-[17rem] md:min-w-[17rem]">
     <SpaceSelector showSelectPrompt={true}></SpaceSelector>
     <Navigation.Menu>
       <Navigation.Link

@@ -279,7 +279,7 @@
             >
               <UploadedFileIcon class="min-w-6" {file} />
               <span
-                class="line-clamp-1 overflow-hidden overflow-ellipsis break-words hover:line-clamp-5"
+                class="line-clamp-1 overflow-hidden break-words overflow-ellipsis hover:line-clamp-5"
               >
                 {file.name}
               </span>
