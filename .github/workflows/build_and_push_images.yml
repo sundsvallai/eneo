@@ -6,8 +6,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  BACKEND_IMAGE_NAME: sundsvallai/eneo-backend
-  FRONTEND_IMAGE_NAME: sundsvallai/eneo-frontend
+  BACKEND_IMAGE_NAME: eneo-ai/eneo-backend
+  FRONTEND_IMAGE_NAME: eneo-ai/eneo-frontend
 
 jobs:
   build-and-push-images:
